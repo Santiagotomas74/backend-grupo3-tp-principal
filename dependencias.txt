@@ -1,0 +1,12 @@
+instalables:
+openjdk 17
+node.js 24 lts
+
+extensiones vscode:
+extension pack for java
+spring boot extension pack
+
+generacion dataset:
+python 3.14
+pandas
+

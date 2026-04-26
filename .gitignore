@@ -1,0 +1,13 @@
+target/
+
+# Base de datos H2
+logtrack-db.mv.db
+logtrack-db.trace.db
+*.db
+
+# Node modules
+node_modules/
+
+# IDE
+.vscode/
+.idea/
