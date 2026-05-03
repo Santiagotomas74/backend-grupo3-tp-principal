@@ -1,0 +1,54 @@
+name: Build and Deploy Backend to Pi
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+          cache: maven
+
+      - name: Build with Maven
+        run: ./mvnw clean package -DskipTests
+
+      - name: Install Cloudflared
+        run: |
+          curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
+          sudo dpkg -i cloudflared.deb
+
+      - name: Deploy to Pi via Rsync
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          CF_ID: ${{ secrets.CF_CLIENT_ID }}
+          CF_SECRET: ${{ secrets.CF_CLIENT_SECRET }}
+          PI_USER: ${{ secrets.PI_USERNAME }}
+          PI_HOST: ${{ secrets.PI_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          rsync -avz -e "ssh -o StrictHostKeyChecking=no -o 'ProxyCommand=cloudflared access ssh --hostname %h --service-token-id $CF_ID --service-token-secret $CF_SECRET'" \
+            ./target/*.jar $PI_USER@$PI_HOST:/home/$PI_USER/hytrac/backend/
+
+      - name: Restart Backend Service
+        env:
+          CF_ID: ${{ secrets.CF_CLIENT_ID }}
+          CF_SECRET: ${{ secrets.CF_CLIENT_SECRET }}
+          PI_USER: ${{ secrets.PI_USERNAME }}
+          PI_HOST: ${{ secrets.PI_HOST }}
+        run: |
+          ssh -o StrictHostKeyChecking=no -o "ProxyCommand=cloudflared access ssh --hostname %h --service-token-id $CF_ID --service-token-secret $CF_SECRET" \
+            $PI_USER@$PI_HOST "sudo systemctl restart hytrac-backend.service"
