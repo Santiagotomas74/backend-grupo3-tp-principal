@@ -25,6 +25,12 @@ public class DataSeeder implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
+        // evitar seeding en produccion
+        if (!isSeedingEnabled) {
+            System.out.println("Seeding is disabled. Skipping data generation.");
+            return; // This exits the method immediately
+        }
+
         crearEnvio(
           "Falso 123", "Falso 456", "Operario X", 
           "Nombre Comprador", "12341234", 
