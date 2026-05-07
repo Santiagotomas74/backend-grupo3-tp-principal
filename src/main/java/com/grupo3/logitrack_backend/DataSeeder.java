@@ -1,19 +1,26 @@
 package com.grupo3.logitrack_backend;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import com.grupo3.logitrack_backend.model.*;
 import com.grupo3.logitrack_backend.service.EnvioService;
 
+
 @Component
 public class DataSeeder implements CommandLineRunner {
+
+
 
     private final EnvioService envioService;
 
     public DataSeeder(EnvioService envioService) {
         this.envioService = envioService;
     }
+
+    @Value("${app.seeding.enabled}")
+    private boolean isSeedingEnabled;
 
     @Override
     public void run(String... args) {
