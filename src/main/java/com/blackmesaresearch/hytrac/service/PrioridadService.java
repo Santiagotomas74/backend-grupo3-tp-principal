@@ -4,14 +4,15 @@ import org.springframework.stereotype.Service;
 
 import com.blackmesaresearch.hytrac.model.Prioridad;
 
-import smile.classification.RandomForest;
-import java.io.*;
+// import smile.classification.RandomForest;
+// import java.io.*;
 
 @Service
 public class PrioridadService {
-  private RandomForest modelo;
+  // private RandomForest modelo;
 
   public PrioridadService() {
+    /* 
     try {
       InputStream modeloStream = getClass().getResourceAsStream("/priorityModel.ser");
 
@@ -28,6 +29,7 @@ public class PrioridadService {
     } catch (Exception e) {
       throw new RuntimeException("Error cargando modelo ML", e);
     }
+    */
   }
 
   public Prioridad predecirPrioridad(int distanciaKm, int tipoEnvio,
@@ -35,6 +37,7 @@ public class PrioridadService {
       boolean fragil, boolean frio,
       int saturacionInt) {
 
+    /*    
     if (modelo == null) {
       System.err.println("Modelo ML no disponible, usando prioridad MEDIA por defecto");
       return Prioridad.MEDIA;
@@ -55,6 +58,8 @@ public class PrioridadService {
     int prediccion = modelo.predict(tuple);
 
     return Prioridad.fromCode(prediccion);
+    */ 
+    return Prioridad.MEDIA;
   }
-
+  
 }

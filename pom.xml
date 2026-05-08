@@ -77,11 +77,14 @@
 		</dependency>
 		
 		<!-- Dependencia para SMILE (para el modelo de ML) -->
+
+		<!-- 
 		<dependency>
 			<groupId>com.github.haifengl</groupId>
 			<artifactId>smile-core</artifactId>
 			<version>5.2.2</version>
 		</dependency>
+		-->
 
 	</dependencies>
 
