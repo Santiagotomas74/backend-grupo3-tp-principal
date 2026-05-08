@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
-@TestPropertySource(locations = "classpath:application-test.yml")   // ← Add this line
 class EnvioServiceTest {
 
     @Autowired
