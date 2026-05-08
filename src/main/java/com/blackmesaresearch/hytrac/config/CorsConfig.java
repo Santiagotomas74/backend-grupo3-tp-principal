@@ -1,4 +1,4 @@
-package com.grupo3.logitrack_backend.config;
+package com.blackmesaresearch.hytrac.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

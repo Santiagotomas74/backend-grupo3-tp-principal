@@ -1,4 +1,4 @@
-package com.grupo3.logitrack_backend.controller;
+package com.blackmesaresearch.hytrac.controller;
 
 import org.springframework.web.bind.annotation.*;
 

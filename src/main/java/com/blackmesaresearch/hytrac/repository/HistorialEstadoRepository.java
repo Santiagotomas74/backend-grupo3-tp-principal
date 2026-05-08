@@ -1,8 +1,8 @@
-package com.grupo3.logitrack_backend.repository;
+package com.blackmesaresearch.hytrac.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.grupo3.logitrack_backend.model.HistorialEstado;
+import com.blackmesaresearch.hytrac.model.HistorialEstado;
 
 import java.util.List;
 

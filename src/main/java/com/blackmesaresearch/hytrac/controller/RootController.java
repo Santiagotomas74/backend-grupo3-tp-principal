@@ -1,4 +1,4 @@
-package com.grupo3.logitrack_backend.controller;
+package com.blackmesaresearch.hytrac.controller;
 
 import java.util.Map;
 
@@ -11,7 +11,7 @@ public class RootController {
   @GetMapping("/")
   public Map<String, String> home() {
     return Map.of(
-        "app", "LogiTrack API",
+        "app", "HYTRAC API",
         "status", "ok",
         "swagger", "/swagger-ui/index.html",
         "healthHint", "Use /api/ouch or /api/envios");

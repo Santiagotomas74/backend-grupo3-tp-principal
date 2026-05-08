@@ -1,9 +1,9 @@
-package com.grupo3.logitrack_backend.repository;
+package com.blackmesaresearch.hytrac.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.grupo3.logitrack_backend.model.Envio;
-import com.grupo3.logitrack_backend.model.EstadoEnvio;
+import com.blackmesaresearch.hytrac.model.Envio;
+import com.blackmesaresearch.hytrac.model.EstadoEnvio;
 
 import java.util.List;
 import java.util.Optional;

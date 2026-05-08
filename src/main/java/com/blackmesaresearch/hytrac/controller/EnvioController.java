@@ -1,4 +1,4 @@
-package com.grupo3.logitrack_backend.controller;
+package com.blackmesaresearch.hytrac.controller;
 
 import java.util.List;
 import java.util.Map;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.grupo3.logitrack_backend.model.Envio;
-import com.grupo3.logitrack_backend.model.EstadoEnvio;
-import com.grupo3.logitrack_backend.model.HistorialEstado;
-import com.grupo3.logitrack_backend.model.MetricasDTO;
-import com.grupo3.logitrack_backend.service.EnvioService;
+import com.blackmesaresearch.hytrac.model.Envio;
+import com.blackmesaresearch.hytrac.model.EstadoEnvio;
+import com.blackmesaresearch.hytrac.model.HistorialEstado;
+import com.blackmesaresearch.hytrac.model.MetricasDTO;
+import com.blackmesaresearch.hytrac.service.EnvioService;
 
 @RestController
 @RequestMapping("/api/envios")

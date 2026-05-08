@@ -68,4 +68,4 @@ Como integrantes de este equipo, nos comprometemos a hacer de la participación 
 
 Los propietarios del repositorio son responsables de aclarar los estandares de comportamiento aceptable y de tomar acciones correctivas ante cualquier comportamiento inapropiado.
 
-Prototipo Navegable - LogiTrack ERP @ 2026 - Grupo 3 - UNGS
+Prototipo Navegable - HYTRAC ERP @ 2026 - Grupo 3 - UNGS

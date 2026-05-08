@@ -1,4 +1,4 @@
-package com.grupo3.logitrack_backend;
+package com.blackmesaresearch.hytrac;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

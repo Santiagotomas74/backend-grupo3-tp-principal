@@ -1,8 +1,5 @@
-package com.grupo3.logitrack_backend.service;
+package com.blackmesaresearch.hytrac.test;
 
-import com.grupo3.logitrack_backend.model.*;
-import com.grupo3.logitrack_backend.repository.EnvioRepository;
-import com.grupo3.logitrack_backend.repository.HistorialEstadoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +7,11 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+
+import com.blackmesaresearch.hytrac.model.*;
+import com.blackmesaresearch.hytrac.repository.EnvioRepository;
+import com.blackmesaresearch.hytrac.repository.HistorialEstadoRepository;
+import com.blackmesaresearch.hytrac.service.EnvioService;
 
 import java.util.List;
 import java.util.Optional;

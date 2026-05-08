@@ -1,4 +1,4 @@
-package com.grupo3.logitrack_backend.service;
+package com.blackmesaresearch.hytrac.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -6,9 +6,9 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.grupo3.logitrack_backend.model.*;
-import com.grupo3.logitrack_backend.repository.EnvioRepository;
-import com.grupo3.logitrack_backend.repository.HistorialEstadoRepository;
+import com.blackmesaresearch.hytrac.model.*;
+import com.blackmesaresearch.hytrac.repository.EnvioRepository;
+import com.blackmesaresearch.hytrac.repository.HistorialEstadoRepository;
 
 @Service
 public class EnvioService {

@@ -1,11 +1,11 @@
-package com.grupo3.logitrack_backend;
+package com.blackmesaresearch.hytrac;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import com.grupo3.logitrack_backend.model.*;
-import com.grupo3.logitrack_backend.service.EnvioService;
+import com.blackmesaresearch.hytrac.model.*;
+import com.blackmesaresearch.hytrac.service.EnvioService;
 
 
 @Component

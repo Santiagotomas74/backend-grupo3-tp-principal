@@ -1,4 +1,4 @@
-package com.grupo3.logitrack_backend.model;
+package com.blackmesaresearch.hytrac.model;
 
 public enum Saturacion {
   BAJA(0),

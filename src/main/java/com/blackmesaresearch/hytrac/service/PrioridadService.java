@@ -1,8 +1,8 @@
-package com.grupo3.logitrack_backend.service;
+package com.blackmesaresearch.hytrac.service;
 
 import org.springframework.stereotype.Service;
 
-import com.grupo3.logitrack_backend.model.Prioridad;
+import com.blackmesaresearch.hytrac.model.Prioridad;
 
 import smile.classification.RandomForest;
 import java.io.*;
