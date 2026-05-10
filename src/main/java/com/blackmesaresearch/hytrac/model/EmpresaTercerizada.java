@@ -1,4 +1,8 @@
 package com.blackmesaresearch.hytrac.model;
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.*;
 import lombok.*;
 

@@ -1,16 +1,21 @@
 package com.blackmesaresearch.hytrac.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Orden_Carga")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrdenCarga {
 
-  
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
@@ -50,11 +55,8 @@ public class OrdenCarga {
   private Combustible combustible;
 
   @ManyToOne
-  @JoinColumn(name= "estado_orden_carga_id")
+  @JoinColumn(name = "estado_orden_carga_id")
   private EstadoOrdenCarga estadoOrdenCarga;
-
-  @Column(name = "fecha_creacion", nullable = false)
-  private LocalDateTime fechaCreacion;
 
   @Column(name = "fecha_salida_planta")
   private LocalDateTime fechaSalidaPlanta;
@@ -82,4 +84,12 @@ public class OrdenCarga {
 
   @Column(name = "observaciones", columnDefinition = "TEXT")
   private String observaciones;
+
+  @CreationTimestamp
+  @Column(name = "fecha_creacion", updatable = false)
+  private LocalDateTime fechaCreacion;
+
+  @UpdateTimestamp
+  @Column(name = "fecha_modificacion")
+  private LocalDateTime fechaModificacion;
 }

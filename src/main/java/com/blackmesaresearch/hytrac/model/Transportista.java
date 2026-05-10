@@ -15,7 +15,7 @@ public class Transportista {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OnetoOne
+    @OneToOne
     @JoinColumn(name = "usuario_id", unique = true)
     private Usuario usuario;
 

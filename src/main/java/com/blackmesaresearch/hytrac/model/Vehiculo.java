@@ -36,7 +36,7 @@ public class Vehiculo {
     @JoinColumn(name = "estado_id")
     private EstadoVehiculo estado;
 
-    @creationTimestamp
+    @CreationTimestamp
     @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
 

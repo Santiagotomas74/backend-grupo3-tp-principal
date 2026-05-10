@@ -3,7 +3,7 @@ package com.blackmesaresearch.hytrac.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import ort.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -40,7 +40,7 @@ public class Usuario {
     @JoinColumn(name = "lugar_operativo_id")
     private LugarOperativo lugarOperativo;
 
-    @ManytoMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "Usuario_Rol",
         joinColumns = @JoinColumn(name = "usuario_id"),
