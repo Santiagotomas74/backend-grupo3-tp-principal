@@ -7,17 +7,17 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import com.blackmesaresearch.hytrac.model.*;
-import com.blackmesaresearch.hytrac.repository.EnvioRepository;
+import com.blackmesaresearch.hytrac.repository.OrdenCargaRepository;
 import com.blackmesaresearch.hytrac.repository.HistorialEstadoRepository;
 
 @Service
 public class EnvioService {
 
-  private final EnvioRepository envioRepo;
+  private final OrdenCargaRepository envioRepo;
   private final HistorialEstadoRepository historialEstadoRepo;
   private final PrioridadService prioridadService;
 
-  public EnvioService(EnvioRepository envioRepo,
+  public EnvioService(OrdenCargaRepository envioRepo,
       HistorialEstadoRepository historialEstadoRepo,
       PrioridadService prioridadService) {
     this.envioRepo = envioRepo;

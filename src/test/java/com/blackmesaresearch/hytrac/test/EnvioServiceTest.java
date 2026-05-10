@@ -9,7 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 
 import com.blackmesaresearch.hytrac.model.*;
-import com.blackmesaresearch.hytrac.repository.EnvioRepository;
+import com.blackmesaresearch.hytrac.repository.OrdenCargaRepository;
 import com.blackmesaresearch.hytrac.repository.HistorialEstadoRepository;
 import com.blackmesaresearch.hytrac.service.EnvioService;
 
@@ -27,7 +27,7 @@ class EnvioServiceTest {
     private EnvioService envioService;
 
     @Autowired
-    private EnvioRepository envioRepository;
+    private OrdenCargaRepository envioRepository;
 
     @Autowired
     private HistorialEstadoRepository historialEstadoRepository;
