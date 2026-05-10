@@ -1,31 +1,24 @@
 package com.blackmesaresearch.hytrac.model;
 
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "Localidad")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+
 public class Localidad {
-    private final Integer id;
-    private final Integer provinciaId;
-    private final String nombre;
-    private final String codigoPostal;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public Localidad(Integer id, Integer provinciaId, String nombre, String codigoPostal) {
-        this.id = id;
-        this.provinciaId = provinciaId;
-        this.nombre = nombre;
-        this.codigoPostal = codigoPostal;
-    }
+    @Column(nullable = false)
+    private String nombre;
 
-    public Integer getId() {
-        return id;
-    }
+    @ManyToOne
+    @JoinColumn(name = "provincia_id")
+    private Provincia provincia;
 
-    public Integer getProvinciaId() {
-        return provinciaId;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getCodigoPostal() {
-        return codigoPostal;
-    }
+    @Column(name = "codigo_postal", nullable = false)
+    private String codigoPostal;
 }

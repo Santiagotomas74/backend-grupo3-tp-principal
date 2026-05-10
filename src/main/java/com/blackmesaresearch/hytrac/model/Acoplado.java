@@ -1,53 +1,42 @@
 package com.blackmesaresearch.hytrac.model;
 
-import java.math.BigDecimal;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
+
+@Entity
+@Table(name = "Acoplado")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+
 public class Acoplado {
-    private final Integer id;
-    private final String patente;
-    private final BigDecimal capacidadMaximaLitros;
-    private final Integer empresaId;
-    private final Integer estadoId;
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public Acoplado(Integer id, String patente, BigDecimal capacidadMaximaLitros,
-            Integer empresaId, Integer estadoId, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.patente = patente;
-        this.capacidadMaximaLitros = capacidadMaximaLitros;
-        this.empresaId = empresaId;
-        this.estadoId = estadoId;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
+    @Column(unique = true, nullable = false)
+    private String patente;
 
-    public Integer getId() {
-        return id;
-    }
+    @Column(name = "capacidad_maxima_litros", nullable = false)
+    private Double capacidadMaximaLitros;
 
-    public String getPatente() {
-        return patente;
-    }
+    @ManyToOne
+    @JoinColumn(name = "empresa_id")
+    private EmpresaTercerizada empresa;
 
-    public Integer getEmpresaId() {
-        return empresaId;
-    }
+    @ManyToOne
+    @JoinColumn(name = "estado_vehiculo_id")
+    private EstadoVehiculo estado;
 
-    public BigDecimal getCapacidadTotalLitros() {
-        return capacidadMaximaLitros;
-    }
+    @CreationTimestamp
+    @Column(name = "fecha_creacion", updatable = false)
+    private LocalDateTime fechaCreacion;
 
-    public Integer getEstadoId() {
-        return estadoId;
-    }
+    @UpdateTimestamp
+    @Column(name = "fecha_modificacion")
+    private LocalDateTime fechaModificacion;
+    
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
 }

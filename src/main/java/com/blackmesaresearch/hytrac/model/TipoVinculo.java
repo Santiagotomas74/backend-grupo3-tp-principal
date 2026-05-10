@@ -1,15 +1,16 @@
-// TipoVinculo.java
 package com.blackmesaresearch.hytrac.model;
 
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "Tipo_Vinculo")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class TipoVinculo {
-    private final Integer id;
-    private final String nombre;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public TipoVinculo(Integer id, String nombre) {
-        this.id = id;
-        this.nombre = nombre;
-    }
-
-    public Integer getId() { return id; }
-    public String getNombre() { return nombre; }
+    @Column(unique = true, nullable = false)
+    private String nombre;
 }

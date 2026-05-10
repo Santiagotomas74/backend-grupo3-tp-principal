@@ -1,84 +1,53 @@
 package com.blackmesaresearch.hytrac.model;
 
-import java.math.BigDecimal;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
+
+@Entity
+@Table(name = "LugarOperativo")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class LugarOperativo {
-    private final Integer id;
-    private final Integer tipoId;
-    private final String nombre;
-    private final String direccion;
-    private final Integer localidadId;
-    private final BigDecimal latitud;
-    private final BigDecimal longitud;
-    private final boolean puedeRecibir;
-    private final boolean puedeDespachar;
-    private final boolean activo;
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public LugarOperativo(Integer id, Integer tipoId, String nombre, String direccion, Integer localidadId,
-            BigDecimal latitud, BigDecimal longitud, boolean puedeRecibir,
-            boolean puedeDespachar, boolean activo, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.tipoId = tipoId;
-        this.nombre = nombre;
-        this.direccion = direccion;
-        this.localidadId = localidadId;
-        this.latitud = latitud;
-        this.longitud = longitud;
-        this.puedeRecibir = puedeRecibir;
-        this.puedeDespachar = puedeDespachar;
-        this.activo = activo;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
+    @ManyToOne
+    @JoinColumn(name = "tipo_id")
+    private TipoLugarOperativo tipo;
 
-    public Integer getId() {
-        return id;
-    }
+    @Column(nullable = false)
+    private String nombre;
 
-    public Integer getTipoId() {
-        return tipoId;
-    }
+    @Column(nullable = false)
+    private String direccion;
 
-    public String getNombre() {
-        return nombre;
-    }
+    @ManyToOne
+    @JoinColumn(name = "localidad_id")
+    private Localidad localidad;
 
-    public String getDireccion() {
-        return direccion;
-    }
+    private Double latitud;
+    private Double longitud;
 
-    public Integer getLocalidadId() {
-        return localidadId;
-    }
+    @Column(name = "puede_recibir")
+    private Boolean puedeRecibir;
 
-    public BigDecimal getLatitud() {
-        return latitud;
-    }
+    @Column(name = "puede_despachar")
+    private Boolean puedeDespachar;
 
-    public BigDecimal getLongitud() {
-        return longitud;
-    }
 
-    public boolean isPuedeRecibir() {
-        return puedeRecibir;
-    }
+    private boolean activo = true;
 
-    public boolean isPuedeDespachar() {
-        return puedeDespachar;
-    }
+    @CreationTimestamp
+    @Column(name = "fecha_creacion", updatable = false)
+    private LocalDateTime fechaCreacion;
 
-    public boolean isActivo() {
-        return activo;
-    }
+    @UpdateTimestamp
+    @Column(name = "fecha_modificacion")
+    private LocalDateTime fechaModificacion;
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
 
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
 }

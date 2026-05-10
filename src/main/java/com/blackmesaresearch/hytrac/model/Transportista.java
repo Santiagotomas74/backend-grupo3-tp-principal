@@ -1,35 +1,45 @@
 package com.blackmesaresearch.hytrac.model;
 
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
+
+@Entity
+@Table(name = "Transportista")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Transportista {
-    private final Integer id;
-    private final Integer usuarioId;
-    private final Integer tipoVinculoId;
-    private final String cuit;
-    private final Integer empresaId;
-    private final boolean activo;
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public Transportista(Integer id, Integer usuarioId, Integer tipoVinculoId, String cuit, 
-                         Integer empresaId, boolean activo, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.usuarioId = usuarioId;
-        this.tipoVinculoId = tipoVinculoId;
-        this.cuit = cuit;
-        this.empresaId = empresaId;
-        this.activo = activo;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
+    @OnetoOne
+    @JoinColumn(name = "usuario_id", unique = true)
+    private Usuario usuario;
 
-    public Integer getId() { return id; }
-    public Integer getUsuarioId() { return usuarioId; }
-    public Integer getTipoVinculoId() { return tipoVinculoId; }
-    public String getCuit() { return cuit; }
-    public Integer getEmpresaId() { return empresaId; }
-    public boolean isActivo() { return activo; }
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    @ManyToOne
+    @JoinColumn(name = "tipo_vinculo_id")
+    private TipoVinculo tipoVinculo;
+
+    @Column(unique = true, nullable = false)
+    private String cuit;
+
+    @ManyToOne
+    @JoinColumn(name = "empresa_id")
+    private EmpresaTercerizada empresa;
+
+    @Column(nullable = false)
+    private boolean activo = true;
+
+    @CreationTimestamp
+    @Column(name = "fecha_creacion", updatable = false)
+    private LocalDateTime fechaCreacion;
+
+    @UpdateTimestamp
+    @Column(name = "fecha_modificacion")
+    private LocalDateTime fechaModificacion;
+
+
 }

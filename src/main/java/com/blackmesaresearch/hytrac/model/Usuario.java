@@ -1,77 +1,59 @@
 package com.blackmesaresearch.hytrac.model;
 
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import ort.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
+import java.util.Set;
 
+@Entity
+@Table (name = "Usuario")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Usuario {
-    private final Integer id;
-    private final String nombre;
-    private final String apellido;
-    private final Long dni;
-    private final String email;
-    private final String legajo;
-    private final String passwordHash;
-    private final boolean activo;
-    private final Integer lugarOperativoId;
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public Usuario(Integer id, String nombre, String apellido, Long dni, String email,
-            String legajo, String passwordHash, boolean activo,
-            Integer lugarOperativoId, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.dni = dni;
-        this.email = email;
-        this.legajo = legajo;
-        this.passwordHash = passwordHash;
-        this.activo = activo;
-        this.lugarOperativoId = lugarOperativoId;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
+    @Column(name = "nombre", nullable = false)
+    private String nombre;
 
-    public Integer getId() {
-        return id;
-    }
+    @Column(name = "apellido", nullable = false)
+    private String apellido;
 
-    public String getNombre() {
-        return nombre;
-    }
+    @Column(name = "dni", unique = true, nullable = false)
+    private Long dni;
 
-    public String getApellido() {
-        return apellido;
-    }
+    @Column(name = "email", unique = true, nullable = false)
+    private String email;
 
-    public Long getDni() {
-        return dni;
-    }
+    @Column(name = "legajo", unique = true, nullable = false)
+    private String legajo;
 
-    public String getEmail() {
-        return email;
-    }
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
-    public String getLegajo() {
-        return legajo;
-    }
+    @Column(nullable = false)
+    private boolean activo = true;
 
-    public String getPasswordHash() {
-        return passwordHash;
-    }
+    @ManyToOne
+    @JoinColumn(name = "lugar_operativo_id")
+    private LugarOperativo lugarOperativo;
 
-    public boolean isActivo() {
-        return activo;
-    }
+    @ManytoMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "Usuario_Rol",
+        joinColumns = @JoinColumn(name = "usuario_id"),
+        inverseJoinColumns = @JoinColumn(name = "rol_id")
+    )
+    private Set<Rol> roles;
 
-    public Integer getLugarOperativoId() {
-        return lugarOperativoId;
-    }
+    @CreationTimestamp
+    @Column(name = "fecha_creacion", updatable = false)
+    private LocalDateTime fechaCreacion;
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
+    @UpdateTimestamp
+    @Column(name = "fecha_modificacion")
+    private LocalDateTime fechaModificacion;
+    
 }

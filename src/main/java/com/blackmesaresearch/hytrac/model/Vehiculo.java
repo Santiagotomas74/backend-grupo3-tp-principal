@@ -1,65 +1,47 @@
 package com.blackmesaresearch.hytrac.model;
 
-import java.math.BigDecimal;
+import jakarta.persistence.*; 
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
+
+@Entity
+@Table(name = "Vehiculo")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Vehiculo {
-    private final Integer id;
-    private final String patente;
-    private final Integer empresaId;
-    private final BigDecimal capacidadTotalLitros;
-    private final String marca;
-    private final String modelo;
-    private final Integer estadoId;
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public Vehiculo(Integer id, String patente, Integer empresaId, BigDecimal capacidadTotalLitros,
-            String marca, String modelo, Integer estadoId, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.patente = patente;
-        this.empresaId = empresaId;
-        this.capacidadTotalLitros = capacidadTotalLitros;
-        this.marca = marca;
-        this.modelo = modelo;
-        this.estadoId = estadoId;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
+    @Column(unique = true,nullable = false)
+    private String patente;
 
-    public Integer getId() {
-        return id;
-    }
+    @ManyToOne
+    @JoinColumn(name = "empresa_id")
+    private EmpresaTercerizada empresa;
 
-    public String getPatente() {
-        return patente;
-    }
+    @Column(name = "capacidad_total_litros", nullable = false)
+    private Double capacidadTotalLitros;
 
-    public Integer getEmpresaId() {
-        return empresaId;
-    }
+    @Column(nullable = false)
+    private String marca;
 
-    public BigDecimal getCapacidadTotalLitros() {
-        return capacidadTotalLitros;
-    }
+    @Column(nullable = false)
+    private String modelo;
 
-    public String getMarca() {
-        return marca;
-    }
 
-    public String getModelo() {
-        return modelo;
-    }
+    @ManyToOne
+    @JoinColumn(name = "estado_id")
+    private EstadoVehiculo estado;
 
-    public Integer getEstadoId() {
-        return estadoId;
-    }
+    @creationTimestamp
+    @Column(name = "fecha_creacion", updatable = false)
+    private LocalDateTime fechaCreacion;
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
+    @UpdateTimestamp
+    @Column(name = "fecha_modificacion")
+    private LocalDateTime fechaModificacion;
+    
 }

@@ -1,46 +1,29 @@
 package com.blackmesaresearch.hytrac.model;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.math.BigDecimal;
 
+@Entity
+@Table(name = "Combustible")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class Combustible {
-    private final Integer id;
-    private final String nombre;
-    private final String numeroOnu;
-    private final String claseRiesgo;
-    private final BigDecimal densidad;
-    private final BigDecimal temperaturaReferencia;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public Combustible(Integer id, String nombre, String numeroOnu, String claseRiesgo,
-            BigDecimal densidad, BigDecimal temperaturaReferencia) {
-        this.id = id;
-        this.nombre = nombre;
-        this.numeroOnu = numeroOnu;
-        this.claseRiesgo = claseRiesgo;
-        this.densidad = densidad;
-        this.temperaturaReferencia = temperaturaReferencia;
-    }
+    @Column(unique = true, nullable = false)
+    private String nombre;
 
-    public Integer getId() {
-        return id;
-    }
+    @Column(name = "numero_onu", nullable = false)
+    private String numeroOnu;
 
-    public String getNombre() {
-        return nombre;
-    }
+    @Column(name = "clase_riesgo", nullable = false)
+    private String claseRiesgo;
 
-    public String getNumeroOnu() {
-        return numeroOnu;
-    }
+    @Column(name = "densidad", nullable = false)
+    private Double densidad;
 
-    public String getClaseRiesgo() {
-        return claseRiesgo;
-    }
+    @Column(name = "temperatura_referencia", nullable = false)
+    private Double temperaturaReferencia;
 
-    public BigDecimal getDensidad() {
-        return densidad;
-    }
-
-    public BigDecimal getTemperaturaReferencia() {
-        return temperaturaReferencia;
-    }
 }

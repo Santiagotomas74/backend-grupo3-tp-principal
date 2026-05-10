@@ -1,146 +1,85 @@
 package com.blackmesaresearch.hytrac.model;
 
-import java.math.BigDecimal;
+import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
-import com.blackmesaresearch.hytrac.model.enums.EstadoOrdenCarga;
-
+@Entity
+@Table(name = "Orden_Carga")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class OrdenCarga {
-    private final Integer id;
-    private final String numeroRemito;
-    private final String cot;
-    private final Integer camionId;
-    private final Integer acopladoId;
-    private final Integer transportistaId;
-    private final Integer plantaDespachoId;
-    private final Integer estacionDestinoId;
-    private final Integer operadorId;
-    private final Integer combustibleId;
-    private final EstadoOrdenCarga estado;
-    private final LocalDateTime fechaCreacion;
-    private final LocalDateTime fechaSalidaPlanta;
-    private final LocalDateTime fechaEntregaEstimada;
-    private final LocalDateTime fechaEntregaReal;
-    private final BigDecimal temperaturaCarga;
-    private final BigDecimal densidadCarga;
-    private final BigDecimal litrosCargados;
-    private final BigDecimal litrosEntregados;
-    private final boolean fieAdjunta;
-    private final String observaciones;
 
-    // EXACT CONSTRUCTOR MATCH
-    public OrdenCarga(Integer id, String numeroRemito, String cot, Integer camionId, 
-                      Integer acopladoId, Integer transportistaId, Integer plantaDespachoId, 
-                      Integer estacionDestinoId, Integer operadorId, Integer combustibleId, 
-                      EstadoOrdenCarga estado, LocalDateTime fechaCreacion, LocalDateTime fechaSalidaPlanta, 
-                      LocalDateTime fechaEntregaEstimada, LocalDateTime fechaEntregaReal, 
-                      BigDecimal temperaturaCarga, BigDecimal densidadCarga, 
-                      BigDecimal litrosCargados, BigDecimal litrosEntregados, 
-                      boolean fieAdjunta, String observaciones) {
-        this.id = id;
-        this.numeroRemito = numeroRemito;
-        this.cot = cot;
-        this.camionId = camionId;
-        this.acopladoId = acopladoId;
-        this.transportistaId = transportistaId;
-        this.plantaDespachoId = plantaDespachoId;
-        this.estacionDestinoId = estacionDestinoId;
-        this.operadorId = operadorId;
-        this.combustibleId = combustibleId;
-        this.estado = estado;
-        this.fechaCreacion = fechaCreacion;
-        this.fechaSalidaPlanta = fechaSalidaPlanta;
-        this.fechaEntregaEstimada = fechaEntregaEstimada;
-        this.fechaEntregaReal = fechaEntregaReal;
-        this.temperaturaCarga = temperaturaCarga;
-        this.densidadCarga = densidadCarga;
-        this.litrosCargados = litrosCargados;
-        this.litrosEntregados = litrosEntregados;
-        this.fieAdjunta = fieAdjunta;
-        this.observaciones = observaciones;
-    }
+  
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
 
-    public Integer getId() {
-        return id;
-    }
+  @Column(name = "numero_remito", unique = true, nullable = false)
+  private String numeroRemito;
 
-    public String getNumeroRemito() {
-        return numeroRemito;
-    }
+  @Column(unique = true, nullable = false)
+  private String cot;
 
-    public String getCot() {
-        return cot;
-    }
+  @ManyToOne
+  @JoinColumn(name = "camion_id")
+  private Vehiculo camion;
 
-    public Integer getCamionId() {
-        return camionId;
-    }
+  @ManyToOne
+  @JoinColumn(name = "acoplado_id")
+  private Acoplado acoplado;
 
-    public Integer getAcopladoId() {
-        return acopladoId;
-    }
+  @ManyToOne
+  @JoinColumn(name = "transportista_id")
+  private Transportista transportista;
 
-    public Integer getTransportistaId() {
-        return transportistaId;
-    }
+  @ManyToOne
+  @JoinColumn(name = "planta_despacho_id")
+  private LugarOperativo plantaDespacho;
 
-    public Integer getPlantaDespachoId() {
-        return plantaDespachoId;
-    }
+  @ManyToOne
+  @JoinColumn(name = "estacion_destino_id")
+  private LugarOperativo estacionDestino;
 
-    public Integer getEstacionDestinoId() {
-        return estacionDestinoId;
-    }
+  @ManyToOne
+  @JoinColumn(name = "operador_id")
+  private Usuario operador;
 
-    public Integer getOperadorId() {
-        return operadorId;
-    }
+  @ManyToOne
+  @JoinColumn(name = "combustible_id")
+  private Combustible combustible;
 
-    public Integer getCombustibleId() {
-        return combustibleId;
-    }
+  @ManyToOne
+  @JoinColumn(name= "estado_orden_carga_id")
+  private EstadoOrdenCarga estadoOrdenCarga;
 
-    public EstadoOrdenCarga getEstado() {
-        return estado;
-    }
+  @Column(name = "fecha_creacion", nullable = false)
+  private LocalDateTime fechaCreacion;
 
-    public LocalDateTime getFechaCreacion() {
-        return fechaCreacion;
-    }
+  @Column(name = "fecha_salida_planta")
+  private LocalDateTime fechaSalidaPlanta;
 
-    public LocalDateTime getFechaSalidaPlanta() {
-        return fechaSalidaPlanta;
-    }
+  @Column(name = "fecha_entrega_estimada")
+  private LocalDateTime fechaEntregaEstimada;
 
-    public LocalDateTime getFechaEntregaEstimada() {
-        return fechaEntregaEstimada;
-    }
+  @Column(name = "fecha_entrega_real")
+  private LocalDateTime fechaEntregaReal;
 
-    public LocalDateTime getFechaEntregaReal() {
-        return fechaEntregaReal;
-    }
+  @Column(name = "temperatura_carga")
+  private Double temperaturaCarga;
 
-    public BigDecimal getTemperaturaCarga() {
-        return temperaturaCarga;
-    }
+  @Column(name = "densidad_carga")
+  private Double densidadCarga;
 
-    public BigDecimal getDensidadCarga() {
-        return densidadCarga;
-    }
+  @Column(name = "litros_cargados")
+  private Double litrosCargados;
 
-    public BigDecimal getLitrosCargados() {
-        return litrosCargados;
-    }
+  @Column(name = "litros_entregados")
+  private Double litrosEntregados;
 
-    public BigDecimal getLitrosEntregados() {
-        return litrosEntregados;
-    }
+  @Column(name = "fie_adjunta")
+  private Boolean fieAdjunta = false;
 
-    public boolean isFieAdjunta() {
-        return fieAdjunta;
-    }
-
-    public String getObservaciones() {
-        return observaciones;
-    }
+  @Column(name = "observaciones", columnDefinition = "TEXT")
+  private String observaciones;
 }

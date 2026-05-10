@@ -1,71 +1,44 @@
 package com.blackmesaresearch.hytrac.model;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "Empresa_Tercerizada")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor
 public class EmpresaTercerizada {
-    private final Integer id;
-    private final String nombreFantasia;
-    private final String razonSocial;
-    private final String cuit;
-    private final String direccion;
-    private final Integer localidadId;
-    private final String telefono;
-    private final boolean activo;
-    private final LocalDateTime createdAt;
-    private final LocalDateTime updatedAt;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
-    public EmpresaTercerizada(Integer id, String nombreFantasia, String razonSocial, String cuit,
-            String direccion, Integer localidadId, String telefono, boolean activo,
-            LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.id = id;
-        this.nombreFantasia = nombreFantasia;
-        this.razonSocial = razonSocial;
-        this.cuit = cuit;
-        this.direccion = direccion;
-        this.localidadId = localidadId;
-        this.telefono = telefono;
-        this.activo = activo;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
+    @Column(name = "nombre_fantasia", nullable = false)
+    private String nombreFantasia;
 
-    public Integer getId() {
-        return id;
-    }
+    @Column(name = "razon_social", nullable = false)
+    private String razonSocial;
 
-    public String getNombreFantasia() {
-        return nombreFantasia;
-    }
+    @Column(name = "cuit", unique = true, nullable = false)
+    private String cuit;
 
-    public String getRazonSocial() {
-        return razonSocial;
-    }
+    @Column(name = "direccion", nullable = false)
+    private String direccion;
 
-    public String getCuit() {
-        return cuit;
-    }
+    @ManyToOne
+    @JoinColumn(name = "localidad_id")
+    private Localidad localidad;
 
-    public String getDireccion() {
-        return direccion;
-    }
+    @Column(name = "telefono")
+    private String telefono;
 
-    public Integer getLocalidadId() {
-        return localidadId;
-    }
+    @Column(name = "activo", nullable = false)
+    private boolean activo = true;
 
-    public String getTelefono() {
-        return telefono;
-    }
+    @CreationTimestamp
+    @Column(name = "fecha_creacion", updatable = false)
+    private LocalDateTime fechaCreacion;
 
-    public boolean isActivo() {
-        return activo;
-    }
+    @CreationTimestamp
+    @Column(name = "fecha_modificacion")
+    private LocalDateTime fechaModificacion;
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
 }
