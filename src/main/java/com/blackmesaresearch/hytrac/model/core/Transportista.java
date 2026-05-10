@@ -1,34 +1,40 @@
-package com.blackmesaresearch.hytrac.model;
+package com.blackmesaresearch.hytrac.model.core;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import com.blackmesaresearch.hytrac.model.lookup.TipoVinculo;
+
 import java.time.LocalDateTime;
 
 
 @Entity
-@Table(name = "Acoplado")
+@Table(name = "Transportista")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-
-public class Acoplado {
+public class Transportista {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true, nullable = false)
-    private String patente;
+    @OneToOne
+    @JoinColumn(name = "usuario_id", unique = true)
+    private Usuario usuario;
 
-    @Column(name = "capacidad_maxima_litros", nullable = false)
-    private Double capacidadMaximaLitros;
+    @ManyToOne
+    @JoinColumn(name = "tipo_vinculo_id")
+    private TipoVinculo tipoVinculo;
+
+    @Column(unique = true, nullable = false)
+    private String cuit;
 
     @ManyToOne
     @JoinColumn(name = "empresa_id")
     private EmpresaTercerizada empresa;
 
-    @ManyToOne
-    @JoinColumn(name = "estado_vehiculo_id")
-    private EstadoVehiculo estado;
+    @Column(nullable = false)
+    private boolean activo = true;
 
     @CreationTimestamp
     @Column(name = "fecha_creacion", updatable = false)
@@ -37,6 +43,6 @@ public class Acoplado {
     @UpdateTimestamp
     @Column(name = "fecha_modificacion")
     private LocalDateTime fechaModificacion;
-    
+
 
 }

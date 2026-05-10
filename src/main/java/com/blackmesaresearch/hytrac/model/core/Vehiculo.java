@@ -1,37 +1,43 @@
-package com.blackmesaresearch.hytrac.model;
+package com.blackmesaresearch.hytrac.model.core;
 
-import jakarta.persistence.*;
+import jakarta.persistence.*; 
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import com.blackmesaresearch.hytrac.model.lookup.EstadoVehiculo;
+
 import java.time.LocalDateTime;
 
 
 @Entity
-@Table(name = "Transportista")
+@Table(name = "Vehiculo")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
-public class Transportista {
+public class Vehiculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne
-    @JoinColumn(name = "usuario_id", unique = true)
-    private Usuario usuario;
-
-    @ManyToOne
-    @JoinColumn(name = "tipo_vinculo_id")
-    private TipoVinculo tipoVinculo;
-
-    @Column(unique = true, nullable = false)
-    private String cuit;
+    @Column(unique = true,nullable = false)
+    private String patente;
 
     @ManyToOne
     @JoinColumn(name = "empresa_id")
     private EmpresaTercerizada empresa;
 
+    @Column(name = "capacidad_total_litros", nullable = false)
+    private Double capacidadTotalLitros;
+
     @Column(nullable = false)
-    private boolean activo = true;
+    private String marca;
+
+    @Column(nullable = false)
+    private String modelo;
+
+
+    @ManyToOne
+    @JoinColumn(name = "estado_id")
+    private EstadoVehiculo estado;
 
     @CreationTimestamp
     @Column(name = "fecha_creacion", updatable = false)
@@ -40,6 +46,5 @@ public class Transportista {
     @UpdateTimestamp
     @Column(name = "fecha_modificacion")
     private LocalDateTime fechaModificacion;
-
-
+    
 }

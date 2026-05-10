@@ -1,9 +1,13 @@
-package com.blackmesaresearch.hytrac.model;
+package com.blackmesaresearch.hytrac.model.core;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+
+import com.blackmesaresearch.hytrac.model.lookup.TipoLugarOperativo;
+import com.blackmesaresearch.hytrac.model.reference.Localidad;
+
 import java.time.LocalDateTime;
 
 

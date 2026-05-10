@@ -1,14 +1,12 @@
-package com.blackmesaresearch.hytrac.model;
-
+package com.blackmesaresearch.hytrac.model.reference;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Entity
-@Table(name = "Estado_Orden_Carga")
+@Table(name = "Provincia")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor
 
-public class EstadoOrdenCarga {
+public class Provincia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

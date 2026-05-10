@@ -1,6 +1,6 @@
 package com.blackmesaresearch.hytrac.repository;
 
-import com.blackmesaresearch.hytrac.model.OrdenCarga;
+import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
 import com.blackmesaresearch.hytrac.model.enums.EstadoOrdenCarga;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.JdbcClient;

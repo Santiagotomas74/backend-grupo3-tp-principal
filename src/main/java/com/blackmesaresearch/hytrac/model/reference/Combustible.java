@@ -1,4 +1,4 @@
-package com.blackmesaresearch.hytrac.model;
+package com.blackmesaresearch.hytrac.model.reference;
 import jakarta.persistence.*;
 import lombok.*;
 
