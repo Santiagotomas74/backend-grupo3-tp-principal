@@ -11,8 +11,11 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
-@Table (name = "Usuario")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Table(name = "Usuario")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,19 +47,15 @@ public class Usuario {
     private LugarOperativo lugarOperativo;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "Usuario_Rol",
-        joinColumns = @JoinColumn(name = "usuario_id"),
-        inverseJoinColumns = @JoinColumn(name = "rol_id")
-    )
+    @JoinTable(name = "Usuario_Rol", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "rol_id"))
     private Set<Rol> roles;
 
     @CreationTimestamp
-    @Column(name = "fecha_creacion", updatable = false)
-    private LocalDateTime fechaCreacion;
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "fecha_modificacion")
-    private LocalDateTime fechaModificacion;
-    
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
 }

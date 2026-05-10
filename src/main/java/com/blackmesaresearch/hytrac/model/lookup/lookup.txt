@@ -1,1 +1,0 @@
-Tablas de consulta frecuente especificas de nuestro sistema, que no requieren actualizaciones frecuentes
