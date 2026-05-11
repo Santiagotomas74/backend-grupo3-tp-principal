@@ -92,6 +92,12 @@
 			<version>2.3.0</version>
 		</dependency>
 		
+		<!-- Dependencia para Autenticacion -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
 		<!-- Dependencia para SMILE (para el modelo de ML) -->
 
 		<!-- 

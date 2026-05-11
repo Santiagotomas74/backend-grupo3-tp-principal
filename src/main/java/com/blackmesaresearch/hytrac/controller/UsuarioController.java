@@ -1,10 +1,7 @@
 package com.blackmesaresearch.hytrac.controller;
 
-import java.util.List;
-
 import org.springframework.web.bind.annotation.*;
 
-import com.blackmesaresearch.hytrac.model.core.Usuario;
 import com.blackmesaresearch.hytrac.service.UsuarioService;
 
 @RestController
@@ -18,8 +15,4 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
-    @GetMapping("/get")
-    public List<Usuario> obtenerUsuarios() {
-        return usuarioService.obtenerTodos();
-    }
 }

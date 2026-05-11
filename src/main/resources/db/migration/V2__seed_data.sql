@@ -189,7 +189,8 @@ INSERT INTO Usuario (
     40111222,
     'admin@hytrac.com',
     'LEG001',
-    'admin123',
+    -- password hasheado con BCrypt. es 'wearehytrac'
+    '$2a$10$stXoA.WRjdOH3tDxPBkiKOtfIcWs0r/7iMNFEBleKJhXPoY5sozm.',
     1,
     1,
     CURRENT_TIMESTAMP,
