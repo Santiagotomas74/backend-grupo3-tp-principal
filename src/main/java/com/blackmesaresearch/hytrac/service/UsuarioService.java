@@ -1,5 +1,7 @@
 package com.blackmesaresearch.hytrac.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.blackmesaresearch.hytrac.model.core.Usuario;
@@ -17,5 +19,9 @@ public class UsuarioService {
     public Usuario buscarPorEmail(String email) {
         return usuarioRepository.findByEmail(email)
             .orElseThrow();
+    }
+
+    public List<Usuario> obtenerTodos() {
+        return usuarioRepository.findAll();
     }
 }
