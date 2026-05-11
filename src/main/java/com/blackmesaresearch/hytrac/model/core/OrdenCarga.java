@@ -57,9 +57,9 @@ public class OrdenCarga {
   @JoinColumn(name = "combustible_id")
   private Combustible combustible;
 
-  @ManyToOne
-  @JoinColumn(name = "estado_orden_carga_id")
-  private EstadoOrdenCarga estadoOrdenCarga;
+@ManyToOne
+@JoinColumn(name = "estado_id")
+private EstadoOrdenCarga estadoOrdenCarga;
 
   @Column(name = "fecha_salida_planta")
   private LocalDateTime fechaSalidaPlanta;

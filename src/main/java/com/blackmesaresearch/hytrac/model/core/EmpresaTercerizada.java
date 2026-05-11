@@ -2,6 +2,7 @@ package com.blackmesaresearch.hytrac.model.core;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.blackmesaresearch.hytrac.model.reference.Localidad;
 
@@ -39,12 +40,12 @@ public class EmpresaTercerizada {
     @Column(name = "activo", nullable = false)
     private boolean activo = true;
 
-    @CreationTimestamp
-    @Column(name = "fecha_creacion", updatable = false)
-    private LocalDateTime fechaCreacion;
+   @CreationTimestamp
+@Column(name = "created_at", updatable = false)
+private LocalDateTime fechaCreacion;
 
-    @CreationTimestamp
-    @Column(name = "fecha_modificacion")
-    private LocalDateTime fechaModificacion;
+@UpdateTimestamp
+@Column(name = "updated_at")
+private LocalDateTime fechaModificacion;
 
 }

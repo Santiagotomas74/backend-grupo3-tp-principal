@@ -228,6 +228,7 @@ CREATE TABLE Acoplado (
 
     empresa_id INTEGER,
 
+
     estado_id INTEGER,
 
     created_at TIMESTAMP,
@@ -261,10 +262,13 @@ CREATE TABLE Orden_Carga (
 
     estado_id INTEGER,
 
-    fecha_creacion TIMESTAMP,
-    fecha_salida_planta TIMESTAMP,
-    fecha_entrega_estimada TIMESTAMP,
-    fecha_entrega_real TIMESTAMP,
+
+
+fecha_creacion TIMESTAMP,
+fecha_modificacion TIMESTAMP,
+fecha_salida_planta TIMESTAMP,
+fecha_entrega_estimada TIMESTAMP,
+fecha_entrega_real TIMESTAMP,
 
     temperatura_carga DECIMAL(10,4),
     densidad_carga DECIMAL(10,4),

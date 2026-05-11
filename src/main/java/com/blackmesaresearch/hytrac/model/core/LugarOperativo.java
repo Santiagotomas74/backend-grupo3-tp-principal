@@ -44,14 +44,14 @@ public class LugarOperativo {
 
 
     private boolean activo = true;
+    
+@CreationTimestamp
+@Column(name = "created_at", updatable = false)
+private LocalDateTime fechaCreacion;
 
-    @CreationTimestamp
-    @Column(name = "fecha_creacion", updatable = false)
-    private LocalDateTime fechaCreacion;
-
-    @UpdateTimestamp
-    @Column(name = "fecha_modificacion")
-    private LocalDateTime fechaModificacion;
+@UpdateTimestamp
+@Column(name = "updated_at")
+private LocalDateTime fechaModificacion;
 
 
 }

@@ -37,12 +37,12 @@ public class Transportista {
     private boolean activo = true;
 
     @CreationTimestamp
-    @Column(name = "fecha_creacion", updatable = false)
-    private LocalDateTime fechaCreacion;
+@Column(name = "created_at", updatable = false)
+private LocalDateTime fechaCreacion;
 
-    @UpdateTimestamp
-    @Column(name = "fecha_modificacion")
-    private LocalDateTime fechaModificacion;
+@UpdateTimestamp
+@Column(name = "updated_at")
+private LocalDateTime fechaModificacion;
 
 
 }

@@ -39,12 +39,12 @@ public class Vehiculo {
     @JoinColumn(name = "estado_id")
     private EstadoVehiculo estado;
 
-    @CreationTimestamp
-    @Column(name = "fecha_creacion", updatable = false)
-    private LocalDateTime fechaCreacion;
+   @CreationTimestamp
+@Column(name = "created_at", updatable = false)
+private LocalDateTime fechaCreacion;
 
-    @UpdateTimestamp
-    @Column(name = "fecha_modificacion")
-    private LocalDateTime fechaModificacion;
+@UpdateTimestamp
+@Column(name = "updated_at")
+private LocalDateTime fechaModificacion;
     
 }
