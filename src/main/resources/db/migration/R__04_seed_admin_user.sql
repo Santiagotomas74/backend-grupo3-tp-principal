@@ -16,7 +16,9 @@ VALUES (
     99999999,
     'admin@hytrac.local',
     'ADMIN001',
-    '$2a$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx', -- Placeholder hasta tener logica de hash. Usar BCrypt desde java
+    -- hasheado con BCrypt. es 'wearehytrac'
+    -- https://bcrypt-generator.com/
+    '$2a$10$xh9ExMOkrDViNPQX1sdn7eeaHX.Rpdg4Dl.rdoD8DFuCYEQIsHN3i',
     1
 );
 
