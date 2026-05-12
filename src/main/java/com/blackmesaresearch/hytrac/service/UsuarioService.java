@@ -36,7 +36,7 @@ public class UsuarioService implements UserDetailsService {
                 .username(usuario.getEmail()) // por ahora se esta usando el mail como username. sujeto a cambios
                 .password(usuario.getPasswordHash()) // This must be the BCrypt hash from DB
                 .disabled(!usuario.isActivo())
-                .authorities(authorities)
+                //.authorities(authorities)
                 .build();
     }
 }
