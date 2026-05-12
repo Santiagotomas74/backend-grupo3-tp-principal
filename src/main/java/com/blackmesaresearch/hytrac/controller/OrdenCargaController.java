@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 
 
 @RestController
-@RequestMapping("/ordenes")
+@RequestMapping("/api/ordenes")
 @CrossOrigin("*")
 public class OrdenCargaController {
 
