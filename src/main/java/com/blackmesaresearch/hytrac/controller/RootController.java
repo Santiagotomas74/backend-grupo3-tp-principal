@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class RootController {
 
-  @GetMapping("/")
+  @GetMapping("/api")
   public Map<String, String> home() {
     return Map.of(
         "app", "HYTRAC API",

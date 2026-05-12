@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
 import com.blackmesaresearch.hytrac.service.OrdenCargaService;
 import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
+import com.blackmesaresearch.hytrac.dto.response.OrdenCargaDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
 import org.springframework.http.ResponseEntity;
 
@@ -30,4 +31,9 @@ public class OrdenCargaController {
     public ResponseEntity<OrdenCargaResponseDTO> crearOrdenCarga(@RequestBody OrdenCargaRequestDTO dto) {
         return ResponseEntity.status(201).body(ordenCargaService.guardarNuevaOrdenCarga(dto));
     }
+
+    @GetMapping("/{id}")
+public OrdenCargaDetalleResponseDTO obtenerPorId(@PathVariable Integer id) {
+    return ordenCargaService.obtenerDetallePorId(id);
+}
 }

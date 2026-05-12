@@ -7,6 +7,7 @@ import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
 import com.blackmesaresearch.hytrac.repository.*;
 import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
+import com.blackmesaresearch.hytrac.dto.response.OrdenCargaDetalleResponseDTO;
 
 @Service
 public class OrdenCargaService {
@@ -86,4 +87,36 @@ public class OrdenCargaService {
             orden.getFechaEntregaEstimada()
         );
     }
+
+    public OrdenCargaDetalleResponseDTO obtenerDetallePorId(Integer id) {
+
+    OrdenCarga orden = ordenCargaRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
+
+    return new OrdenCargaDetalleResponseDTO(
+        orden.getId(),
+        orden.getNumeroRemito(),
+        orden.getCot(),
+
+        orden.getEstadoOrdenCarga().getNombre(),
+
+        orden.getCamion() != null ? orden.getCamion().getPatente() : null,
+        orden.getAcoplado() != null ? orden.getAcoplado().getPatente() : null,
+
+        orden.getTransportista().getUsuario().getNombre(),
+        orden.getCombustible().getNombre(),
+
+        orden.getPlantaDespacho().getNombre(),
+        orden.getEstacionDestino().getNombre(),
+
+        orden.getLitrosCargados(),
+        orden.getLitrosEntregados(),
+
+        orden.getFechaSalidaPlanta(),
+        orden.getFechaEntregaEstimada(),
+        orden.getFechaEntregaReal(),
+
+        orden.getObservaciones()
+    );
+}
 }

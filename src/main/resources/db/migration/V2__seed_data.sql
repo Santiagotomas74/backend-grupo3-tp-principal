@@ -208,6 +208,45 @@ INSERT INTO Usuario (
     1,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
+),
+(
+    3,
+    'Martin',
+    'Gomez',
+    35666777,
+    'martin@hytrac.com',
+    'LEG003',
+    '$2a$10$stXoA.WRjdOH3tDxPBkiKOtfIcWs0r/7iMNFEBleKJhXPoY5sozm.',
+    1,
+    1,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+),
+(
+    4,
+    'Lucia',
+    'Fernandez',
+    37888999,
+    'lucia@hytrac.com',
+    'LEG004',
+    '$2a$10$stXoA.WRjdOH3tDxPBkiKOtfIcWs0r/7iMNFEBleKJhXPoY5sozm.',
+    1,
+    2,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+),
+(
+    5,
+    'Carlos',
+    'Ramirez',
+    33444555,
+    'carlos@hytrac.com',
+    'LEG005',
+    '$2a$10$stXoA.WRjdOH3tDxPBkiKOtfIcWs0r/7iMNFEBleKJhXPoY5sozm.',
+    1,
+    1,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
 );
 
 -- =========================
@@ -216,7 +255,10 @@ INSERT INTO Usuario (
 
 INSERT INTO Usuario_Rol (usuario_id, rol_id) VALUES
 (1, 1),
-(2, 2);
+(2, 2),
+(3, 3),
+(4, 3),
+(5, 3);
 
 -- =========================
 -- EMPRESAS
@@ -270,6 +312,36 @@ INSERT INTO Transportista (
     1,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
+),
+(
+    2,
+    3,
+    2,
+    '20-33445566-7',
+    1,
+    1,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+),
+(
+    3,
+    4,
+    2,
+    '20-33496366-7',
+    1,
+    1,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+),
+(
+    4,
+    5,
+    1,
+    '20-99887766-5',
+    1,
+    1,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
 );
 
 -- =========================
@@ -297,7 +369,41 @@ INSERT INTO Vehiculo (
     1,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
+),
+(
+    2,
+    'AB456CD',
+    1,
+    32000,
+    'Mercedes-Benz',
+    'Actros',
+    1,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+),
+(
+    3,
+    'AC789EF',
+    1,
+    40000,
+    'Volvo',
+    'FH',
+    1,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+),
+(
+    4,
+    'AD741GH',
+    1,
+    28000,
+    'Iveco',
+    'Stralis',
+    2,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
 );
+
 
 -- =========================
 -- ACOPLADOS
@@ -318,6 +424,33 @@ INSERT INTO Acoplado (
     45000,
     1,
     1,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+),
+(
+    2,
+    'ZX123TY',
+    42000,
+    1,
+    1,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+),
+(
+    3,
+    'QW456ER',
+    38000,
+    1,
+    1,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP
+),
+(
+    4,
+    'PL741MN',
+    50000,
+    1,
+    2,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 );
@@ -369,6 +502,72 @@ INSERT INTO Orden_Carga (
     0,
     1,
     'Carga programada correctamente'
+),
+(
+    2,
+    'REM-0002',
+    'COT-0002',
+    2,
+    2,
+    2,
+    1,
+    2,
+    1,
+    1,
+    1,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP,
+    DATETIME('now', '+2 day'),
+    16.5,
+    0.8450,
+    28000,
+    0,
+    0,
+    'Orden pendiente de despacho'
+),
+(
+    3,
+    'REM-0003',
+    'COT-0003',
+    3,
+    3,
+    3,
+    1,
+    2,
+    1,
+    2,
+    2,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP,
+    DATETIME('now', '+1 day'),
+    14.2,
+    0.8300,
+    35000,
+    12000,
+    1,
+    'Entrega parcial realizada'
+),
+(
+    4,
+    'REM-0004',
+    'COT-0004',
+    4,
+    4,
+    2,
+    2,
+    1,
+    1,
+    1,
+    3,
+    CURRENT_TIMESTAMP,
+    CURRENT_TIMESTAMP,
+    DATETIME('now', '+3 day'),
+    17.8,
+    0.8500,
+    25000,
+    25000,
+    1,
+    'Entrega completada correctamente'
 );
 
 -- =========================
