@@ -15,8 +15,8 @@ public class Localidad {
     @Column(nullable = false)
     private String nombre;
 
-    @ManyToOne
-    @JoinColumn(name = "provincia_id")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "provincia_id", nullable = false)
     private Provincia provincia;
 
     @Column(name = "codigo_postal", nullable = false)

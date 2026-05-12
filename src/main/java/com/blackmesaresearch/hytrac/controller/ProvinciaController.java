@@ -27,4 +27,5 @@ public class ProvinciaController {
         return ResponseEntity.ok(provinciaService.obtenerTodas());
     }
 }
+
 //hacer un join de la localidad a las provincias, y de localidad a plantas/estaciones
