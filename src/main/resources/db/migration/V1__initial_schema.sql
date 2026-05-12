@@ -205,7 +205,7 @@ CREATE TABLE Vehiculo (
 
     empresa_id INTEGER,
 
-    capacidad_total_litros DECIMAL(12,2),
+    peso_maximo_admitido DECIMAL(12,2),
 
     marca VARCHAR(255),
     modelo VARCHAR(255),

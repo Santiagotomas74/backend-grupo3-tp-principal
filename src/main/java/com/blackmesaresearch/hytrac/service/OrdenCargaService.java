@@ -99,7 +99,7 @@ private AcopladoRepository acopladoRepository;
 
     // capacidad máxima
     double capacidadTotal =
-        camion.getCapacidadTotalLitros() +
+        camion.getPeso_maximo_admitido() +
         acoplado.getCapacidadMaximaLitros();
 
     if (dto.litrosCargados() > capacidadTotal) {

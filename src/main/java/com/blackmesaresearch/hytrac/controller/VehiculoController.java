@@ -4,6 +4,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.blackmesaresearch.hytrac.dto.response.AcopladoResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.VehiculoResponseDTO;
 import com.blackmesaresearch.hytrac.service.VehiculoService;
 
@@ -24,9 +26,12 @@ public class VehiculoController {
         return ResponseEntity.ok(camiones);
     }
 
-    @GetMapping("/acoplados")
-    public ResponseEntity<List<VehiculoResponseDTO>> obtenerAcoplados() {
-        List<VehiculoResponseDTO> acoplados = vehiculoService.obtenerAcoplados();
-        return ResponseEntity.ok(acoplados);
-    }
+   @GetMapping("/acoplados")
+public ResponseEntity<List<AcopladoResponseDTO>> obtenerAcoplados() {
+
+    List<AcopladoResponseDTO> acoplados =
+            vehiculoService.obtenerAcoplados();
+
+    return ResponseEntity.ok(acoplados);
+}
 }

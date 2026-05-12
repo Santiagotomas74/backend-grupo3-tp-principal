@@ -345,14 +345,14 @@ INSERT INTO Transportista (
 );
 
 -- =========================
--- VEHICULOS
+-- CAmiones
 -- =========================
 
 INSERT INTO Vehiculo (
     id,
     patente,
     empresa_id,
-    capacidad_total_litros,
+    peso_maximo_admitido,
     marca,
     modelo,
     estado_id,

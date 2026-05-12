@@ -25,8 +25,8 @@ public class Vehiculo {
     @JoinColumn(name = "empresa_id")
     private EmpresaTercerizada empresa;
 
-    @Column(name = "capacidad_total_litros", nullable = false)
-    private Double capacidadTotalLitros;
+    @Column(name = "peso_maximo_admitido", nullable = false)
+    private Double peso_maximo_admitido;
 
     @Column(nullable = false)
     private String marca;
