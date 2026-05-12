@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import com.blackmesaresearch.hytrac.service.UsuarioService;
 
 @RestController
-@RequestMapping("/usuarios")
+@RequestMapping("/api/usuarios")
 @CrossOrigin("*")
 public class UsuarioController {
 
