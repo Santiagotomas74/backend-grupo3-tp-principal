@@ -95,4 +95,7 @@ private EstadoOrdenCarga estadoOrdenCarga;
   @UpdateTimestamp
   @Column(name = "fecha_modificacion")
   private LocalDateTime fechaModificacion;
+
+  @Column(name = "confirmado")
+  private Boolean confirmado = false;
 }

@@ -26,6 +26,8 @@ public record OrdenCargaDetalleResponseDTO(
     LocalDateTime fechaEntregaEstimada,
     LocalDateTime fechaEntregaReal,
 
-    String observaciones
+    String observaciones,
+    boolean fieAdjunta,
+    boolean confirmado
 
 ) {}

@@ -13,5 +13,7 @@ public record OrdenCargaRequestDTO(
         Integer combustibleId,
         Double litrosCargados,
         LocalDateTime fechaEntrega,
-        String observaciones
+        String observaciones,
+        boolean fieAdjunta,
+        boolean confirmado
 ) {}

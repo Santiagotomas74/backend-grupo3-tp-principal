@@ -132,6 +132,8 @@ private AcopladoRepository acopladoRepository;
     orden.setFechaEntregaEstimada(dto.fechaEntrega());
 
     orden.setObservaciones(dto.observaciones());
+    orden.setFieAdjunta(dto.fieAdjunta());
+    orden.setConfirmado(dto.confirmado());
 
     orden.setEstadoOrdenCarga(estadoPendiente);
 
@@ -188,7 +190,10 @@ private AcopladoRepository acopladoRepository;
         orden.getFechaEntregaEstimada(),
         orden.getFechaEntregaReal(),
 
-        orden.getObservaciones()
+        orden.getObservaciones(),
+        orden.getFieAdjunta(),
+        orden.getConfirmado()
+        
     );
 }
 }

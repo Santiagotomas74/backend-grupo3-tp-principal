@@ -10,6 +10,7 @@ import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
 import org.springframework.http.ResponseEntity;
+import java.util.Map;
 
 
 @RestController
@@ -28,10 +29,34 @@ public class OrdenCargaController {
 
     
     @PostMapping("/crear")
-    public ResponseEntity<OrdenCargaResponseDTO> crearOrdenCarga(@RequestBody OrdenCargaRequestDTO dto) {
-        return ResponseEntity.status(201).body(ordenCargaService.guardarNuevaOrdenCarga(dto));
-    }
+public ResponseEntity<?> crearOrdenCarga(@RequestBody OrdenCargaRequestDTO dto) {
 
+    try {
+
+        OrdenCargaResponseDTO response =
+                ordenCargaService.guardarNuevaOrdenCarga(dto);
+
+        return ResponseEntity.status(201).body(response);
+
+    } catch (IllegalArgumentException e) {
+
+        return ResponseEntity.badRequest().body(
+                Map.of(
+                        "success", false,
+                        "message", e.getMessage()
+                )
+        );
+
+    } catch (Exception e) {
+
+        return ResponseEntity.status(500).body(
+                Map.of(
+                        "success", false,
+                        "message", "Error interno al crear la orden de carga"
+                )
+        );
+    }
+}
     @GetMapping("/{id}")
 public OrdenCargaDetalleResponseDTO obtenerPorId(@PathVariable Integer id) {
     return ordenCargaService.obtenerDetallePorId(id);

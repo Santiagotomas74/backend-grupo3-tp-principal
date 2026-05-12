@@ -479,7 +479,8 @@ INSERT INTO Orden_Carga (
     litros_cargados,
     litros_entregados,
     fie_adjunta,
-    observaciones
+    observaciones,
+    confirmado
 ) VALUES
 (
     1,
@@ -501,7 +502,8 @@ INSERT INTO Orden_Carga (
     30000,
     0,
     1,
-    'Carga programada correctamente'
+    'Carga programada correctamente',
+    TRUE
 ),
 (
     2,
@@ -523,7 +525,8 @@ INSERT INTO Orden_Carga (
     28000,
     0,
     0,
-    'Orden pendiente de despacho'
+    'Orden pendiente de despacho',
+    TRUE
 ),
 (
     3,
@@ -545,7 +548,8 @@ INSERT INTO Orden_Carga (
     35000,
     12000,
     1,
-    'Entrega parcial realizada'
+    'Entrega parcial realizada',
+    FALSE
 ),
 (
     4,
@@ -567,7 +571,8 @@ INSERT INTO Orden_Carga (
     25000,
     25000,
     1,
-    'Entrega completada correctamente'
+    'Entrega completada correctamente',
+    FALSE
 );
 
 -- =========================

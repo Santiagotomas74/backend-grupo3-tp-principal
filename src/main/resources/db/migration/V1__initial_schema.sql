@@ -276,6 +276,8 @@ fecha_entrega_real TIMESTAMP,
     litros_cargados DECIMAL(12,2),
     litros_entregados DECIMAL(12,2),
 
+    confirmado BOOLEAN DEFAULT 0,
+
     fie_adjunta BOOLEAN DEFAULT 0,
 
     observaciones TEXT,
