@@ -1,128 +1,8 @@
 -- =========================
--- PROVINCIAS
--- =========================
-
-INSERT INTO Provincia (id, nombre) VALUES
-(1, 'Buenos Aires'),
-(2, 'Cordoba'),
-(3, 'Santa Fe');
-
--- =========================
--- LOCALIDADES
--- =========================
-
-INSERT INTO Localidad (id, provincia_id, nombre, codigo_postal) VALUES
-(1, 1, 'San Miguel', '1663'),
-(2, 1, 'Moreno', '1744'),
-(3, 2, 'Cordoba Capital', '5000');
-
--- =========================
--- TIPOS LUGAR OPERATIVO
--- =========================
-
-INSERT INTO Tipo_Lugar_Operativo (id, nombre) VALUES
-(1, 'Planta'),
-(2, 'Estacion de Servicio'),
-(3, 'Deposito');
-
--- =========================
--- ESTADOS VEHICULO
--- =========================
-
-INSERT INTO Estado_Vehiculo (id, nombre) VALUES
-(1, 'Disponible'),
-(2, 'En Viaje'),
-(3, 'Mantenimiento');
-
--- =========================
--- TIPOS VINCULO
--- =========================
-
-INSERT INTO Tipo_Vinculo (id, nombre) VALUES
-(1, 'Empleado'),
-(2, 'Tercerizado');
-
--- =========================
--- ESTADOS ORDEN
--- =========================
-
-INSERT INTO Estado_Orden_Carga (id, nombre) VALUES
-(1, 'Pendiente'),
-(2, 'En Curso'),
-(3, 'Entregada'),
-(4, 'Cancelada');
-
--- =========================
--- TIPOS INCIDENCIA
--- =========================
-
-INSERT INTO Tipo_Incidencia (id, nombre) VALUES
-(1, 'Demora'),
-(2, 'Accidente'),
-(3, 'Documentacion');
-
--- =========================
--- TIPOS DOCUMENTO
--- =========================
-
-INSERT INTO Tipo_Documento (id, nombre, categoria) VALUES
-(1, 'Licencia Conducir', 'Transportista'),
-(2, 'Seguro Vehicular', 'Vehiculo'),
-(3, 'VTV', 'Vehiculo');
-
--- =========================
--- ROLES
--- =========================
-
-INSERT INTO Rol (id, nombre, descripcion) VALUES
-(1, 'ADMIN', 'Administrador del sistema'),
-(2, 'OPERADOR', 'Operador logistico'),
-(3, 'TRANSPORTISTA', 'Chofer transportista');
-
--- =========================
--- PERMISOS
--- =========================
-
-INSERT INTO Permiso (id, codigo, descripcion) VALUES
-(1, 'ORDEN_CREAR', 'Crear ordenes'),
-(2, 'ORDEN_VER', 'Ver ordenes'),
-(3, 'ORDEN_EDITAR', 'Editar ordenes'),
-(4, 'USUARIO_ADMIN', 'Administrar usuarios');
-
--- =========================
--- ROL PERMISOS
--- =========================
-
-INSERT INTO Rol_Permiso (rol_id, permiso_id) VALUES
-(1, 1),
-(1, 2),
-(1, 3),
-(1, 4),
-(2, 1),
-(2, 2),
-(2, 3),
-(3, 2);
-
--- =========================
--- COMBUSTIBLES
--- =========================
-
-INSERT INTO Combustible (
-    id,
-    nombre,
-    numero_onu,
-    clase_riesgo,
-    densidad,
-    temperatura_referencia
-) VALUES
-(1, 'Nafta Super', '1203', '3', 0.7450, 15.0),
-(2, 'Diesel', '1202', '3', 0.8320, 15.0);
-
--- =========================
 -- LUGARES OPERATIVOS
 -- =========================
 
-INSERT INTO Lugar_Operativo (
+INSERT OR IGNORE INTO Lugar_Operativo (
     id,
     tipo_id,
     nombre,
@@ -169,7 +49,7 @@ INSERT INTO Lugar_Operativo (
 -- USUARIOS
 -- =========================
 
-INSERT INTO Usuario (
+INSERT OR IGNORE INTO Usuario (
     id,
     nombre,
     apellido,
@@ -253,7 +133,7 @@ INSERT INTO Usuario (
 -- USUARIO ROL
 -- =========================
 
-INSERT INTO Usuario_Rol (usuario_id, rol_id) VALUES
+INSERT OR IGNORE INTO Usuario_Rol (usuario_id, rol_id) VALUES
 (1, 1),
 (2, 2),
 (3, 3),
@@ -264,7 +144,7 @@ INSERT INTO Usuario_Rol (usuario_id, rol_id) VALUES
 -- EMPRESAS
 -- =========================
 
-INSERT INTO Empresa_Tercerizada (
+INSERT OR IGNORE INTO Empresa_Tercerizada (
     id,
     nombre_fantasia,
     razon_social,
@@ -293,7 +173,7 @@ INSERT INTO Empresa_Tercerizada (
 -- TRANSPORTISTAS
 -- =========================
 
-INSERT INTO Transportista (
+INSERT OR IGNORE INTO Transportista (
     id,
     usuario_id,
     tipo_vinculo_id,
@@ -348,7 +228,7 @@ INSERT INTO Transportista (
 -- CAmiones
 -- =========================
 
-INSERT INTO Vehiculo (
+INSERT OR IGNORE INTO Vehiculo (
     id,
     patente,
     empresa_id,
@@ -409,7 +289,7 @@ INSERT INTO Vehiculo (
 -- ACOPLADOS
 -- =========================
 
-INSERT INTO Acoplado (
+INSERT OR IGNORE INTO Acoplado (
     id,
     patente,
     capacidad_maxima_litros,
@@ -459,7 +339,7 @@ INSERT INTO Acoplado (
 -- ORDENES
 -- =========================
 
-INSERT INTO Orden_Carga (
+INSERT OR IGNORE INTO Orden_Carga (
     id,
     numero_remito,
     cot,
@@ -579,7 +459,7 @@ INSERT INTO Orden_Carga (
 -- DOCUMENTACION
 -- =========================
 
-INSERT INTO Documentacion (
+INSERT OR IGNORE INTO Documentacion (
     id,
     tipo_documento_id,
     camion_id,
@@ -606,7 +486,7 @@ INSERT INTO Documentacion (
 -- INCIDENCIAS
 -- =========================
 
-INSERT INTO Incidencia (
+INSERT OR IGNORE INTO Incidencia (
     id,
     orden_id,
     usuario_registro_id,
@@ -635,7 +515,7 @@ INSERT INTO Incidencia (
 -- AUDITORIA
 -- =========================
 
-INSERT INTO Auditoria_Estado (
+INSERT OR IGNORE INTO Auditoria_Estado (
     id,
     orden_id,
     estado_anterior_id,
