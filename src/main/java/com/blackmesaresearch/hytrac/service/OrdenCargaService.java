@@ -18,6 +18,7 @@ public class OrdenCargaService {
     @Autowired private TransportistaRepository transportistaRepository;
     @Autowired private LugarOperativoRepository lugarOperativoRepository;
     @Autowired private CombustibleRepository combustibleRepository;
+    @Autowired private UsuarioRepository usuarioRepository;
 @Autowired
 private AcopladoRepository acopladoRepository;
 
@@ -29,28 +30,40 @@ private AcopladoRepository acopladoRepository;
                 .toList();
     }
 
-    public OrdenCargaResponseDTO guardarNuevaOrdenCarga(OrdenCargaRequestDTO dto) {
+    
+public OrdenCargaResponseDTO guardarNuevaOrdenCarga(OrdenCargaRequestDTO dto) {
 
     // =========================
     // VALIDACIONES DE UNICIDAD
     // =========================
 
     if (ordenCargaRepository.findByNumeroRemito(dto.numeroRemito()).isPresent()) {
-        throw new IllegalArgumentException("El número de remito ya existe en el sistema.");
+        throw new IllegalArgumentException(
+            "El número de remito ya existe en el sistema."
+        );
     }
 
     if (ordenCargaRepository.findByCot(dto.cot()).isPresent()) {
-        throw new IllegalArgumentException("El COT ya existe en el sistema.");
+        throw new IllegalArgumentException(
+            "El COT ya existe en el sistema."
+        );
     }
 
     // =========================
-    // OBTENER ESTADO INICIAL
+    // VALIDACIONES BÁSICAS
     // =========================
 
-    var estadoPendiente = estadoOrdenCargaRepository.findByNombre("Pendiente")
-        .orElseThrow(() ->
-            new RuntimeException("El estado 'Pendiente' no existe en la base de datos.")
+    if (dto.litrosCargados() == null || dto.litrosCargados() <= 0) {
+        throw new IllegalArgumentException(
+            "Los litros cargados son obligatorios."
         );
+    }
+
+    if (dto.plantaDespachoId().equals(dto.estacionDestinoId())) {
+        throw new IllegalArgumentException(
+            "La planta de despacho y el destino no pueden ser iguales."
+        );
+    }
 
     // =========================
     // OBTENER ENTIDADES
@@ -81,9 +94,19 @@ private AcopladoRepository acopladoRepository;
             new IllegalArgumentException("Estación destino no encontrada.")
         );
 
+    var operador = usuarioRepository.findById(dto.operadorId())
+        .orElseThrow(() ->
+            new IllegalArgumentException("Operador no encontrado.")
+        );
+
     var combustible = combustibleRepository.findById(dto.combustibleId())
         .orElseThrow(() ->
             new IllegalArgumentException("Combustible no encontrado.")
+        );
+
+    var estado = estadoOrdenCargaRepository.findById(dto.estadoId())
+        .orElseThrow(() ->
+            new IllegalArgumentException("Estado no encontrado.")
         );
 
     // =========================
@@ -92,19 +115,33 @@ private AcopladoRepository acopladoRepository;
 
     // mismo empresa
     if (!camion.getEmpresa().getId().equals(acoplado.getEmpresa().getId())) {
+
         throw new IllegalArgumentException(
             "El camión y el acoplado pertenecen a empresas distintas."
         );
     }
 
-    // capacidad máxima
-    double capacidadTotal =
-        camion.getPeso_maximo_admitido() +
-        acoplado.getCapacidadMaximaLitros();
+    // capacidad máxima del acoplado
+    if (dto.litrosCargados() > acoplado.getCapacidadMaximaLitros()) {
 
-    if (dto.litrosCargados() > capacidadTotal) {
         throw new IllegalArgumentException(
-            "Los litros cargados superan la capacidad máxima permitida."
+            "Los litros cargados superan la capacidad máxima del acoplado."
+        );
+    }
+
+    // disponibilidad camión
+    if (!camion.getEstado().getNombre().equalsIgnoreCase("Disponible")) {
+
+        throw new IllegalArgumentException(
+            "El camión no está disponible."
+        );
+    }
+
+    // disponibilidad acoplado
+    if (!acoplado.getEstado().getNombre().equalsIgnoreCase("Disponible")) {
+
+        throw new IllegalArgumentException(
+            "El acoplado no está disponible."
         );
     }
 
@@ -125,17 +162,26 @@ private AcopladoRepository acopladoRepository;
     orden.setPlantaDespacho(plantaDespacho);
     orden.setEstacionDestino(estacionDestino);
 
+    orden.setOperador(operador);
+
     orden.setCombustible(combustible);
 
-    orden.setLitrosCargados(dto.litrosCargados());
+    orden.setEstadoOrdenCarga(estado);
 
+    orden.setLitrosCargados(dto.litrosCargados());
+    orden.setLitrosEntregados(dto.litrosEntregados());
+
+    orden.setFechaCreacion(dto.fechaCreacion());
+    orden.setFechaSalidaPlanta(dto.fechaSalidaPlanta());
     orden.setFechaEntregaEstimada(dto.fechaEntrega());
 
+    orden.setTemperaturaCarga(dto.temperatura());
+    orden.setDensidadCarga(dto.densidad());
+
     orden.setObservaciones(dto.observaciones());
+
     orden.setFieAdjunta(dto.fieAdjunta());
     orden.setConfirmado(dto.confirmado());
-
-    orden.setEstadoOrdenCarga(estadoPendiente);
 
     // =========================
     // GUARDAR
@@ -145,7 +191,6 @@ private AcopladoRepository acopladoRepository;
 
     return toResponseDTO(guardada);
 }
-
     private OrdenCargaResponseDTO toResponseDTO(OrdenCarga orden) {
         return new OrdenCargaResponseDTO(
             orden.getId(),
