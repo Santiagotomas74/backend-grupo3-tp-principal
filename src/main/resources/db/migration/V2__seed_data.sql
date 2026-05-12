@@ -203,7 +203,7 @@ INSERT INTO Usuario (
     38999111,
     'operador@hytrac.com',
     'LEG002',
-    'operador123',
+    '$2a$10$stXoA.WRjdOH3tDxPBkiKOtfIcWs0r/7iMNFEBleKJhXPoY5sozm.',
     1,
     1,
     CURRENT_TIMESTAMP,
