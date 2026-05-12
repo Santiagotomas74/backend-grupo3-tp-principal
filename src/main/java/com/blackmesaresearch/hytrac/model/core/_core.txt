@@ -1,0 +1,1 @@
+Aca van las entidades "vivas" del sistema. Se espera que se agrueguen o eliminen instancias frecuentemente
