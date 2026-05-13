@@ -13,6 +13,10 @@ public record OrdenCargaDetalleResponseDTO(
     String camionPatente,
     String acopladoPatente,
 
+    // NUEVOS DATOS
+    Double pesoMaximoCamion,
+    Double capacidadTotalAcoplado,
+
     String transportista,
     String combustible,
 

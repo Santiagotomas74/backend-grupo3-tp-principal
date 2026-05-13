@@ -224,6 +224,10 @@ public OrdenCargaDetalleResponseDTO obtenerDetallePorId(Integer id) {
         orden.getCamion().getPatente(),
         orden.getAcoplado().getPatente(),
 
+        // NUEVOS DATOS
+        orden.getCamion().getPeso_maximo_admitido(),
+        orden.getAcoplado().getCapacidadMaximaLitros(),
+
         orden.getTransportista().getUsuario().getNombre()
             + " "
             + orden.getTransportista().getUsuario().getApellido(),
