@@ -206,23 +206,28 @@ public OrdenCargaResponseDTO guardarNuevaOrdenCarga(OrdenCargaRequestDTO dto) {
             orden.getFechaEntregaEstimada()
         );
     }
-
-    public OrdenCargaDetalleResponseDTO obtenerDetallePorId(Integer id) {
+public OrdenCargaDetalleResponseDTO obtenerDetallePorId(Integer id) {
 
     OrdenCarga orden = ordenCargaRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Orden no encontrada"));
+        .orElseThrow(() ->
+            new IllegalArgumentException("Orden no encontrada.")
+        );
 
     return new OrdenCargaDetalleResponseDTO(
+
         orden.getId(),
         orden.getNumeroRemito(),
         orden.getCot(),
 
         orden.getEstadoOrdenCarga().getNombre(),
 
-        orden.getCamion() != null ? orden.getCamion().getPatente() : null,
-        orden.getAcoplado() != null ? orden.getAcoplado().getPatente() : null,
+        orden.getCamion().getPatente(),
+        orden.getAcoplado().getPatente(),
 
-        orden.getTransportista().getUsuario().getNombre(),
+        orden.getTransportista().getUsuario().getNombre()
+            + " "
+            + orden.getTransportista().getUsuario().getApellido(),
+
         orden.getCombustible().getNombre(),
 
         orden.getPlantaDespacho().getNombre(),
@@ -237,8 +242,17 @@ public OrdenCargaResponseDTO guardarNuevaOrdenCarga(OrdenCargaRequestDTO dto) {
 
         orden.getObservaciones(),
         orden.getFieAdjunta(),
-        orden.getConfirmado()
-        
+        orden.getConfirmado(),
+
+        // =========================
+        // DATOS COMBUSTIBLE
+        // =========================
+
+        orden.getCombustible().getNombre(),
+        orden.getCombustible().getNumeroOnu(),
+        orden.getCombustible().getClaseRiesgo(),
+        orden.getCombustible().getDensidad(),
+        orden.getCombustible().getTemperaturaReferencia()
     );
 }
 }

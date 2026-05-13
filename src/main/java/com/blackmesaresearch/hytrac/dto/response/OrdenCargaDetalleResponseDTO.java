@@ -27,7 +27,17 @@ public record OrdenCargaDetalleResponseDTO(
     LocalDateTime fechaEntregaReal,
 
     String observaciones,
-    boolean fieAdjunta,
-    boolean confirmado
+    Boolean fieAdjunta,
+    Boolean confirmado,
+
+    // =========================
+    // DATOS COMBUSTIBLE
+    // =========================
+
+    String combustibleNombre,
+    String numeroOnu,
+    String claseRiesgo,
+    Double densidadReferencia,
+    Double temperaturaReferencia
 
 ) {}
