@@ -240,6 +240,7 @@ public OrdenCargaDetalleResponseDTO obtenerDetallePorId(Integer id) {
         orden.getLitrosCargados(),
         orden.getLitrosEntregados(),
 
+        orden.getFechaCreacion(),
         orden.getFechaSalidaPlanta(),
         orden.getFechaEntregaEstimada(),
         orden.getFechaEntregaReal(),

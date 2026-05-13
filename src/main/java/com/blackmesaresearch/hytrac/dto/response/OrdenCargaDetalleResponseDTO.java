@@ -26,6 +26,7 @@ public record OrdenCargaDetalleResponseDTO(
     Double litrosCargados,
     Double litrosEntregados,
 
+    LocalDateTime fechaCreacion,
     LocalDateTime fechaSalidaPlanta,
     LocalDateTime fechaEntregaEstimada,
     LocalDateTime fechaEntregaReal,
