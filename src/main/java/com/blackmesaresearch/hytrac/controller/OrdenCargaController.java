@@ -34,7 +34,7 @@ public class OrdenCargaController {
         return ResponseEntity.ok(ordenCargaService.obtenerTodas());
     }
     
-@PutMapping("/{id}/cancelar")
+@PutMapping("/cancelar")
 public ResponseEntity<?> cancelarOrden(
         @PathVariable Integer id, 
         @RequestBody CancelarOrdenRequestDTO dto
