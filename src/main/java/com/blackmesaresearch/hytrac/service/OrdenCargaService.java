@@ -1,14 +1,27 @@
 package com.blackmesaresearch.hytrac.service;
 
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
-import com.blackmesaresearch.hytrac.repository.*;
-import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
-import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
-import com.blackmesaresearch.hytrac.dto.response.OrdenCargaDetalleResponseDTO;
 
+import com.blackmesaresearch.hytrac.dto.request.CancelarOrdenRequestDTO;
+import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
+import com.blackmesaresearch.hytrac.dto.response.OrdenCargaDetalleResponseDTO;
+import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
+import com.blackmesaresearch.hytrac.model.core.AuditoriaEstado;
+import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
+import com.blackmesaresearch.hytrac.model.core.Usuario;
+import com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga;
+import com.blackmesaresearch.hytrac.repository.AcopladoRepository;
+import com.blackmesaresearch.hytrac.repository.AuditoriaEstadoRepository;
+import com.blackmesaresearch.hytrac.repository.CombustibleRepository;
+import com.blackmesaresearch.hytrac.repository.EstadoOrdenCargaRepository;
+import com.blackmesaresearch.hytrac.repository.LugarOperativoRepository;
+import com.blackmesaresearch.hytrac.repository.OrdenCargaRepository;
+import com.blackmesaresearch.hytrac.repository.TransportistaRepository;
+import com.blackmesaresearch.hytrac.repository.UsuarioRepository;
+import com.blackmesaresearch.hytrac.repository.VehiculoRepository;
 @Service
 public class OrdenCargaService {
 
@@ -21,6 +34,8 @@ public class OrdenCargaService {
     @Autowired private UsuarioRepository usuarioRepository;
 @Autowired
 private AcopladoRepository acopladoRepository;
+@Autowired 
+private AuditoriaEstadoRepository auditoriaEstadoRepository;
 
 
     public List<OrdenCargaResponseDTO> obtenerTodas() {
@@ -30,7 +45,53 @@ private AcopladoRepository acopladoRepository;
                 .toList();
     }
 
+public OrdenCargaResponseDTO cancelarOrden(Integer id, CancelarOrdenRequestDTO dto) {
+
+    // 1. Buscar la orden
+    OrdenCarga orden = ordenCargaRepository.findById(id)
+        .orElseThrow(() -> new IllegalArgumentException("Orden no encontrada."));
+
+    // 2. Validar que el estado actual no sea "Entregada"
+    if (orden.getEstadoOrdenCarga().getNombre().equalsIgnoreCase("Entregada")) {
+        throw new IllegalArgumentException("No se puede cancelar una orden que ya se encuentra en estado 'Entregada'.");
+    }
+
+    // 3. Validar motivo obligatorio
+    if (dto.motivo() == null || dto.motivo().trim().isEmpty()) {
+        throw new IllegalArgumentException("El motivo de cancelación es obligatorio.");
+    }
+
+    // 4. Buscar usuario solicitante
+    Usuario solicitante = usuarioRepository.findById(dto.solicitanteId())
+        .orElseThrow(() -> new IllegalArgumentException("Usuario solicitante no encontrado."));
+
+    // 5. Buscar estado "Cancelada"
+    EstadoOrdenCarga estadoCancelada = estadoOrdenCargaRepository.findByNombre("Cancelada")
+        .orElseThrow(() -> new IllegalArgumentException("Estado 'Cancelada' no encontrado en el sistema."));
+
+    EstadoOrdenCarga estadoAnterior = orden.getEstadoOrdenCarga();
+
+    // 6. Actualizar la orden
+    orden.setEstadoOrdenCarga(estadoCancelada);
     
+    // Lo marcamos como no confirmado para que quede en la lista pendiente del supervisor
+    orden.setConfirmado(false);
+
+    OrdenCarga ordenActualizada = ordenCargaRepository.save(orden);
+
+    // 7. Registrar en auditoría el motivo y el cambio
+    AuditoriaEstado auditoria = new AuditoriaEstado();
+    auditoria.setOrden(ordenActualizada);
+    auditoria.setEstadoAnterior(estadoAnterior);
+    auditoria.setEstadoNuevo(estadoCancelada);
+    auditoria.setFechaCambio(java.time.LocalDateTime.now());
+    auditoria.setSolicitante(solicitante);
+    auditoria.setMotivo(dto.motivo());
+
+    auditoriaEstadoRepository.save(auditoria);
+
+    return toResponseDTO(ordenActualizada);
+}
 public OrdenCargaResponseDTO guardarNuevaOrdenCarga(OrdenCargaRequestDTO dto) {
 
     // =========================
