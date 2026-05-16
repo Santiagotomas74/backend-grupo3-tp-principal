@@ -46,9 +46,9 @@ public class Usuario {
     @JoinColumn(name = "lugar_operativo_id")
     private LugarOperativo lugarOperativo;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "Usuario_Rol", joinColumns = @JoinColumn(name = "usuario_id"), inverseJoinColumns = @JoinColumn(name = "rol_id"))
-    private Set<Rol> roles;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "rol_id")
+    private Rol rol;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

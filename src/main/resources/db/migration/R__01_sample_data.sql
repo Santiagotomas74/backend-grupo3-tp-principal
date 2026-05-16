@@ -58,6 +58,7 @@ INSERT OR IGNORE INTO Usuario (
     legajo,
     password_hash,
     activo,
+    rol_id,
     lugar_operativo_id,
     created_at,
     updated_at
@@ -73,6 +74,7 @@ INSERT OR IGNORE INTO Usuario (
     '$2a$10$stXoA.WRjdOH3tDxPBkiKOtfIcWs0r/7iMNFEBleKJhXPoY5sozm.',
     1,
     1,
+    1,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 ),
@@ -85,6 +87,7 @@ INSERT OR IGNORE INTO Usuario (
     'LEG002',
     '$2a$10$stXoA.WRjdOH3tDxPBkiKOtfIcWs0r/7iMNFEBleKJhXPoY5sozm.',
     1,
+    2,
     1,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
@@ -98,6 +101,7 @@ INSERT OR IGNORE INTO Usuario (
     'LEG003',
     '$2a$10$stXoA.WRjdOH3tDxPBkiKOtfIcWs0r/7iMNFEBleKJhXPoY5sozm.',
     1,
+    3,
     1,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
@@ -111,6 +115,7 @@ INSERT OR IGNORE INTO Usuario (
     'LEG004',
     '$2a$10$stXoA.WRjdOH3tDxPBkiKOtfIcWs0r/7iMNFEBleKJhXPoY5sozm.',
     1,
+    3,
     2,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
@@ -124,21 +129,11 @@ INSERT OR IGNORE INTO Usuario (
     'LEG005',
     '$2a$10$stXoA.WRjdOH3tDxPBkiKOtfIcWs0r/7iMNFEBleKJhXPoY5sozm.',
     1,
+    3,
     1,
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 );
-
--- =========================
--- USUARIO ROL
--- =========================
-
-INSERT OR IGNORE INTO Usuario_Rol (usuario_id, rol_id) VALUES
-(1, 1),
-(2, 2),
-(3, 3),
-(4, 3),
-(5, 3);
 
 -- =========================
 -- EMPRESAS

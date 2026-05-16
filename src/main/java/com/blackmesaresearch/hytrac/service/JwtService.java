@@ -2,7 +2,6 @@ package com.blackmesaresearch.hytrac.service;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.List;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -26,15 +25,6 @@ public class JwtService {
 
     public String generarToken(Usuario usuario) {
 
-        // =========================
-        // ROLES
-        // =========================
-
-        List<String> roles =
-            usuario.getRoles()
-                .stream()
-                .map(rol -> rol.getNombre())
-                .toList();
 
         // =========================
         // JWT
@@ -47,7 +37,7 @@ public class JwtService {
             .claim("id", usuario.getId())
             .claim("nombre", usuario.getNombre())
             .claim("apellido", usuario.getApellido())
-            .claim("roles", roles)
+            .claim("rol", usuario.getRol().getNombre())
 
             .setIssuedAt(new Date())
 

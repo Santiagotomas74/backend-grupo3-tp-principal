@@ -12,7 +12,7 @@ public record LoginResponseDTO(
         String apellido,
         String email,
 
-        List<String> roles
+        String rol
 
 ) {
 }

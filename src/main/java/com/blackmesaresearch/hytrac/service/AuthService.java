@@ -58,28 +58,16 @@ public class AuthService {
         String token = jwtService.generarToken(usuario);
 
         // =========================
-        // OBTENER ROLES
-        // =========================
-
-        List<String> roles = usuario.getRoles()
-                .stream()
-                .map(rol -> rol.getNombre())
-                .toList();
-
-        // =========================
         // RESPONSE
         // =========================
 
         return new LoginResponseDTO(
-
                 true,
                 token,
-
                 usuario.getId(),
                 usuario.getNombre(),
                 usuario.getApellido(),
                 usuario.getEmail(),
-
-                roles);
+                usuario.getRol().getNombre());
     }
 }
