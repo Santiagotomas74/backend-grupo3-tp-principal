@@ -37,13 +37,16 @@ public class LugarOperativoService {
 
     private LugarOperativoResponseDTO toResponseDTO(LugarOperativo lugarOperativo) {
         Integer localidadId = lugarOperativo.getLocalidad() != null ? lugarOperativo.getLocalidad().getId() : null;
-        String localidadNombre = lugarOperativo.getLocalidad() != null ? lugarOperativo.getLocalidad().getNombre() : null;
-        Integer provinciaId = lugarOperativo.getLocalidad() != null && lugarOperativo.getLocalidad().getProvincia() != null
-                ? lugarOperativo.getLocalidad().getProvincia().getId()
+        String localidadNombre = lugarOperativo.getLocalidad() != null ? lugarOperativo.getLocalidad().getNombre()
                 : null;
-        String provinciaNombre = lugarOperativo.getLocalidad() != null && lugarOperativo.getLocalidad().getProvincia() != null
-                ? lugarOperativo.getLocalidad().getProvincia().getNombre()
-                : null;
+        Integer provinciaId = lugarOperativo.getLocalidad() != null
+                && lugarOperativo.getLocalidad().getProvincia() != null
+                        ? lugarOperativo.getLocalidad().getProvincia().getId()
+                        : null;
+        String provinciaNombre = lugarOperativo.getLocalidad() != null
+                && lugarOperativo.getLocalidad().getProvincia() != null
+                        ? lugarOperativo.getLocalidad().getProvincia().getNombre()
+                        : null;
 
         return new LugarOperativoResponseDTO(
                 lugarOperativo.getId(),
@@ -56,7 +59,6 @@ public class LugarOperativoService {
                 lugarOperativo.getLatitud(),
                 lugarOperativo.getLongitud(),
                 lugarOperativo.getPuedeRecibir(),
-                lugarOperativo.getPuedeDespachar()
-        );
+                lugarOperativo.getPuedeDespachar());
     }
 }

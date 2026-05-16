@@ -9,10 +9,12 @@ import com.blackmesaresearch.hytrac.model.lookup.EstadoVehiculo;
 
 import java.time.LocalDateTime;
 
-
 @Entity
 @Table(name = "Acoplado")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 
 public class Acoplado {
     @Id
@@ -33,13 +35,12 @@ public class Acoplado {
     @JoinColumn(name = "estado_id")
     private EstadoVehiculo estado;
 
-   @CreationTimestamp
-@Column(name = "created_at", updatable = false)
-private LocalDateTime fechaCreacion;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime fechaCreacion;
 
-@UpdateTimestamp
-@Column(name = "updated_at")
-private LocalDateTime fechaModificacion;
-    
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime fechaModificacion;
 
 }

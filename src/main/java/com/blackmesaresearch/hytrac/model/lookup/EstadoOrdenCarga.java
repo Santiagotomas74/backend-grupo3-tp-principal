@@ -3,10 +3,12 @@ package com.blackmesaresearch.hytrac.model.lookup;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Entity
 @Table(name = "Estado_Orden_Carga")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 
 public class EstadoOrdenCarga {
     @Id

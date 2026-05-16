@@ -15,8 +15,7 @@ public class TransportistaController {
     private final TransportistaService transportistaService;
 
     public TransportistaController(
-            TransportistaService transportistaService
-    ) {
+            TransportistaService transportistaService) {
         this.transportistaService = transportistaService;
     }
 

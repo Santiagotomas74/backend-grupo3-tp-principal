@@ -6,7 +6,10 @@ import java.util.Set;
 
 @Entity
 @Table(name = "Rol")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,11 +22,7 @@ public class Rol {
     private String descripcion;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "Rol_Permiso",
-        joinColumns = @JoinColumn(name = "rol_id"),
-        inverseJoinColumns = @JoinColumn(name = "permiso_id")
-    )
+    @JoinTable(name = "Rol_Permiso", joinColumns = @JoinColumn(name = "rol_id"), inverseJoinColumns = @JoinColumn(name = "permiso_id"))
     private Set<Permiso> permisos;
 
 }

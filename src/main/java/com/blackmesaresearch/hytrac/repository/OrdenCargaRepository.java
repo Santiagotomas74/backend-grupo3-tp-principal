@@ -9,8 +9,8 @@ import java.util.Optional;
 @Repository
 public interface OrdenCargaRepository extends JpaRepository<OrdenCarga, Integer> {
     Optional<OrdenCarga> findByNumeroRemito(String numeroRemito);
-    Optional<OrdenCarga> findByCot(String cot);
 
+    Optional<OrdenCarga> findByCot(String cot);
 
     List<OrdenCarga> findByEstadoOrdenCarga_Nombre(String nombre);
 }

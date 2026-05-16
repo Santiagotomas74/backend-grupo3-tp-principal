@@ -37,7 +37,6 @@ public class LocalidadService {
                 localidad.getNombre(),
                 localidad.getCodigoPostal(),
                 localidad.getProvincia().getId(),
-                localidad.getProvincia().getNombre()
-        );
+                localidad.getProvincia().getNombre());
     }
 }

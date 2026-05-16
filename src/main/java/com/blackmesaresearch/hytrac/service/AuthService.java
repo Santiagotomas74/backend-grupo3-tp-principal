@@ -18,10 +18,9 @@ public class AuthService {
     private final JwtService jwtService;
 
     public AuthService(
-        UsuarioRepository usuarioRepository,
-        PasswordEncoder passwordEncoder,
-        JwtService jwtService
-    ) {
+            UsuarioRepository usuarioRepository,
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
@@ -34,43 +33,35 @@ public class AuthService {
         // =========================
 
         Usuario usuario = usuarioRepository
-            .findByEmail(dto.email())
-            .orElseThrow(() ->
-                new IllegalArgumentException(
-                    "Email o contraseña incorrectos."
-                )
-            );
+                .findByEmail(dto.email())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Email o contraseña incorrectos."));
 
         // =========================
         // VALIDAR PASSWORD
         // =========================
 
-        boolean passwordCorrecta =
-            passwordEncoder.matches(
+        boolean passwordCorrecta = passwordEncoder.matches(
                 dto.password(),
-                usuario.getPasswordHash()
-            );
+                usuario.getPasswordHash());
 
         if (!passwordCorrecta) {
 
             throw new IllegalArgumentException(
-                "Email o contraseña incorrectos."
-            );
+                    "Email o contraseña incorrectos.");
         }
 
         // =========================
         // GENERAR JWT
         // =========================
 
-        String token =
-            jwtService.generarToken(usuario);
+        String token = jwtService.generarToken(usuario);
 
         // =========================
         // OBTENER ROLES
         // =========================
 
-        List<String> roles =
-            usuario.getRoles()
+        List<String> roles = usuario.getRoles()
                 .stream()
                 .map(rol -> rol.getNombre())
                 .toList();
@@ -81,15 +72,14 @@ public class AuthService {
 
         return new LoginResponseDTO(
 
-            true,
-            token,
+                true,
+                token,
 
-            usuario.getId(),
-            usuario.getNombre(),
-            usuario.getApellido(),
-            usuario.getEmail(),
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getApellido(),
+                usuario.getEmail(),
 
-            roles
-        );
+                roles);
     }
 }

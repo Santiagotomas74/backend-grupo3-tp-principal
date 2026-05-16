@@ -9,9 +9,6 @@ import com.blackmesaresearch.hytrac.dto.response.AcopladoResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.VehiculoResponseDTO;
 import com.blackmesaresearch.hytrac.service.VehiculoService;
 
-
-
-
 @RestController
 @RequestMapping("/api/vehiculos")
 @CrossOrigin("*")
@@ -26,12 +23,11 @@ public class VehiculoController {
         return ResponseEntity.ok(camiones);
     }
 
-   @GetMapping("/acoplados")
-public ResponseEntity<List<AcopladoResponseDTO>> obtenerAcoplados() {
+    @GetMapping("/acoplados")
+    public ResponseEntity<List<AcopladoResponseDTO>> obtenerAcoplados() {
 
-    List<AcopladoResponseDTO> acoplados =
-            vehiculoService.obtenerAcoplados();
+        List<AcopladoResponseDTO> acoplados = vehiculoService.obtenerAcoplados();
 
-    return ResponseEntity.ok(acoplados);
-}
+        return ResponseEntity.ok(acoplados);
+    }
 }

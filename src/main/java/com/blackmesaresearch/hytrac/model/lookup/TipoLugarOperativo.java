@@ -5,7 +5,10 @@ import lombok.*;
 
 @Entity
 @Table(name = "Tipo_Lugar_Operativo")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TipoLugarOperativo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

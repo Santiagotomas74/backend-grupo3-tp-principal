@@ -1,4 +1,5 @@
 package com.blackmesaresearch.hytrac.model.core;
+
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -9,10 +10,12 @@ import com.blackmesaresearch.hytrac.model.reference.Localidad;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Entity
 @Table(name = "Empresa_Tercerizada")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class EmpresaTercerizada {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,12 +43,12 @@ public class EmpresaTercerizada {
     @Column(name = "activo", nullable = false)
     private boolean activo = true;
 
-   @CreationTimestamp
-@Column(name = "created_at", updatable = false)
-private LocalDateTime fechaCreacion;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime fechaCreacion;
 
-@UpdateTimestamp
-@Column(name = "updated_at")
-private LocalDateTime fechaModificacion;
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime fechaModificacion;
 
 }

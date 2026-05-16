@@ -12,40 +12,37 @@ import com.blackmesaresearch.hytrac.repository.VehiculoRepository;
 @Service
 public class VehiculoService {
 
-    private final VehiculoRepository vehiculoRepository;
-    private final AcopladoRepository acopladoRepository;
+        private final VehiculoRepository vehiculoRepository;
+        private final AcopladoRepository acopladoRepository;
 
-    public VehiculoService(
-            VehiculoRepository vehiculoRepository,
-            AcopladoRepository acopladoRepository
-    ) {
-        this.vehiculoRepository = vehiculoRepository;
-        this.acopladoRepository = acopladoRepository;
-    }
+        public VehiculoService(
+                        VehiculoRepository vehiculoRepository,
+                        AcopladoRepository acopladoRepository) {
+                this.vehiculoRepository = vehiculoRepository;
+                this.acopladoRepository = acopladoRepository;
+        }
 
-    public List<VehiculoResponseDTO> obtenerCamiones() {
+        public List<VehiculoResponseDTO> obtenerCamiones() {
 
-        return vehiculoRepository.findAll()
-                .stream()
-                .map(v -> new VehiculoResponseDTO(
-                        v.getId(),
-                        v.getPatente(),
-                        v.getMarca(),
-                        v.getModelo(),
-                        v.getPeso_maximo_admitido()
-                ))
-                .toList();
-    }
+                return vehiculoRepository.findAll()
+                                .stream()
+                                .map(v -> new VehiculoResponseDTO(
+                                                v.getId(),
+                                                v.getPatente(),
+                                                v.getMarca(),
+                                                v.getModelo(),
+                                                v.getPeso_maximo_admitido()))
+                                .toList();
+        }
 
-    public List<AcopladoResponseDTO> obtenerAcoplados() {
+        public List<AcopladoResponseDTO> obtenerAcoplados() {
 
-        return acopladoRepository.findAll()
-                .stream()
-                .map(a -> new AcopladoResponseDTO(
-                        a.getId(),
-                        a.getPatente(),
-                        a.getCapacidadMaximaLitros()
-                ))
-                .toList();
-    }
+                return acopladoRepository.findAll()
+                                .stream()
+                                .map(a -> new AcopladoResponseDTO(
+                                                a.getId(),
+                                                a.getPatente(),
+                                                a.getCapacidadMaximaLitros()))
+                                .toList();
+        }
 }

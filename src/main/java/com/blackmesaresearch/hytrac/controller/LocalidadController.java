@@ -29,7 +29,8 @@ public class LocalidadController {
     }
 
     @GetMapping("/provincia/{provinciaId}")
-    public ResponseEntity<List<LocalidadResponseDTO>> obtenerLocalidadesPorProvincia(@PathVariable Integer provinciaId) {
+    public ResponseEntity<List<LocalidadResponseDTO>> obtenerLocalidadesPorProvincia(
+            @PathVariable Integer provinciaId) {
         return ResponseEntity.ok(localidadService.obtenerPorProvincia(provinciaId));
     }
 }

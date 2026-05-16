@@ -22,33 +22,27 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
-        @RequestBody LoginRequestDTO dto
-    ) {
+            @RequestBody LoginRequestDTO dto) {
 
         try {
 
-            LoginResponseDTO response =
-                authService.login(dto);
+            LoginResponseDTO response = authService.login(dto);
 
             return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
 
             return ResponseEntity.badRequest().body(
-                Map.of(
-                    "success", false,
-                    "message", e.getMessage()
-                )
-            );
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
 
         } catch (Exception e) {
 
             return ResponseEntity.internalServerError().body(
-                Map.of(
-                    "success", false,
-                    "message", "Error interno del servidor"
-                )
-            );
+                    Map.of(
+                            "success", false,
+                            "message", "Error interno del servidor"));
         }
     }
 }

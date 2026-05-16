@@ -9,10 +9,12 @@ import com.blackmesaresearch.hytrac.model.lookup.TipoVinculo;
 
 import java.time.LocalDateTime;
 
-
 @Entity
 @Table(name = "Transportista")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Transportista {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,12 +39,11 @@ public class Transportista {
     private boolean activo = true;
 
     @CreationTimestamp
-@Column(name = "created_at", updatable = false)
-private LocalDateTime fechaCreacion;
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime fechaCreacion;
 
-@UpdateTimestamp
-@Column(name = "updated_at")
-private LocalDateTime fechaModificacion;
-
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime fechaModificacion;
 
 }
