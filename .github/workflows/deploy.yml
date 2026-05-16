@@ -56,24 +56,17 @@ jobs:
           rsync -avz -e "ssh -o StrictHostKeyChecking=no -o 'ProxyCommand=cloudflared access ssh --hostname %h --service-token-id $CF_ID --service-token-secret $CF_SECRET'" \
             ./target/*.jar $PI_USER@$PI_HOST:/home/$PI_USER/hytrac/backend/
 
-      - name: Restart Backend Service
-        env:
-          CF_ID: ${{ secrets.CF_CLIENT_ID }}
-          CF_SECRET: ${{ secrets.CF_CLIENT_SECRET }}
-          PI_USER: ${{ secrets.PI_USERNAME }}
-          PI_HOST: ${{ secrets.PI_HOST }}
-        run: |
-          ssh -o StrictHostKeyChecking=no -o "ProxyCommand=cloudflared access ssh --hostname %h --service-token-id $CF_ID --service-token-secret $CF_SECRET" \
-            $PI_USER@$PI_HOST "sudo systemctl restart hytrac-backend.service"
-
-      - name: Cleanup DB if Schema Changed + Restart Backend
+      - name: Backup DB if Schema Changed + Restart Backend
         env:
           CF_ID: ${{ secrets.CF_CLIENT_ID }}
           CF_SECRET: ${{ secrets.CF_CLIENT_SECRET }}
           PI_USER: ${{ secrets.PI_USERNAME }}
           PI_HOST: ${{ secrets.PI_HOST }}
           DB_CHANGED: ${{ steps.dbcheck.outputs.db_changed }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
+
+          SHORT_SHA=$(echo "$COMMIT_SHA" | cut -c1-8)
 
           ssh -o StrictHostKeyChecking=no \
             -o "ProxyCommand=cloudflared access ssh --hostname %h --service-token-id $CF_ID --service-token-secret $CF_SECRET" \
@@ -82,8 +75,18 @@ jobs:
               cd /home/$PI_USER/hytrac/backend
 
               if [ \"$DB_CHANGED\" = \"true\" ]; then
-                echo 'DB schema changed. Removing SQLite DB files...'
-                rm -f ./*.db
+
+                echo 'DB schema changed.'
+
+                if [ -f prod_database.db ]; then
+
+                  BACKUP_NAME=\"prod_database.db.${SHORT_SHA}.bak\"
+
+                  echo \"Backing up DB to \$BACKUP_NAME\"
+
+                  mv prod_database.db \"\$BACKUP_NAME\"
+
+                fi
               fi
 
               sudo systemctl restart hytrac-backend.service
