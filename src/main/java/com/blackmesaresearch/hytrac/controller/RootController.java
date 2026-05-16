@@ -13,7 +13,7 @@ public class RootController {
     return Map.of(
         "app", "HYTRAC API",
         "status", "ok",
-        "swagger", "/swagger-ui/index.html",
+        "swagger", "/api/swagger-ui.html", // This will redirect to /api/swagger-ui/index.html
         "healthHint", "Use /api/ouch or /api/envios");
   }
 }
