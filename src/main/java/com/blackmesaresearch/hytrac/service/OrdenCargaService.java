@@ -7,6 +7,8 @@ import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
 import com.blackmesaresearch.hytrac.repository.*;
 import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
+import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorDetalleResponseDTO;
+import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaDetalleResponseDTO;
 
 @Service
@@ -239,4 +241,158 @@ public class OrdenCargaService {
                 orden.getCombustible().getDensidad(),
                 orden.getCombustible().getTemperaturaReferencia());
     }
+
+    public List<OrdenSupervisorResponseDTO>
+obtenerTodasSupervisor() {
+
+    return ordenCargaRepository.findAll()
+        .stream()
+        .map(orden -> new OrdenSupervisorResponseDTO(
+
+            orden.getId(),
+
+            orden.getNumeroRemito(),
+            orden.getCot(),
+
+            orden.getEstadoOrdenCarga().getNombre(),
+
+            orden.getCamion().getPatente(),
+            orden.getAcoplado().getPatente(),
+
+            orden.getTransportista()
+                .getUsuario()
+                .getNombre()
+                + " "
+                + orden.getTransportista()
+                    .getUsuario()
+                    .getApellido(),
+
+            orden.getCombustible().getNombre(),
+
+            orden.getLitrosCargados(),
+
+            orden.getPlantaDespacho().getNombre(),
+            orden.getEstacionDestino().getNombre(),
+
+            orden.getFechaCreacion(),
+            orden.getFechaEntregaEstimada(),
+
+            orden.getConfirmado()
+
+        ))
+        .toList();
+}
+
+public OrdenSupervisorDetalleResponseDTO obtenerOrdenSupervisor(
+    Integer id
+) {
+
+    OrdenCarga orden = ordenCargaRepository.findById(id)
+        .orElseThrow(() ->
+            new IllegalArgumentException(
+                "Orden no encontrada."
+            )
+        );
+
+    return new OrdenSupervisorDetalleResponseDTO(
+
+        // =========================
+        // ORDEN
+        // =========================
+
+        orden.getId(),
+        orden.getNumeroRemito(),
+        orden.getCot(),
+
+        orden.getEstadoOrdenCarga().getNombre(),
+
+        orden.getConfirmado(),
+        orden.getFieAdjunta(),
+
+        orden.getObservaciones(),
+
+        // =========================
+        // FECHAS
+        // =========================
+
+        orden.getFechaCreacion(),
+        orden.getFechaSalidaPlanta(),
+        orden.getFechaEntregaEstimada(),
+        orden.getFechaEntregaReal(),
+
+        // =========================
+        // CARGA
+        // =========================
+
+        orden.getLitrosCargados(),
+        orden.getLitrosEntregados(),
+
+        orden.getTemperaturaCarga(),
+        orden.getDensidadCarga(),
+
+        // =========================
+        // CAMION
+        // =========================
+
+        orden.getCamion().getId(),
+        orden.getCamion().getPatente(),
+        orden.getCamion().getMarca(),
+        orden.getCamion().getModelo(),
+        orden.getCamion().getPeso_maximo_admitido(),
+
+        // =========================
+        // ACOPLADO
+        // =========================
+
+        orden.getAcoplado().getId(),
+        orden.getAcoplado().getPatente(),
+        orden.getAcoplado().getCapacidadMaximaLitros(),
+
+        // =========================
+        // TRANSPORTISTA
+        // =========================
+
+        orden.getTransportista().getId(),
+
+        orden.getTransportista()
+            .getUsuario()
+            .getNombre(),
+
+        orden.getTransportista()
+            .getUsuario()
+            .getApellido(),
+
+        orden.getTransportista().getCuit(),
+
+        orden.getTransportista()
+            .getTipoVinculo()
+            .getNombre(),
+
+        // =========================
+        // COMBUSTIBLE
+        // =========================
+
+        orden.getCombustible().getId(),
+        orden.getCombustible().getNombre(),
+        orden.getCombustible().getNumeroOnu(),
+        orden.getCombustible().getClaseRiesgo(),
+        orden.getCombustible().getDensidad(),
+        orden.getCombustible().getTemperaturaReferencia(),
+
+        // =========================
+        // LUGARES
+        // =========================
+
+        orden.getPlantaDespacho().getNombre(),
+        orden.getEstacionDestino().getNombre(),
+
+        // =========================
+        // OPERADOR
+        // =========================
+
+        orden.getOperador().getNombre()
+            + " "
+            + orden.getOperador().getApellido()
+    );
+}
 }
