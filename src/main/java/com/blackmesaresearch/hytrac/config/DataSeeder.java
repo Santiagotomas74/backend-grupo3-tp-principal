@@ -17,18 +17,30 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.blackmesaresearch.hytrac.dto.csv.AcopladoCsv;
 import com.blackmesaresearch.hytrac.dto.csv.CombustibleCsv;
 import com.blackmesaresearch.hytrac.dto.csv.EmpresaTercerizadaCsv;
 import com.blackmesaresearch.hytrac.dto.csv.LocalidadCsv;
 import com.blackmesaresearch.hytrac.dto.csv.LugarOperativoCsv;
+import com.blackmesaresearch.hytrac.dto.csv.OrdenCargaCsv;
+import com.blackmesaresearch.hytrac.dto.csv.TransportistaCsv;
+import com.blackmesaresearch.hytrac.dto.csv.VehiculoCsv;
 import com.blackmesaresearch.hytrac.dto.csv.ProvinciaCsv;
 import com.blackmesaresearch.hytrac.dto.csv.UsuarioCsv;
+import com.blackmesaresearch.hytrac.model.core.Acoplado;
 import com.blackmesaresearch.hytrac.model.core.EmpresaTercerizada;
 import com.blackmesaresearch.hytrac.model.core.LugarOperativo;
+import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
+import com.blackmesaresearch.hytrac.model.core.Transportista;
 import com.blackmesaresearch.hytrac.model.core.Usuario;
+import com.blackmesaresearch.hytrac.model.core.Vehiculo;
+import com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga;
+import com.blackmesaresearch.hytrac.model.lookup.EstadoVehiculo;
 import com.blackmesaresearch.hytrac.model.lookup.Permiso;
 import com.blackmesaresearch.hytrac.model.lookup.Rol;
 import com.blackmesaresearch.hytrac.model.lookup.TipoLugarOperativo;
+import com.blackmesaresearch.hytrac.model.lookup.TipoVinculo;
 import com.blackmesaresearch.hytrac.model.reference.*;
 import com.blackmesaresearch.hytrac.repository.*;
 
@@ -48,7 +60,14 @@ public class DataSeeder implements CommandLineRunner {
     private final TipoLugarOperativoRepository tipoLugarOperativoRepo;
     private final UsuarioRepository usuarioRepo;
     private final EmpresaTercerizadaRepository empresaTercerizadaRepo;
-    private final CsvMapper csvMapper = new CsvMapper();
+    private final TransportistaRepository transportistaRepo;
+    private final VehiculoRepository vehiculoRepo;
+    private final AcopladoRepository acopladoRepo;
+    private final TipoVinculoRepository tipoVinculoRepo;
+    private final EstadoVehiculoRepository estadoVehiculoRepo;
+    private final OrdenCargaRepository ordenCargaRepo;
+    private final EstadoOrdenCargaRepository estadoOrdenCargaRepo;
+    private final CsvMapper csvMapper;
 
     public DataSeeder(
             ProvinciaRepository provinciaRepo,
@@ -59,7 +78,14 @@ public class DataSeeder implements CommandLineRunner {
             LugarOperativoRepository lugarRepo,
             TipoLugarOperativoRepository tipoLugarOperativoRepo,
             UsuarioRepository usuarioRepo,
-            EmpresaTercerizadaRepository empresaTercerizadaRepo) {
+            EmpresaTercerizadaRepository empresaTercerizadaRepo,
+            TransportistaRepository transportistaRepo,
+            VehiculoRepository vehiculoRepo,
+            AcopladoRepository acopladoRepo,
+            TipoVinculoRepository tipoVinculoRepo,
+            EstadoVehiculoRepository estadoVehiculoRepo,
+            OrdenCargaRepository ordenCargaRepo,
+            EstadoOrdenCargaRepository estadoOrdenCargaRepo) {
         this.provinciaRepo = provinciaRepo;
         this.localidadRepo = localidadRepo;
         this.combustibleRepo = combustibleRepo;
@@ -69,6 +95,15 @@ public class DataSeeder implements CommandLineRunner {
         this.tipoLugarOperativoRepo = tipoLugarOperativoRepo;
         this.usuarioRepo = usuarioRepo;
         this.empresaTercerizadaRepo = empresaTercerizadaRepo;
+        this.transportistaRepo = transportistaRepo;
+        this.vehiculoRepo = vehiculoRepo;
+        this.acopladoRepo = acopladoRepo;
+        this.tipoVinculoRepo = tipoVinculoRepo;
+        this.estadoVehiculoRepo = estadoVehiculoRepo;
+        this.ordenCargaRepo = ordenCargaRepo;
+        this.estadoOrdenCargaRepo = estadoOrdenCargaRepo;
+        this.csvMapper = new CsvMapper();
+        this.csvMapper.registerModule(new JavaTimeModule());
     }
 
     // Flujo principal - Define el orden en el que se cargan las tablas
@@ -111,6 +146,18 @@ public class DataSeeder implements CommandLineRunner {
 
         // 8. Load Users
         loadUsuarios(rolMap, lugarMap);
+
+        // 9. Load Transportistas
+        loadTransportistas();
+
+        // 10. Load Vehiculos
+        loadVehiculos();
+
+        // 11. Load Acoplados
+        loadAcoplados();
+
+        // 12. Load Ordenes de Carga
+        loadOrdenesCarga();
 
         log.info("Full database seeding completed successfully!");
 
@@ -323,4 +370,206 @@ public class DataSeeder implements CommandLineRunner {
         }
     }
 
+    private void loadTransportistas() throws IOException {
+        InputStream is = new ClassPathResource("seed/transportistas.csv").getInputStream();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+        Map<String, TipoVinculo> tipoVinculoMap = tipoVinculoRepo.findAll().stream()
+                .collect(Collectors.toMap(TipoVinculo::getNombre, t -> t));
+
+        Map<String, EmpresaTercerizada> empresaMap = new java.util.HashMap<>();
+        empresaTercerizadaRepo.findAll().forEach(e -> {
+            if (e.getNombreFantasia() != null) {
+                empresaMap.put(e.getNombreFantasia(), e);
+            }
+            if (e.getRazonSocial() != null) {
+                empresaMap.putIfAbsent(e.getRazonSocial(), e);
+            }
+        });
+
+        MappingIterator<TransportistaCsv> it = csvMapper.readerFor(TransportistaCsv.class)
+                .with(schema).readValues(is);
+
+        while (it.hasNext()) {
+            TransportistaCsv row = it.next();
+            Usuario usuario = null;
+            if (row.getUsuario_email() != null && !row.getUsuario_email().isBlank()) {
+                usuario = usuarioRepo.findByEmail(row.getUsuario_email()).orElse(null);
+            }
+            if (usuario == null && row.getUsuario_legajo() != null && !row.getUsuario_legajo().isBlank()) {
+                usuario = usuarioRepo.findByLegajo(row.getUsuario_legajo()).orElse(null);
+            }
+
+            TipoVinculo tipoVinculo = tipoVinculoMap.get(row.getTipo_vinculo_nombre());
+            EmpresaTercerizada empresa = empresaMap.get(row.getEmpresa_nombre());
+
+            if (usuario == null || tipoVinculo == null || empresa == null) {
+                log.warn("Skipping transportista because user/type/empresa not found: {} / {} / {}",
+                        row.getUsuario_email() != null ? row.getUsuario_email() : row.getUsuario_legajo(),
+                        row.getTipo_vinculo_nombre(),
+                        row.getEmpresa_nombre());
+                continue;
+            }
+
+            Transportista transportista = new Transportista();
+            transportista.setUsuario(usuario);
+            transportista.setTipoVinculo(tipoVinculo);
+            transportista.setCuit(row.getCuit());
+            transportista.setEmpresa(empresa);
+            transportista.setActivo(row.getActivo() == 1);
+
+            transportistaRepo.save(transportista);
+        }
+    }
+
+    private void loadVehiculos() throws IOException {
+        InputStream is = new ClassPathResource("seed/vehiculo.csv").getInputStream();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+        Map<String, EmpresaTercerizada> empresaMap = new java.util.HashMap<>();
+        empresaTercerizadaRepo.findAll().forEach(e -> {
+            if (e.getNombreFantasia() != null) {
+                empresaMap.put(e.getNombreFantasia(), e);
+            }
+            if (e.getRazonSocial() != null) {
+                empresaMap.putIfAbsent(e.getRazonSocial(), e);
+            }
+        });
+
+        Map<String, EstadoVehiculo> estadoMap = estadoVehiculoRepo.findAll().stream()
+                .collect(Collectors.toMap(EstadoVehiculo::getNombre, e -> e));
+
+        MappingIterator<VehiculoCsv> it = csvMapper.readerFor(VehiculoCsv.class)
+                .with(schema).readValues(is);
+
+        while (it.hasNext()) {
+            VehiculoCsv row = it.next();
+            EmpresaTercerizada empresa = empresaMap.get(row.getEmpresa_nombre());
+            EstadoVehiculo estado = estadoMap.get(row.getEstado_nombre());
+
+            if (empresa == null || estado == null) {
+                log.warn("Skipping vehiculo because empresa or estado not found: {} / {}",
+                        row.getEmpresa_nombre(), row.getEstado_nombre());
+                continue;
+            }
+
+            Vehiculo vehiculo = new Vehiculo();
+            vehiculo.setPatente(row.getPatente());
+            vehiculo.setEmpresa(empresa);
+            vehiculo.setPeso_maximo_admitido(row.getPeso_maximo_admitido());
+            vehiculo.setMarca(row.getMarca());
+            vehiculo.setModelo(row.getModelo());
+            vehiculo.setEstado(estado);
+
+            vehiculoRepo.save(vehiculo);
+        }
+    }
+
+    private void loadAcoplados() throws IOException {
+        InputStream is = new ClassPathResource("seed/acoplado.csv").getInputStream();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+        Map<String, EmpresaTercerizada> empresaMap = new java.util.HashMap<>();
+        empresaTercerizadaRepo.findAll().forEach(e -> {
+            if (e.getNombreFantasia() != null) {
+                empresaMap.put(e.getNombreFantasia(), e);
+            }
+            if (e.getRazonSocial() != null) {
+                empresaMap.putIfAbsent(e.getRazonSocial(), e);
+            }
+        });
+
+        Map<String, EstadoVehiculo> estadoMap = estadoVehiculoRepo.findAll().stream()
+                .collect(Collectors.toMap(EstadoVehiculo::getNombre, e -> e));
+
+        MappingIterator<AcopladoCsv> it = csvMapper.readerFor(AcopladoCsv.class)
+                .with(schema).readValues(is);
+
+        while (it.hasNext()) {
+            AcopladoCsv row = it.next();
+            EmpresaTercerizada empresa = empresaMap.get(row.getEmpresa_nombre());
+            EstadoVehiculo estado = estadoMap.get(row.getEstado_nombre());
+
+            if (empresa == null || estado == null) {
+                log.warn("Skipping acoplado because empresa or estado not found: {} / {}",
+                        row.getEmpresa_nombre(), row.getEstado_nombre());
+                continue;
+            }
+
+            Acoplado acoplado = new Acoplado();
+            acoplado.setPatente(row.getPatente());
+            acoplado.setCapacidadMaximaLitros(row.getCapacidad_maxima_litros());
+            acoplado.setEmpresa(empresa);
+            acoplado.setEstado(estado);
+
+            acopladoRepo.save(acoplado);
+        }
+    }
+
+    private void loadOrdenesCarga() throws IOException {
+        InputStream is = new ClassPathResource("seed/orden_carga.csv").getInputStream();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+        Map<String, Vehiculo> vehiculoMap = vehiculoRepo.findAll().stream()
+                .collect(Collectors.toMap(Vehiculo::getPatente, v -> v));
+        Map<String, Acoplado> acopladoMap = acopladoRepo.findAll().stream()
+                .collect(Collectors.toMap(Acoplado::getPatente, a -> a));
+        Map<String, Transportista> transportistaMap = transportistaRepo.findAll().stream()
+                .collect(Collectors.toMap(t -> t.getUsuario().getLegajo(), t -> t));
+        Map<String, LugarOperativo> lugarMap = lugarRepo.findAll().stream()
+                .collect(Collectors.toMap(LugarOperativo::getNombre, l -> l));
+        Map<String, Usuario> operadorMap = usuarioRepo.findAll().stream()
+                .collect(Collectors.toMap(Usuario::getLegajo, u -> u));
+        Map<String, Combustible> combustibleMap = combustibleRepo.findAll().stream()
+                .collect(Collectors.toMap(Combustible::getNombre, c -> c));
+        Map<String, EstadoOrdenCarga> estadoMap = estadoOrdenCargaRepo.findAll().stream()
+                .collect(Collectors.toMap(EstadoOrdenCarga::getNombre, e -> e));
+
+        MappingIterator<OrdenCargaCsv> it = csvMapper.readerFor(OrdenCargaCsv.class)
+                .with(schema).readValues(is);
+
+        while (it.hasNext()) {
+            OrdenCargaCsv row = it.next();
+
+            Vehiculo camion = vehiculoMap.get(row.getCamionPatente());
+            Acoplado acoplado = acopladoMap.get(row.getAcopladoPatente());
+            Transportista transportista = transportistaMap.get(row.getTransportistaLegajo());
+            LugarOperativo plantaDespacho = lugarMap.get(row.getPlantaDespachoNombre());
+            LugarOperativo estacionDestino = lugarMap.get(row.getEstacionDestinoNombre());
+            Usuario operador = operadorMap.get(row.getOperadorLegajo());
+            Combustible combustible = combustibleMap.get(row.getCombustibleNombre());
+            EstadoOrdenCarga estado = estadoMap.get(row.getEstadoNombre());
+
+            if (camion == null || acoplado == null || transportista == null || plantaDespacho == null
+                    || estacionDestino == null || operador == null || combustible == null || estado == null) {
+                log.warn("Skipping orden_carga because referenced record not found: {} [camion={}, acoplado={}, transportista={}, plantaDespacho={}, estacionDestino={}, operador={}, combustible={}, estado={}]",
+                        row.getNumeroRemito(), row.getCamionPatente(), row.getAcopladoPatente(), row.getTransportistaLegajo(), row.getPlantaDespachoNombre(), row.getEstacionDestinoNombre(), row.getOperadorLegajo(), row.getCombustibleNombre(), row.getEstadoNombre());
+                continue;
+            }
+
+            OrdenCarga orden = new OrdenCarga();
+            orden.setNumeroRemito(row.getNumeroRemito());
+            orden.setCot(row.getCot());
+            orden.setCamion(camion);
+            orden.setAcoplado(acoplado);
+            orden.setTransportista(transportista);
+            orden.setPlantaDespacho(plantaDespacho);
+            orden.setEstacionDestino(estacionDestino);
+            orden.setOperador(operador);
+            orden.setCombustible(combustible);
+            orden.setEstadoOrdenCarga(estado);
+            orden.setFechaCreacion(row.getFechaCreacion());
+            orden.setFechaSalidaPlanta(row.getFechaSalidaPlanta());
+            orden.setFechaEntregaEstimada(row.getFechaEntregaEstimada());
+            orden.setTemperaturaCarga(row.getTemperaturaCarga());
+            orden.setDensidadCarga(row.getDensidadCarga());
+            orden.setLitrosCargados(row.getLitrosCargados());
+            orden.setLitrosEntregados(row.getLitrosEntregados());
+            orden.setFieAdjunta(row.getFieAdjunta());
+            orden.setObservaciones(row.getObservaciones());
+            orden.setConfirmado(row.getConfirmado());
+
+            ordenCargaRepo.save(orden);
+        }
+    }
 }

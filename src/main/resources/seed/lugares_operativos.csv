@@ -1,4 +1,4 @@
 nombre,tipo_nombre,direccion,localidad_nombre,latitud,longitud,puede_recibir,puede_despachar,activo
 Planta San Miguel,Planta,Av Balbin 123,San Miguel,-34.5432,-58.7123,1,1,1
 Deposito Moreno,Deposito,Calle Falsa 123,Moreno,-34.6000,-58.8000,0,1,1
-Estacion Cordoba,Estacion de Servicio,Av Colon 500,Cordoba Capital,-31.4167,-64.1833,1,0,1
+YPF Moreno,Estacion de Servicio,Av Colon 500,Cordoba Capital,-31.4167,-64.1833,1,0,1

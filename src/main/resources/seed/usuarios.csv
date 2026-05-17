@@ -1,3 +1,6 @@
 nombre,apellido,dni,email,legajo,password_raw,rol_nombre,lugar_nombre,activo
 Santiago,Taher,40111222,admin@hytrac.com,LEG001,wearehytrac,ADMIN,Planta San Miguel,1
 Juan,Perez,30111222,juan@hytrac.com,LEG002,wearehytrac,OPERADOR,Deposito Moreno,1
+Martin,Gomez,35666777,martin@hytrac.com,LEG003,wearehytrac,TRANSPORTISTA,Planta San Miguel,1
+Lucia,Fernandez,37888999,lucia@hytrac.com,LEG004,wearehytrac,TRANSPORTISTA,YPF Moreno,1
+Carlos,Ramirez,33444555,carlos@hytrac.com,LEG005,wearehytrac,TRANSPORTISTA,Planta San Miguel,1
