@@ -1,0 +1,2 @@
+orden_numero_remito,usuario_registro_legajo,usuario_gestion_legajo,tipo_incidencia_nombre,descripcion,fecha_incidente,ley_aplicada,acciones_tomadas,resuelto
+REM-0001,LEG001,LEG002,Demora,Demora por trafico,2026-05-16T10:00:00,Ley de Transito,Se notifico al cliente,true

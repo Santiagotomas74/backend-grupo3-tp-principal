@@ -1,0 +1,2 @@
+tipo_documento_nombre,camion_patente,acoplado_patente,transportista_legajo,nro_documento,fecha_emision,fecha_vencimiento,archivo_url,estado_verificacion,comentarios
+Seguro Vehicular,AA123BB,, ,POLIZA-001,2026-05-17,2027-05-17,/docs/poliza.pdf,1,Verificado

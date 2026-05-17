@@ -2,6 +2,7 @@ package com.blackmesaresearch.hytrac.config;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
@@ -29,13 +31,18 @@ import com.blackmesaresearch.hytrac.dto.csv.VehiculoCsv;
 import com.blackmesaresearch.hytrac.dto.csv.ProvinciaCsv;
 import com.blackmesaresearch.hytrac.dto.csv.UsuarioCsv;
 import com.blackmesaresearch.hytrac.model.core.Acoplado;
+import com.blackmesaresearch.hytrac.model.core.AuditoriaEstado;
+import com.blackmesaresearch.hytrac.model.core.Documentacion;
 import com.blackmesaresearch.hytrac.model.core.EmpresaTercerizada;
+import com.blackmesaresearch.hytrac.model.core.Incidencia;
 import com.blackmesaresearch.hytrac.model.core.LugarOperativo;
 import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
 import com.blackmesaresearch.hytrac.model.core.Transportista;
 import com.blackmesaresearch.hytrac.model.core.Usuario;
 import com.blackmesaresearch.hytrac.model.core.Vehiculo;
 import com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga;
+import com.blackmesaresearch.hytrac.model.lookup.TipoDocumento;
+import com.blackmesaresearch.hytrac.model.lookup.TipoIncidencia;
 import com.blackmesaresearch.hytrac.model.lookup.EstadoVehiculo;
 import com.blackmesaresearch.hytrac.model.lookup.Permiso;
 import com.blackmesaresearch.hytrac.model.lookup.Rol;
@@ -67,6 +74,11 @@ public class DataSeeder implements CommandLineRunner {
     private final EstadoVehiculoRepository estadoVehiculoRepo;
     private final OrdenCargaRepository ordenCargaRepo;
     private final EstadoOrdenCargaRepository estadoOrdenCargaRepo;
+    private final DocumentacionRepository documentacionRepo;
+    private final IncidenciaRepository incidenciaRepo;
+    private final AuditoriaEstadoRepository auditoriaEstadoRepo;
+    private final TipoDocumentoRepository tipoDocumentoRepo;
+    private final TipoIncidenciaRepository tipoIncidenciaRepo;
     private final CsvMapper csvMapper;
 
     public DataSeeder(
@@ -85,7 +97,12 @@ public class DataSeeder implements CommandLineRunner {
             TipoVinculoRepository tipoVinculoRepo,
             EstadoVehiculoRepository estadoVehiculoRepo,
             OrdenCargaRepository ordenCargaRepo,
-            EstadoOrdenCargaRepository estadoOrdenCargaRepo) {
+            EstadoOrdenCargaRepository estadoOrdenCargaRepo,
+            DocumentacionRepository documentacionRepo,
+            IncidenciaRepository incidenciaRepo,
+            AuditoriaEstadoRepository auditoriaEstadoRepo,
+            TipoDocumentoRepository tipoDocumentoRepo,
+            TipoIncidenciaRepository tipoIncidenciaRepo) {
         this.provinciaRepo = provinciaRepo;
         this.localidadRepo = localidadRepo;
         this.combustibleRepo = combustibleRepo;
@@ -102,6 +119,11 @@ public class DataSeeder implements CommandLineRunner {
         this.estadoVehiculoRepo = estadoVehiculoRepo;
         this.ordenCargaRepo = ordenCargaRepo;
         this.estadoOrdenCargaRepo = estadoOrdenCargaRepo;
+        this.documentacionRepo = documentacionRepo;
+        this.incidenciaRepo = incidenciaRepo;
+        this.auditoriaEstadoRepo = auditoriaEstadoRepo;
+        this.tipoDocumentoRepo = tipoDocumentoRepo;
+        this.tipoIncidenciaRepo = tipoIncidenciaRepo;
         this.csvMapper = new CsvMapper();
         this.csvMapper.registerModule(new JavaTimeModule());
     }
@@ -158,6 +180,15 @@ public class DataSeeder implements CommandLineRunner {
 
         // 12. Load Ordenes de Carga
         loadOrdenesCarga();
+
+        // 13. Load Documentacion
+        loadDocumentaciones();
+
+        // 14. Load Incidencias
+        loadIncidencias();
+
+        // 15. Load Auditoria de Estados
+        loadAuditoriaEstados();
 
         log.info("Full database seeding completed successfully!");
 
@@ -542,8 +573,9 @@ public class DataSeeder implements CommandLineRunner {
 
             if (camion == null || acoplado == null || transportista == null || plantaDespacho == null
                     || estacionDestino == null || operador == null || combustible == null || estado == null) {
-                log.warn("Skipping orden_carga because referenced record not found: {} [camion={}, acoplado={}, transportista={}, plantaDespacho={}, estacionDestino={}, operador={}, combustible={}, estado={}]",
-                        row.getNumeroRemito(), row.getCamionPatente(), row.getAcopladoPatente(), row.getTransportistaLegajo(), row.getPlantaDespachoNombre(), row.getEstacionDestinoNombre(), row.getOperadorLegajo(), row.getCombustibleNombre(), row.getEstadoNombre());
+                log.warn(
+                        "Skipping orden_carga because referenced record not found: {}",
+                        row.getNumeroRemito());
                 continue;
             }
 
@@ -571,5 +603,189 @@ public class DataSeeder implements CommandLineRunner {
 
             ordenCargaRepo.save(orden);
         }
+    }
+
+    private void loadDocumentaciones() throws IOException {
+        InputStream is = new ClassPathResource("seed/documentacion.csv").getInputStream();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+        MappingIterator<Map<String, String>> it = csvMapper.readerFor(new TypeReference<Map<String, String>>() {
+                })
+                .with(schema).readValues(is);
+
+        Map<String, TipoDocumento> tipoDocumentoMap = tipoDocumentoRepo.findAll().stream()
+                .collect(Collectors.toMap(TipoDocumento::getNombre, t -> t));
+        Map<String, Transportista> transportistaMap = transportistaRepo.findAll().stream()
+                .filter(t -> t.getUsuario() != null && t.getUsuario().getLegajo() != null)
+                .collect(Collectors.toMap(t -> t.getUsuario().getLegajo(), t -> t));
+        Map<String, Vehiculo> vehiculoMap = vehiculoRepo.findAll().stream()
+                .collect(Collectors.toMap(Vehiculo::getPatente, v -> v));
+        Map<String, Acoplado> acopladoMap = acopladoRepo.findAll().stream()
+                .collect(Collectors.toMap(Acoplado::getPatente, a -> a));
+
+        while (it.hasNext()) {
+            Map<String, String> row = it.next();
+            Documentacion doc = new Documentacion();
+            doc.setTipoDocumento(
+                    tipoDocumentoMap.get(firstNonBlank(row.get("tipo_documento_nombre"), row.get("tipo_documento"))));
+            doc.setTransportista(transportistaMap
+                    .get(firstNonBlank(row.get("transportista_legajo"), row.get("transportista_email"))));
+            doc.setCamion(vehiculoMap.get(firstNonBlank(row.get("camion_patente"), row.get("vehiculo_patente"))));
+            doc.setAcoplado(acopladoMap.get(firstNonBlank(row.get("acoplado_patente"), row.get("acoplado"))));
+            doc.setNroDocumento(row.get("nro_documento"));
+            doc.setFechaEmision(parseLocalDate(row.get("fecha_emision")));
+            doc.setFechaVencimiento(parseLocalDate(row.get("fecha_vencimiento")));
+            doc.setArchivoUrl(row.get("archivo_url"));
+            Boolean estadoVerificacion = parseBoolean(row.get("estado_verificacion"));
+            doc.setEstadoVerificacion(estadoVerificacion != null ? estadoVerificacion : false);
+            doc.setComentarios(row.get("comentarios"));
+
+            if (doc.getTipoDocumento() == null) {
+                log.warn("Skipping documentacion because tipo_documento not found: {}",
+                        row.get("tipo_documento_nombre"));
+                continue;
+            }
+            if (doc.getTransportista() == null && doc.getCamion() == null && doc.getAcoplado() == null) {
+                log.warn("Skipping documentacion because no referenced transportista/camion/acoplado was found: {}",
+                        row.get("nro_documento"));
+                continue;
+            }
+
+            documentacionRepo.save(doc);
+        }
+    }
+
+    private void loadIncidencias() throws IOException {
+        InputStream is = new ClassPathResource("seed/incidencias.csv").getInputStream();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+        MappingIterator<Map<String, String>> it = csvMapper.readerFor(new TypeReference<Map<String, String>>() {
+                })
+                .with(schema).readValues(is);
+
+        Map<String, OrdenCarga> ordenMap = ordenCargaRepo.findAll().stream()
+                .collect(Collectors.toMap(OrdenCarga::getNumeroRemito, o -> o));
+        Map<String, Usuario> usuarioMap = usuarioRepo.findAll().stream()
+                .filter(u -> u.getLegajo() != null)
+                .collect(Collectors.toMap(Usuario::getLegajo, u -> u));
+        Map<String, TipoIncidencia> tipoIncidenciaMap = tipoIncidenciaRepo.findAll().stream()
+                .collect(Collectors.toMap(TipoIncidencia::getNombre, t -> t));
+
+        while (it.hasNext()) {
+            Map<String, String> row = it.next();
+            String ordenRef = firstNonBlank(row.get("orden_numero_remito"), row.get("orden_id"));
+            OrdenCarga orden = ordenRef == null ? null : ordenMap.get(ordenRef);
+            TipoIncidencia tipo = tipoIncidenciaMap
+                    .get(firstNonBlank(row.get("tipo_incidencia_nombre"), row.get("tipo_incidencia")));
+
+            if (orden == null || tipo == null) {
+                log.warn("Skipping incidencia because orden or tipo_incidencia not found: orden={} tipo={}", ordenRef,
+                        firstNonBlank(row.get("tipo_incidencia_nombre"), row.get("tipo_incidencia")));
+                continue;
+            }
+
+            Incidencia incidencia = new Incidencia();
+            incidencia.setOrden(orden);
+            incidencia.setUsuarioRegistro(
+                    usuarioMap.get(firstNonBlank(row.get("usuario_registro_legajo"), row.get("usuario_registro"))));
+            incidencia.setUsuarioGestion(
+                    usuarioMap.get(firstNonBlank(row.get("usuario_gestion_legajo"), row.get("usuario_gestion"))));
+            incidencia.setTipoIncidencia(tipo);
+            incidencia.setDescripcion(row.get("descripcion"));
+            incidencia.setFechaIncidente(parseLocalDateTime(row.get("fecha_incidente")));
+            incidencia.setLeyAplicada(row.get("ley_aplicada"));
+            incidencia.setAccionesTomadas(row.get("acciones_tomadas"));
+            incidencia
+                    .setResuelto(parseBoolean(row.get("resuelto")) != null ? parseBoolean(row.get("resuelto")) : false);
+            incidencia.setFechaResolucion(parseLocalDateTime(row.get("fecha_resolucion")));
+
+            incidenciaRepo.save(incidencia);
+        }
+    }
+
+    private void loadAuditoriaEstados() throws IOException {
+        InputStream is = new ClassPathResource("seed/auditoria_estados.csv").getInputStream();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+        MappingIterator<Map<String, String>> it = csvMapper.readerFor(new TypeReference<Map<String, String>>() {
+                })
+                .with(schema).readValues(is);
+
+        Map<String, OrdenCarga> ordenMap = ordenCargaRepo.findAll().stream()
+                .collect(Collectors.toMap(OrdenCarga::getNumeroRemito, o -> o));
+        Map<String, EstadoOrdenCarga> estadoMap = estadoOrdenCargaRepo.findAll().stream()
+                .collect(Collectors.toMap(EstadoOrdenCarga::getNombre, e -> e));
+        Map<String, Usuario> usuarioMap = usuarioRepo.findAll().stream()
+                .filter(u -> u.getLegajo() != null)
+                .collect(Collectors.toMap(Usuario::getLegajo, u -> u));
+
+        while (it.hasNext()) {
+            Map<String, String> row = it.next();
+            String ordenRef = firstNonBlank(row.get("orden_numero_remito"), row.get("orden_id"));
+            OrdenCarga orden = ordenRef == null ? null : ordenMap.get(ordenRef);
+            EstadoOrdenCarga estadoAnterior = estadoMap
+                    .get(firstNonBlank(row.get("estado_anterior_nombre"), row.get("estado_anterior")));
+            EstadoOrdenCarga estadoNuevo = estadoMap
+                    .get(firstNonBlank(row.get("estado_nuevo_nombre"), row.get("estado_nuevo")));
+
+            if (orden == null || estadoAnterior == null || estadoNuevo == null) {
+                log.warn(
+                        "Skipping auditoria_estado because orden or estado names not found: orden={} anterior={} nuevo={}",
+                        ordenRef,
+                        firstNonBlank(row.get("estado_anterior_nombre"), row.get("estado_anterior")),
+                        firstNonBlank(row.get("estado_nuevo_nombre"), row.get("estado_nuevo")));
+                continue;
+            }
+
+            AuditoriaEstado auditoria = new AuditoriaEstado();
+            auditoria.setOrden(orden);
+            auditoria.setEstadoAnterior(estadoAnterior);
+            auditoria.setEstadoNuevo(estadoNuevo);
+            auditoria.setFechaCambio(parseLocalDateTime(row.get("fecha_cambio")));
+            auditoria.setSolicitante(
+                    usuarioMap.get(firstNonBlank(row.get("solicitante_legajo"), row.get("solicitante"))));
+            auditoria.setConfirmador(
+                    usuarioMap.get(firstNonBlank(row.get("confirmador_legajo"), row.get("confirmador"))));
+            auditoria.setMotivo(row.get("motivo"));
+
+            auditoriaEstadoRepo.save(auditoria);
+        }
+    }
+
+    private LocalDate parseLocalDate(String text) {
+        if (text == null || text.isBlank()) {
+            return null;
+        }
+        return LocalDate.parse(text);
+    }
+
+    private LocalDateTime parseLocalDateTime(String text) {
+        if (text == null || text.isBlank()) {
+            return null;
+        }
+        return LocalDateTime.parse(text);
+    }
+
+    private Boolean parseBoolean(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        String normalized = value.trim().toLowerCase();
+        if (normalized.equals("1") || normalized.equals("true") || normalized.equals("yes")) {
+            return true;
+        }
+        if (normalized.equals("0") || normalized.equals("false") || normalized.equals("no")) {
+            return false;
+        }
+        return Boolean.parseBoolean(normalized);
+    }
+
+    private String firstNonBlank(String... values) {
+        for (String value : values) {
+            if (value != null && !value.isBlank()) {
+                return value.trim();
+            }
+        }
+        return null;
     }
 }
