@@ -98,6 +98,11 @@
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
 
+		<!-- Dependencia para CSV -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-csv</artifactId>
+		</dependency>
 		<!-- Dependencia para SMILE (para el modelo de ML) -->
 
 		<!-- 

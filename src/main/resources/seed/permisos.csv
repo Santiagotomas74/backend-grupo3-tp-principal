@@ -1,0 +1,5 @@
+codigo,descripcion
+ORDEN_CREAR,Crear ordenes
+ORDEN_VER,Ver ordenes
+ORDEN_EDITAR,Editar ordenes
+USUARIO_ADMIN,Administrar usuarios
