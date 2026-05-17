@@ -42,9 +42,7 @@ public record OrdenCargaDetalleResponseDTO(
 
         String combustibleNombre,
         String numeroOnu,
-        String claseRiesgo,
-        Double densidadReferencia,
-        Double temperaturaReferencia
+        String claseRiesgo
 
 ) {
 }

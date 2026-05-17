@@ -160,9 +160,6 @@ public class OrdenCargaService {
         orden.setFechaSalidaPlanta(dto.fechaSalidaPlanta());
         orden.setFechaEntregaEstimada(dto.fechaEntrega());
 
-        orden.setTemperaturaCarga(dto.temperatura());
-        orden.setDensidadCarga(dto.densidad());
-
         orden.setObservaciones(dto.observaciones());
 
         orden.setFieAdjunta(dto.fieAdjunta());
@@ -241,162 +238,150 @@ public class OrdenCargaService {
 
                 orden.getCombustible().getNombre(),
                 orden.getCombustible().getNumeroOnu(),
-                orden.getCombustible().getClaseRiesgo(),
-                orden.getCombustible().getDensidad(),
-                orden.getCombustible().getTemperaturaReferencia());
+                orden.getCombustible().getClaseRiesgo()
+        );
     }
 
-    public List<OrdenSupervisorResponseDTO>
-obtenerTodasSupervisor() {
+    public List<OrdenSupervisorResponseDTO> obtenerTodasSupervisor() {
 
-    return ordenCargaRepository.findAll()
-        .stream()
-        .map(orden -> new OrdenSupervisorResponseDTO(
+        return ordenCargaRepository.findAll()
+                .stream()
+                .map(orden -> new OrdenSupervisorResponseDTO(
 
-            orden.getId(),
+                        orden.getId(),
 
-            orden.getNumeroRemito(),
-            orden.getCot(),
+                        orden.getNumeroRemito(),
+                        orden.getCot(),
 
-            orden.getEstadoOrdenCarga().getNombre(),
+                        orden.getEstadoOrdenCarga().getNombre(),
 
-            orden.getCamion().getPatente(),
-            orden.getAcoplado().getPatente(),
+                        orden.getCamion().getPatente(),
+                        orden.getAcoplado().getPatente(),
 
-            orden.getTransportista()
-                .getUsuario()
-                .getNombre()
-                + " "
-                + orden.getTransportista()
-                    .getUsuario()
-                    .getApellido(),
+                        orden.getTransportista()
+                                .getUsuario()
+                                .getNombre()
+                                + " "
+                                + orden.getTransportista()
+                                        .getUsuario()
+                                        .getApellido(),
 
-            orden.getCombustible().getNombre(),
+                        orden.getCombustible().getNombre(),
 
-            orden.getLitrosCargados(),
+                        orden.getLitrosCargados(),
 
-            orden.getPlantaDespacho().getNombre(),
-            orden.getEstacionDestino().getNombre(),
+                        orden.getPlantaDespacho().getNombre(),
+                        orden.getEstacionDestino().getNombre(),
 
-            orden.getFechaCreacion(),
-            orden.getFechaEntregaEstimada(),
+                        orden.getFechaCreacion(),
+                        orden.getFechaEntregaEstimada(),
 
-            orden.getConfirmado()
+                        orden.getConfirmado()
 
-        ))
-        .toList();
-}
+                ))
+                .toList();
+    }
 
-public OrdenSupervisorDetalleResponseDTO obtenerOrdenSupervisor(
-    Integer id
-) {
+    public OrdenSupervisorDetalleResponseDTO obtenerOrdenSupervisor(
+            Integer id) {
 
-    OrdenCarga orden = ordenCargaRepository.findById(id)
-        .orElseThrow(() ->
-            new IllegalArgumentException(
-                "Orden no encontrada."
-            )
-        );
+        OrdenCarga orden = ordenCargaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Orden no encontrada."));
 
-    return new OrdenSupervisorDetalleResponseDTO(
+        return new OrdenSupervisorDetalleResponseDTO(
 
-        // =========================
-        // ORDEN
-        // =========================
+                // =========================
+                // ORDEN
+                // =========================
 
-        orden.getId(),
-        orden.getNumeroRemito(),
-        orden.getCot(),
+                orden.getId(),
+                orden.getNumeroRemito(),
+                orden.getCot(),
 
-        orden.getEstadoOrdenCarga().getNombre(),
+                orden.getEstadoOrdenCarga().getNombre(),
 
-        orden.getConfirmado(),
-        orden.getFieAdjunta(),
+                orden.getConfirmado(),
+                orden.getFieAdjunta(),
 
-        orden.getObservaciones(),
+                orden.getObservaciones(),
 
-        // =========================
-        // FECHAS
-        // =========================
+                // =========================
+                // FECHAS
+                // =========================
 
-        orden.getFechaCreacion(),
-        orden.getFechaSalidaPlanta(),
-        orden.getFechaEntregaEstimada(),
-        orden.getFechaEntregaReal(),
+                orden.getFechaCreacion(),
+                orden.getFechaSalidaPlanta(),
+                orden.getFechaEntregaEstimada(),
+                orden.getFechaEntregaReal(),
 
-        // =========================
-        // CARGA
-        // =========================
+                // =========================
+                // CARGA
+                // =========================
 
-        orden.getLitrosCargados(),
-        orden.getLitrosEntregados(),
+                orden.getLitrosCargados(),
+                orden.getLitrosEntregados(),
 
-        orden.getTemperaturaCarga(),
-        orden.getDensidadCarga(),
+                // =========================
+                // CAMION
+                // =========================
 
-        // =========================
-        // CAMION
-        // =========================
+                orden.getCamion().getId(),
+                orden.getCamion().getPatente(),
+                orden.getCamion().getMarca(),
+                orden.getCamion().getModelo(),
+                orden.getCamion().getPeso_maximo_admitido(),
 
-        orden.getCamion().getId(),
-        orden.getCamion().getPatente(),
-        orden.getCamion().getMarca(),
-        orden.getCamion().getModelo(),
-        orden.getCamion().getPeso_maximo_admitido(),
+                // =========================
+                // ACOPLADO
+                // =========================
 
-        // =========================
-        // ACOPLADO
-        // =========================
+                orden.getAcoplado().getId(),
+                orden.getAcoplado().getPatente(),
+                orden.getAcoplado().getCapacidadMaximaLitros(),
 
-        orden.getAcoplado().getId(),
-        orden.getAcoplado().getPatente(),
-        orden.getAcoplado().getCapacidadMaximaLitros(),
+                // =========================
+                // TRANSPORTISTA
+                // =========================
 
-        // =========================
-        // TRANSPORTISTA
-        // =========================
+                orden.getTransportista().getId(),
 
-        orden.getTransportista().getId(),
+                orden.getTransportista()
+                        .getUsuario()
+                        .getNombre(),
 
-        orden.getTransportista()
-            .getUsuario()
-            .getNombre(),
+                orden.getTransportista()
+                        .getUsuario()
+                        .getApellido(),
 
-        orden.getTransportista()
-            .getUsuario()
-            .getApellido(),
+                orden.getTransportista().getCuit(),
 
-        orden.getTransportista().getCuit(),
+                orden.getTransportista()
+                        .getTipoVinculo()
+                        .getNombre(),
 
-        orden.getTransportista()
-            .getTipoVinculo()
-            .getNombre(),
+                // =========================
+                // COMBUSTIBLE
+                // =========================
 
-        // =========================
-        // COMBUSTIBLE
-        // =========================
+                orden.getCombustible().getId(),
+                orden.getCombustible().getNombre(),
+                orden.getCombustible().getNumeroOnu(),
+                orden.getCombustible().getClaseRiesgo(),
 
-        orden.getCombustible().getId(),
-        orden.getCombustible().getNombre(),
-        orden.getCombustible().getNumeroOnu(),
-        orden.getCombustible().getClaseRiesgo(),
-        orden.getCombustible().getDensidad(),
-        orden.getCombustible().getTemperaturaReferencia(),
+                // =========================
+                // LUGARES
+                // =========================
 
-        // =========================
-        // LUGARES
-        // =========================
+                orden.getPlantaDespacho().getNombre(),
+                orden.getEstacionDestino().getNombre(),
 
-        orden.getPlantaDespacho().getNombre(),
-        orden.getEstacionDestino().getNombre(),
+                // =========================
+                // OPERADOR
+                // =========================
 
-        // =========================
-        // OPERADOR
-        // =========================
-
-        orden.getOperador().getNombre()
-            + " "
-            + orden.getOperador().getApellido()
-    );
-}
+                orden.getOperador().getNombre()
+                        + " "
+                        + orden.getOperador().getApellido());
+    }
 }

@@ -35,9 +35,6 @@ public record OrdenSupervisorDetalleResponseDTO(
     Double litrosCargados,
     Double litrosEntregados,
 
-    Double temperaturaCarga,
-    Double densidadCarga,
-
     // =========================
     // CAMION
     // =========================
@@ -74,8 +71,6 @@ public record OrdenSupervisorDetalleResponseDTO(
     String combustibleNombre,
     String numeroOnu,
     String claseRiesgo,
-    Double densidadReferencia,
-    Double temperaturaReferencia,
 
     // =========================
     // LUGARES

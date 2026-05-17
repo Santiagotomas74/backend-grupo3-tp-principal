@@ -73,12 +73,6 @@ public class OrdenCarga {
   @Column(name = "fecha_entrega_real")
   private LocalDateTime fechaEntregaReal;
 
-  @Column(name = "temperatura_carga")
-  private Double temperaturaCarga;
-
-  @Column(name = "densidad_carga")
-  private Double densidadCarga;
-
   @Column(name = "litros_cargados")
   private Double litrosCargados;
 

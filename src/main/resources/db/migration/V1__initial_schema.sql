@@ -195,8 +195,6 @@ CREATE TABLE Orden_Carga (
     fecha_salida_planta TIMESTAMP,
     fecha_entrega_estimada TIMESTAMP,
     fecha_entrega_real TIMESTAMP,
-    temperatura_carga DECIMAL(10, 4),
-    densidad_carga DECIMAL(10, 4),
     litros_cargados DECIMAL(12, 2),
     litros_entregados DECIMAL(12, 2),
     confirmado BOOLEAN DEFAULT 0,

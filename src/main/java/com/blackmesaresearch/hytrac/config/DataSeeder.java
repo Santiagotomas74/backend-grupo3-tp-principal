@@ -594,8 +594,6 @@ public class DataSeeder implements CommandLineRunner {
             orden.setFechaCreacion(row.getFechaCreacion());
             orden.setFechaSalidaPlanta(row.getFechaSalidaPlanta());
             orden.setFechaEntregaEstimada(row.getFechaEntregaEstimada());
-            orden.setTemperaturaCarga(row.getTemperaturaCarga());
-            orden.setDensidadCarga(row.getDensidadCarga());
             orden.setLitrosCargados(row.getLitrosCargados());
             orden.setLitrosEntregados(row.getLitrosEntregados());
             orden.setFieAdjunta(row.getFieAdjunta());
