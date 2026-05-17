@@ -196,7 +196,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private Map<String, Provincia> loadProvincias() throws IOException {
-        InputStream is = new ClassPathResource("seed/provincias.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/provincias.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         MappingIterator<ProvinciaCsv> it = csvMapper.readerFor(ProvinciaCsv.class)
@@ -214,7 +214,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private Map<String, Localidad> loadLocalidades(Map<String, Provincia> provinciaMap) throws IOException {
-        InputStream is = new ClassPathResource("seed/localidades.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/localidades.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         MappingIterator<LocalidadCsv> it = csvMapper.readerFor(LocalidadCsv.class)
@@ -236,7 +236,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void loadEmpresasTercerizadas(Map<String, Localidad> localidadMap) throws IOException {
-        InputStream is = new ClassPathResource("seed/empresas_tercerizadas.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/empresas_tercerizadas.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         MappingIterator<EmpresaTercerizadaCsv> it = csvMapper.readerFor(EmpresaTercerizadaCsv.class)
@@ -256,7 +256,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void loadCombustibles() throws IOException {
-        InputStream is = new ClassPathResource("seed/combustible.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/combustible.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         MappingIterator<CombustibleCsv> it = csvMapper.readerFor(CombustibleCsv.class)
@@ -274,7 +274,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private Map<String, Rol> loadRoles() throws IOException {
-        InputStream is = new ClassPathResource("seed/roles.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/roles.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         MappingIterator<Rol> it = csvMapper.readerFor(Rol.class)
@@ -289,7 +289,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private Map<String, Permiso> loadPermisos() throws IOException {
-        InputStream is = new ClassPathResource("seed/permisos.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/permisos.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         MappingIterator<Permiso> it = csvMapper.readerFor(Permiso.class)
@@ -304,7 +304,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void loadRolPermisos(Map<String, Rol> rolMap, Map<String, Permiso> permisoMap) throws IOException {
-        InputStream is = new ClassPathResource("seed/rol_permisos.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/rol_permisos.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         MappingIterator<Map<String, String>> it = csvMapper.readerFor(Map.class)
@@ -336,7 +336,7 @@ public class DataSeeder implements CommandLineRunner {
     private Map<String, LugarOperativo> loadLugaresOperativos(Map<String, TipoLugarOperativo> tipoMap,
             Map<String, Localidad> localMap)
             throws IOException {
-        InputStream is = new ClassPathResource("seed/lugares_operativos.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/lugares_operativos.csv").getInputStream();
 
         MappingIterator<LugarOperativoCsv> it = csvMapper.readerFor(LugarOperativoCsv.class)
                 .with(CsvSchema.emptySchema().withHeader())
@@ -369,7 +369,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void loadUsuarios(Map<String, Rol> rolMap, Map<String, LugarOperativo> lugarMap) throws IOException {
-        InputStream is = new ClassPathResource("seed/usuarios.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/usuarios.csv").getInputStream();
 
         MappingIterator<UsuarioCsv> it = csvMapper.readerFor(UsuarioCsv.class)
                 .with(CsvSchema.emptySchema().withHeader())
@@ -402,7 +402,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void loadTransportistas() throws IOException {
-        InputStream is = new ClassPathResource("seed/transportistas.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/transportistas.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         Map<String, TipoVinculo> tipoVinculoMap = tipoVinculoRepo.findAll().stream()
@@ -454,7 +454,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void loadVehiculos() throws IOException {
-        InputStream is = new ClassPathResource("seed/vehiculo.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/vehiculo.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         Map<String, EmpresaTercerizada> empresaMap = new java.util.HashMap<>();
@@ -497,7 +497,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void loadAcoplados() throws IOException {
-        InputStream is = new ClassPathResource("seed/acoplado.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/acoplado.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         Map<String, EmpresaTercerizada> empresaMap = new java.util.HashMap<>();
@@ -538,7 +538,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void loadOrdenesCarga() throws IOException {
-        InputStream is = new ClassPathResource("seed/orden_carga.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/orden_carga.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         Map<String, Vehiculo> vehiculoMap = vehiculoRepo.findAll().stream()
@@ -606,7 +606,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void loadDocumentaciones() throws IOException {
-        InputStream is = new ClassPathResource("seed/documentacion.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/documentacion.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         MappingIterator<Map<String, String>> it = csvMapper.readerFor(new TypeReference<Map<String, String>>() {
@@ -656,7 +656,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void loadIncidencias() throws IOException {
-        InputStream is = new ClassPathResource("seed/incidencias.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/incidencias.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         MappingIterator<Map<String, String>> it = csvMapper.readerFor(new TypeReference<Map<String, String>>() {
@@ -704,7 +704,7 @@ public class DataSeeder implements CommandLineRunner {
     }
 
     private void loadAuditoriaEstados() throws IOException {
-        InputStream is = new ClassPathResource("seed/auditoria_estados.csv").getInputStream();
+        InputStream is = new ClassPathResource("db/seed/auditoria_estados.csv").getInputStream();
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         MappingIterator<Map<String, String>> it = csvMapper.readerFor(new TypeReference<Map<String, String>>() {
