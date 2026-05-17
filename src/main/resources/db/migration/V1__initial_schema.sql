@@ -179,6 +179,7 @@ CREATE TABLE Acoplado (
 -- =========================
 CREATE TABLE Orden_Carga (
     id INTEGER PRIMARY KEY,
+    tracking_id VARCHAR(255) NOT NULL UNIQUE,
     numero_remito VARCHAR(255) NOT NULL UNIQUE,
     cot VARCHAR(255) NOT NULL UNIQUE,
     camion_id INTEGER,

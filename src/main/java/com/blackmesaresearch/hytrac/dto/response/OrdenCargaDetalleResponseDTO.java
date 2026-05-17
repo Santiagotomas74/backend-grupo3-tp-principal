@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public record OrdenCargaDetalleResponseDTO(
 
         Integer id,
+        String trackingId,
         String numeroRemito,
         String cot,
 

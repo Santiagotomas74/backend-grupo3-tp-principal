@@ -134,6 +134,8 @@ public class OrdenCargaService {
 
         OrdenCarga orden = new OrdenCarga();
 
+        orden.setTrackingId("HT-" + System.currentTimeMillis()); // Generación simple de tracking_id
+
         orden.setNumeroRemito(dto.numeroRemito());
         orden.setCot(dto.cot());
 
@@ -178,6 +180,7 @@ public class OrdenCargaService {
     private OrdenCargaResponseDTO toResponseDTO(OrdenCarga orden) {
         return new OrdenCargaResponseDTO(
                 orden.getId(),
+                orden.getTrackingId(),
                 orden.getNumeroRemito(),
                 orden.getCot(),
                 orden.getEstadoOrdenCarga().getNombre(),
@@ -198,6 +201,7 @@ public class OrdenCargaService {
         return new OrdenCargaDetalleResponseDTO(
 
                 orden.getId(),
+                orden.getTrackingId(),
                 orden.getNumeroRemito(),
                 orden.getCot(),
 

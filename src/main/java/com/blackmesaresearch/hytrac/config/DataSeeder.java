@@ -580,6 +580,7 @@ public class DataSeeder implements CommandLineRunner {
             }
 
             OrdenCarga orden = new OrdenCarga();
+            orden.setTrackingId("HT-" + System.currentTimeMillis());
             orden.setNumeroRemito(row.getNumeroRemito());
             orden.setCot(row.getCot());
             orden.setCamion(camion);

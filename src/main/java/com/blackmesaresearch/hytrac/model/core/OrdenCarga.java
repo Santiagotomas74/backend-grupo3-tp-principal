@@ -23,6 +23,9 @@ public class OrdenCarga {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
+  @Column(name = "tracking_id", unique = true, nullable = false)
+  private String trackingId;
+  
   @Column(name = "numero_remito", unique = true, nullable = false)
   private String numeroRemito;
 
