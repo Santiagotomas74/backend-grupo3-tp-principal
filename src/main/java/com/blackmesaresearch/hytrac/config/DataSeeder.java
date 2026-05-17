@@ -18,10 +18,12 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.blackmesaresearch.hytrac.dto.csv.CombustibleCsv;
+import com.blackmesaresearch.hytrac.dto.csv.EmpresaTercerizadaCsv;
 import com.blackmesaresearch.hytrac.dto.csv.LocalidadCsv;
 import com.blackmesaresearch.hytrac.dto.csv.LugarOperativoCsv;
 import com.blackmesaresearch.hytrac.dto.csv.ProvinciaCsv;
 import com.blackmesaresearch.hytrac.dto.csv.UsuarioCsv;
+import com.blackmesaresearch.hytrac.model.core.EmpresaTercerizada;
 import com.blackmesaresearch.hytrac.model.core.LugarOperativo;
 import com.blackmesaresearch.hytrac.model.core.Usuario;
 import com.blackmesaresearch.hytrac.model.lookup.Permiso;
@@ -45,6 +47,7 @@ public class DataSeeder implements CommandLineRunner {
     private final LugarOperativoRepository lugarRepo;
     private final TipoLugarOperativoRepository tipoLugarOperativoRepo;
     private final UsuarioRepository usuarioRepo;
+    private final EmpresaTercerizadaRepository empresaTercerizadaRepo;
     private final CsvMapper csvMapper = new CsvMapper();
 
     public DataSeeder(
@@ -55,7 +58,8 @@ public class DataSeeder implements CommandLineRunner {
             PermisoRepository permisoRepo,
             LugarOperativoRepository lugarRepo,
             TipoLugarOperativoRepository tipoLugarOperativoRepo,
-            UsuarioRepository usuarioRepo) {
+            UsuarioRepository usuarioRepo,
+            EmpresaTercerizadaRepository empresaTercerizadaRepo) {
         this.provinciaRepo = provinciaRepo;
         this.localidadRepo = localidadRepo;
         this.combustibleRepo = combustibleRepo;
@@ -64,6 +68,7 @@ public class DataSeeder implements CommandLineRunner {
         this.lugarRepo = lugarRepo;
         this.tipoLugarOperativoRepo = tipoLugarOperativoRepo;
         this.usuarioRepo = usuarioRepo;
+        this.empresaTercerizadaRepo = empresaTercerizadaRepo;
     }
 
     // Flujo principal - Define el orden en el que se cargan las tablas
@@ -82,7 +87,10 @@ public class DataSeeder implements CommandLineRunner {
         // 2. Load Localidades (now returns Map for Lugares Operativos to use)
         Map<String, Localidad> localidadMap = loadLocalidades(provinciaMap);
 
-        // 3. Load Combustibles
+        // 3. Load Empresas Tercerizadas
+        loadEmpresasTercerizadas(localidadMap);
+
+        // 4. Load Combustibles
         loadCombustibles();
 
         // 4. Load Roles
@@ -147,6 +155,26 @@ public class DataSeeder implements CommandLineRunner {
             }
         });
         return localidadRepo.findAll().stream().collect(Collectors.toMap(Localidad::getNombre, l -> l));
+    }
+
+    private void loadEmpresasTercerizadas(Map<String, Localidad> localidadMap) throws IOException {
+        InputStream is = new ClassPathResource("seed/empresas_tercerizadas.csv").getInputStream();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+        MappingIterator<EmpresaTercerizadaCsv> it = csvMapper.readerFor(EmpresaTercerizadaCsv.class)
+                .with(schema).readValues(is);
+
+        it.forEachRemaining(row -> {
+            EmpresaTercerizada empresa = new EmpresaTercerizada();
+            empresa.setNombreFantasia(row.getNombre_fantasia());
+            empresa.setRazonSocial(row.getRazon_social());
+            empresa.setCuit(row.getCuit());
+            empresa.setDireccion(row.getDireccion());
+            empresa.setTelefono(row.getTelefono());
+            empresa.setActivo(row.getActivo() == 1);
+            empresa.setLocalidad(localidadMap.get(row.getLocalidad_nombre()));
+            empresaTercerizadaRepo.save(empresa);
+        });
     }
 
     private void loadCombustibles() throws IOException {
