@@ -28,7 +28,7 @@ public class SupervisorOrdenController {
     // =========================
     // TODAS LAS ORDENES
     // =========================
-
+ 
     @GetMapping
     public ResponseEntity<List<OrdenSupervisorResponseDTO>>
     obtenerTodas() {

@@ -1,8 +1,10 @@
 package com.blackmesaresearch.hytrac.repository;
 
-import com.blackmesaresearch.hytrac.model.core.Transportista;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.blackmesaresearch.hytrac.model.core.Transportista;
+
 public interface TransportistaRepository
-                extends JpaRepository<Transportista, Integer> {
+        extends JpaRepository<Transportista, Integer> {
+
 }
