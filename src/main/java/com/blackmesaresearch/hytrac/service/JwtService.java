@@ -33,7 +33,6 @@ public class JwtService {
         return Jwts.builder()
 
             .setSubject(usuario.getEmail())
-
             .claim("id", usuario.getId())
             .claim("nombre", usuario.getNombre())
             .claim("legajo", usuario.getLegajo())

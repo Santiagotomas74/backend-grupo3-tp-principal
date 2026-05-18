@@ -8,7 +8,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.blackmesaresearch.hytrac.model.lookup.Rol;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 @Entity
 @Table(name = "Usuario")
