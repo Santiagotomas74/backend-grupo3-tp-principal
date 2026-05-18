@@ -7,7 +7,6 @@ import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
 import com.blackmesaresearch.hytrac.repository.EstadoOrdenCargaRepository;
 import com.blackmesaresearch.hytrac.repository.OrdenCargaRepository;
 
-
 @Service
 public class TransportistaOrdenService {
 
@@ -27,19 +26,15 @@ public class TransportistaOrdenService {
     // =========================
 
     public OrdenTransportistaResponseDTO
-    obtenerOrdenPendiente(Integer transportistaId) {
+    obtenerOrdenPendiente(String legajo) {
 
         OrdenCarga orden =
             ordenCargaRepository
-                .findByTransportistaIdAndConfirmadoTrue(
-                    transportistaId
+                .findByTransportista_Usuario_LegajoAndConfirmadoTrueAndEstadoOrdenCarga_Nombre(
+                    legajo,
+                    "Pendiente"
                 )
                 .stream()
-                .filter(o ->
-                    o.getEstadoOrdenCarga()
-                        .getNombre()
-                        .equalsIgnoreCase("Pendiente")
-                )
                 .findFirst()
                 .orElseThrow(() ->
                     new IllegalArgumentException(

@@ -38,9 +38,6 @@ INSERT INTO Estado_Orden_Carga (id, nombre) VALUES
 (5, 'Pendiente de inicio de viaje');
 
 
-
-
-
 -- =========================
 -- TIPOS INCIDENCIA
 -- =========================

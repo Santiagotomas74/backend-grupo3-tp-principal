@@ -1,6 +1,5 @@
 package com.blackmesaresearch.hytrac.controller;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
@@ -26,15 +25,15 @@ public class TransportistaOrdenController {
     // OBTENER ORDEN ACTIVA
     // =========================
 
-    @GetMapping("/{transportistaId}/orden")
+    @GetMapping("/{legajo}/orden")
     public ResponseEntity<?> obtenerOrdenActiva(
-        @PathVariable Integer transportistaId
+        @PathVariable String legajo
     ) {
 
         try {
 
             OrdenTransportistaResponseDTO response =
-                service.obtenerOrdenPendiente(transportistaId);
+                service.obtenerOrdenPendiente(legajo);
 
             return ResponseEntity.ok(response);
 

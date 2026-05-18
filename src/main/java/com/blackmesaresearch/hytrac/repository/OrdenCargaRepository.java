@@ -33,7 +33,8 @@ public interface OrdenCargaRepository
     // =========================
 
     List<OrdenCarga>
-    findByTransportistaIdAndConfirmadoTrue(
-        Integer transportistaId
-    );
+findByTransportista_Usuario_LegajoAndConfirmadoTrueAndEstadoOrdenCarga_Nombre(
+    String legajo,
+    String estado
+);
 }
