@@ -4,6 +4,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
+import com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga;
 import com.blackmesaresearch.hytrac.repository.*;
 import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
@@ -398,4 +399,51 @@ public class OrdenCargaService {
 
     ordenCargaRepository.save(orden);
 }
+
+public void aprobarInicioViaje(Integer id) {
+
+    OrdenCarga orden =
+        ordenCargaRepository.findById(id)
+            .orElseThrow(() ->
+                new IllegalArgumentException(
+                    "Orden no encontrada."
+                )
+            );
+
+    // =========================
+    // VALIDAR ESTADO ACTUAL
+    // =========================
+
+    if (!orden.getEstadoOrdenCarga()
+        .getNombre()
+        .equalsIgnoreCase("Pendiente de inicio de viaje")) {
+
+        throw new IllegalArgumentException(
+            "La orden no está pendiente de inicio de viaje."
+        );
+    }
+
+    // =========================
+    // OBTENER NUEVO ESTADO
+    // =========================
+
+    EstadoOrdenCarga nuevoEstado =
+        estadoOrdenCargaRepository
+            .findByNombre("En Curso")
+            .orElseThrow(() ->
+                new IllegalArgumentException(
+                    "Estado 'En Curso' no encontrado."
+                )
+            );
+
+    // =========================
+    // ACTUALIZAR
+    // =========================
+
+    orden.setEstadoOrdenCarga(nuevoEstado);
+
+    ordenCargaRepository.save(orden);
+}
+
+
 }

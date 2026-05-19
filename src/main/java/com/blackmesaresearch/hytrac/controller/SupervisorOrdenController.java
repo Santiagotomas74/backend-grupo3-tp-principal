@@ -94,4 +94,37 @@ public ResponseEntity<?> confirmarOrden(
         );
     }
 }
+
+// =========================
+// APROBAR INICIO DE VIAJE
+// =========================
+
+@PutMapping("/{id}/aprobar-inicio")
+public ResponseEntity<?> aprobarInicioViaje(
+    @PathVariable Integer id
+) {
+
+    try {
+
+        ordenCargaService.aprobarInicioViaje(id);
+
+        return ResponseEntity.ok(
+            Map.of(
+                "success", true,
+                "message",
+                "La orden pasó a estado En Curso."
+            )
+        );
+
+    } catch (IllegalArgumentException e) {
+
+        return ResponseEntity.badRequest().body(
+            Map.of(
+                "success", false,
+                "message", e.getMessage()
+            )
+        );
+    }
+}
+
 }
