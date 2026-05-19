@@ -63,4 +63,35 @@ public class SupervisorOrdenController {
             );
         }
     }
+
+    // =========================
+// CONFIRMAR ORDEN
+// =========================
+
+@PutMapping("/{id}/confirmar")
+public ResponseEntity<?> confirmarOrden(
+    @PathVariable Integer id
+) {
+
+    try {
+
+        ordenCargaService.confirmarOrden(id);
+
+        return ResponseEntity.ok(
+            Map.of(
+                "success", true,
+                "message", "Orden confirmada correctamente."
+            )
+        );
+
+    } catch (IllegalArgumentException e) {
+
+        return ResponseEntity.badRequest().body(
+            Map.of(
+                "success", false,
+                "message", e.getMessage()
+            )
+        );
+    }
+}
 }

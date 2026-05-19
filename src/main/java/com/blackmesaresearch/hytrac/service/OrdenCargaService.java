@@ -384,4 +384,18 @@ public class OrdenCargaService {
                         + " "
                         + orden.getOperador().getApellido());
     }
+
+    public void confirmarOrden(Integer id) {
+
+    OrdenCarga orden = ordenCargaRepository.findById(id)
+        .orElseThrow(() ->
+            new IllegalArgumentException(
+                "Orden no encontrada."
+            )
+        );
+
+    orden.setConfirmado(true);
+
+    ordenCargaRepository.save(orden);
+}
 }
