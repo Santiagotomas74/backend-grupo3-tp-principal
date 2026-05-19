@@ -79,4 +79,31 @@ public class TransportistaOrdenController {
             );
         }
     }
+
+    // =========================
+// OBTENER ORDEN EN CURSO
+// =========================
+
+@GetMapping("/{legajo}/orden-en-curso")
+public ResponseEntity<?> obtenerOrdenEnCurso(
+    @PathVariable String legajo
+) {
+
+    try {
+
+        OrdenTransportistaResponseDTO response =
+            service.obtenerOrdenEnCurso(legajo);
+
+        return ResponseEntity.ok(response);
+
+    } catch (IllegalArgumentException e) {
+
+        return ResponseEntity.badRequest().body(
+            Map.of(
+                "success", false,
+                "message", e.getMessage()
+            )
+        );
+    }
+}
 }

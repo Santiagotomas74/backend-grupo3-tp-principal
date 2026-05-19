@@ -107,4 +107,54 @@ public class TransportistaOrdenService {
 
         ordenCargaRepository.save(orden);
     }
+
+    // =========================
+// OBTENER ORDEN EN CURSO
+// =========================
+
+public OrdenTransportistaResponseDTO
+obtenerOrdenEnCurso(String legajo) {
+
+    OrdenCarga orden =
+        ordenCargaRepository
+            .findByTransportista_Usuario_LegajoAndConfirmadoTrue(
+                legajo
+            )
+            .stream()
+            .filter(o ->
+                o.getEstadoOrdenCarga()
+                    .getNombre()
+                    .equalsIgnoreCase("En Curso")
+            )
+            .findFirst()
+            .orElseThrow(() ->
+                new IllegalArgumentException(
+                    "No hay órdenes en curso."
+                )
+            );
+
+    return new OrdenTransportistaResponseDTO(
+
+        orden.getId(),
+
+        orden.getNumeroRemito(),
+        orden.getCot(),
+
+        orden.getEstadoOrdenCarga().getNombre(),
+
+        orden.getCamion().getPatente(),
+        orden.getAcoplado().getPatente(),
+
+        orden.getCombustible().getNombre(),
+
+        orden.getLitrosCargados(),
+
+        orden.getPlantaDespacho().getNombre(),
+        orden.getEstacionDestino().getNombre(),
+
+        orden.getFechaEntregaEstimada(),
+
+        orden.getConfirmado()
+    );
+}
 }

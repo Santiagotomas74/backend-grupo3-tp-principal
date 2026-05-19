@@ -37,4 +37,8 @@ findByTransportista_Usuario_LegajoAndConfirmadoTrueAndEstadoOrdenCarga_Nombre(
     String legajo,
     String estado
 );
+List<OrdenCarga>
+findByTransportista_Usuario_LegajoAndConfirmadoTrue(
+    String legajo
+);
 }
