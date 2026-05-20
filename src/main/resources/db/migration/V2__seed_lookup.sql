@@ -35,7 +35,8 @@ INSERT INTO Estado_Orden_Carga (id, nombre) VALUES
 (2, 'En Curso'),
 (3, 'Entregada'),
 (4, 'Cancelada'),
-(5, 'Pendiente de inicio de viaje');
+(5, 'Pendiente de inicio de viaje'),
+(6, 'Pendiente de confirmacion de entrega');
 
 
 -- =========================
