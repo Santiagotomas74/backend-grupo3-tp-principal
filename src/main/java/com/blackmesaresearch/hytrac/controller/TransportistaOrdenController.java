@@ -106,4 +106,37 @@ public ResponseEntity<?> obtenerOrdenEnCurso(
         );
     }
 }
+
+// =========================
+// NOTIFICAR ENTREGA
+// =========================
+
+@PutMapping("/orden/{ordenId}/notificar-entrega")
+public ResponseEntity<?> notificarEntrega(
+    @PathVariable Integer ordenId
+) {
+
+    try {
+
+        service.notificarEntrega(ordenId);
+
+        return ResponseEntity.ok(
+            Map.of(
+                "success", true,
+                "message",
+                "Entrega notificada correctamente."
+            )
+        );
+
+    } catch (IllegalArgumentException e) {
+
+        return ResponseEntity.badRequest().body(
+            Map.of(
+                "success", false,
+                "message", e.getMessage()
+            )
+        );
+    }
+}
+
 }

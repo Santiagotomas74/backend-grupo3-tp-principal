@@ -157,4 +157,55 @@ obtenerOrdenEnCurso(String legajo) {
         orden.getConfirmado()
     );
 }
+// =========================
+// NOTIFICAR ENTREGA
+// =========================
+
+public void notificarEntrega(Integer ordenId) {
+
+    OrdenCarga orden =
+        ordenCargaRepository.findById(ordenId)
+            .orElseThrow(() ->
+                new IllegalArgumentException(
+                    "Orden no encontrada."
+                )
+            );
+
+    // =========================
+    // VALIDAR ESTADO ACTUAL
+    // =========================
+
+    if (!orden.getEstadoOrdenCarga()
+        .getNombre()
+        .equalsIgnoreCase("En Curso")) {
+
+        throw new IllegalArgumentException(
+            "La orden no está en curso."
+        );
+    }
+
+    // =========================
+    // NUEVO ESTADO
+    // =========================
+
+    var nuevoEstado =
+        estadoRepository
+            .findByNombre(
+                "Pendiente de confirmacion de entrega"
+            )
+            .orElseThrow(() ->
+                new IllegalArgumentException(
+                    "Estado no encontrado."
+                )
+            );
+
+    // =========================
+    // ACTUALIZAR
+    // =========================
+
+    orden.setEstadoOrdenCarga(nuevoEstado);
+
+    ordenCargaRepository.save(orden);
+}
+
 }
