@@ -177,35 +177,24 @@ public class OrdenCargaService {
 
     private OrdenCargaResponseDTO toResponseDTO(OrdenCarga orden) {
         return new OrdenCargaResponseDTO(
-
-        orden.getId(),
-
-        orden.getNumeroRemito(),
-        orden.getCot(),
-
-        orden.getEstadoOrdenCarga().getNombre(),
-
-        orden.getCamion().getPatente(),
-        orden.getAcoplado().getPatente(),
-
-        orden.getTransportista()
-            .getUsuario()
-            .getNombre(),
-
-        orden.getTransportista()
-            .getUsuario()
-            .getApellido(),
-
-        orden.getOperador().getLegajo(),
-
-        orden.getCombustible().getNombre(),
-
-        orden.getLitrosCargados(),
-
-        orden.getFechaCreacion(),
-
-        orden.getConfirmado()
-    );
+               orden.getId(),
+orden.getTrackingId(),
+orden.getNumeroRemito(),
+orden.getCot(),
+orden.getEstadoOrdenCarga().getNombre(),
+orden.getCombustible().getNombre(),
+orden.getPlantaDespacho().getNombre(),
+orden.getEstacionDestino().getNombre(),
+orden.getLitrosCargados(),
+orden.getFechaCreacion(),
+orden.getFechaEntregaEstimada(),
+orden.getCamion().getPatente(),
+orden.getAcoplado().getPatente(),
+orden.getTransportista().getUsuario().getNombre(),
+orden.getTransportista().getUsuario().getApellido(),
+orden.getOperador().getLegajo(),
+orden.getConfirmado()
+        );
     }
 
     public OrdenCargaDetalleResponseDTO obtenerDetallePorId(Integer id) {
