@@ -453,4 +453,55 @@ public void aprobarInicioViaje(Integer id) {
 }
 
 
+public OrdenCargaResponseDTO obtenerPorRemito(
+    String numeroRemito
+) {
+
+    OrdenCarga orden = ordenCargaRepository
+        .findByNumeroRemito(numeroRemito)
+        .orElseThrow(() ->
+            new IllegalArgumentException(
+                "Orden no encontrada."
+            )
+        );
+
+    return new OrdenCargaResponseDTO(
+
+        orden.getId(),
+        orden.getTrackingId(),
+        orden.getNumeroRemito(),
+        orden.getCot(),
+
+        orden.getEstadoOrdenCarga().getNombre(),
+
+        orden.getCombustible().getNombre(),
+
+        orden.getPlantaDespacho().getNombre(),
+        orden.getEstacionDestino().getNombre(),
+
+        orden.getLitrosCargados(),
+
+        orden.getFechaCreacion(),
+        orden.getFechaEntregaEstimada(),
+
+        orden.getCamion().getPatente(),
+        orden.getAcoplado().getPatente(),
+
+        orden.getTransportista()
+            .getUsuario()
+            .getNombre(),
+
+        orden.getTransportista()
+            .getUsuario()
+            .getApellido(),
+
+        orden.getTransportista()
+            .getUsuario()
+            .getLegajo(),
+
+        orden.getOperador().getLegajo(),
+
+        orden.getConfirmado()
+    );
+}
 }

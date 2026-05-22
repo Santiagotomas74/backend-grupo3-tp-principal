@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,5 +31,35 @@ public class LugarOperativoController {
     @GetMapping("/estaciones-servicio/get")
     public ResponseEntity<List<LugarOperativoResponseDTO>> obtenerEstacionesServicio() {
         return ResponseEntity.ok(lugarOperativoService.obtenerEstacionesServicio());
+    }
+
+     // =========================
+    // PLANTAS
+    // =========================
+
+    @GetMapping("/plantas/{localidadId}")
+    public ResponseEntity<List<LugarOperativoResponseDTO>>
+    obtenerPlantas(
+        @PathVariable Integer localidadId
+    ) {
+
+        return ResponseEntity.ok(
+            lugarOperativoService.obtenerPlantasPorLocalidad(localidadId)
+        );
+    }
+
+    // =========================
+    // ESTACIONES
+    // =========================
+
+    @GetMapping("/estaciones/{localidadId}")
+    public ResponseEntity<List<LugarOperativoResponseDTO>>
+    obtenerEstaciones(
+        @PathVariable Integer localidadId
+    ) {
+
+        return ResponseEntity.ok(
+            lugarOperativoService.obtenerEstacionesPorLocalidad(localidadId)
+        );
     }
 }

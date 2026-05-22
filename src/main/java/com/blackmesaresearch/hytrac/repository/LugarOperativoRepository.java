@@ -10,7 +10,8 @@ import org.springframework.stereotype.Repository;
 import com.blackmesaresearch.hytrac.model.core.LugarOperativo;
 
 @Repository
-public interface LugarOperativoRepository extends JpaRepository<LugarOperativo, Integer> {
+public interface LugarOperativoRepository
+        extends JpaRepository<LugarOperativo, Integer> {
 
     List<LugarOperativo> findByActivoTrue();
 
@@ -23,7 +24,9 @@ public interface LugarOperativoRepository extends JpaRepository<LugarOperativo, 
             where lo.activo = true
                 and lower(tipo.nombre) = lower(:nombreTipo)
             """)
-    List<LugarOperativo> findActivosByTipoNombre(@Param("nombreTipo") String nombreTipo);
+    List<LugarOperativo> findActivosByTipoNombre(
+            @Param("nombreTipo") String nombreTipo
+    );
 
     @Query("""
             select lo
@@ -47,4 +50,9 @@ public interface LugarOperativoRepository extends JpaRepository<LugarOperativo, 
             """)
     List<LugarOperativo> findActivosByPuedeRecibir();
 
+    List<LugarOperativo>
+    findByLocalidad_IdAndTipo_Nombre(
+        Integer localidadId,
+        String tipoLugar
+    );
 }
