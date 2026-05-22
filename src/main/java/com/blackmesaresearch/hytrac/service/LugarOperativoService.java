@@ -11,9 +11,6 @@ import com.blackmesaresearch.hytrac.repository.LugarOperativoRepository;
 @Service
 public class LugarOperativoService {
 
-    private static final String TIPO_PLANTA = "Planta";
-    private static final String TIPO_ESTACION_SERVICIO = "Estacion de Servicio";
-
     private final LugarOperativoRepository lugarOperativoRepository;
 
     public LugarOperativoService(LugarOperativoRepository lugarOperativoRepository) {
@@ -21,15 +18,14 @@ public class LugarOperativoService {
     }
 
     public List<LugarOperativoResponseDTO> obtenerPlantas() {
-        return encontrarPorTipo(TIPO_PLANTA);
+        return lugarOperativoRepository.findActivosByPuedeDespachar()
+                .stream()
+                .map(this::toResponseDTO)
+                .toList();
     }
 
     public List<LugarOperativoResponseDTO> obtenerEstacionesServicio() {
-        return encontrarPorTipo(TIPO_ESTACION_SERVICIO);
-    }
-
-    private List<LugarOperativoResponseDTO> encontrarPorTipo(String nombreTipo) {
-        return lugarOperativoRepository.findActivosByTipoNombre(nombreTipo)
+        return lugarOperativoRepository.findActivosByPuedeRecibir()
                 .stream()
                 .map(this::toResponseDTO)
                 .toList();

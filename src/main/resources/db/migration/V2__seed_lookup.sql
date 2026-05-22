@@ -5,9 +5,10 @@
 -- =========================
 
 INSERT INTO Tipo_Lugar_Operativo (id, nombre) VALUES
-(1, 'Planta'),
+(1, 'Planta de Despacho'),
 (2, 'Estacion de Servicio'),
-(3, 'Deposito');
+(3, 'Aeropuerto / Base de Carga'),
+(4, 'Refineria');
 
 -- =========================
 -- ESTADOS VEHICULO
