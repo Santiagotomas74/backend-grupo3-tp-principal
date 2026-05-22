@@ -192,6 +192,7 @@ orden.getCamion().getPatente(),
 orden.getAcoplado().getPatente(),
 orden.getTransportista().getUsuario().getNombre(),
 orden.getTransportista().getUsuario().getApellido(),
+orden.getTransportista().getUsuario().getLegajo(),
 orden.getOperador().getLegajo(),
 orden.getConfirmado()
         );

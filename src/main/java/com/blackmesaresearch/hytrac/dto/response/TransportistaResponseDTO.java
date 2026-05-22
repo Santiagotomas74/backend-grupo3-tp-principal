@@ -8,6 +8,7 @@ public record TransportistaResponseDTO(
         String apellido,
 
         String cuit,
+        String legajo,
 
         String tipoVinculo
 

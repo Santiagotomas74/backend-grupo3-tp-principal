@@ -3,8 +3,7 @@ package com.blackmesaresearch.hytrac.dto.response;
 import java.time.LocalDateTime;
 
 public record OrdenCargaResponseDTO(
-                Integer id,
-
+    Integer id,
     String trackingId,
 
     String numeroRemito,
@@ -26,6 +25,7 @@ public record OrdenCargaResponseDTO(
 
     String transportistaNombre,
     String transportistaApellido,
+    String transportistaLegajo,
 
     String operadorLegajo,
 
