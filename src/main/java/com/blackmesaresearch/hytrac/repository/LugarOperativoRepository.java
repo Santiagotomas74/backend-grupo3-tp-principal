@@ -25,4 +25,26 @@ public interface LugarOperativoRepository extends JpaRepository<LugarOperativo, 
             """)
     List<LugarOperativo> findActivosByTipoNombre(@Param("nombreTipo") String nombreTipo);
 
+    @Query("""
+            select lo
+            from LugarOperativo lo
+            join fetch lo.tipo tipo
+            left join fetch lo.localidad localidad
+            left join fetch localidad.provincia provincia
+            where lo.activo = true
+                and lo.puedeDespachar = true
+            """)
+    List<LugarOperativo> findActivosByPuedeDespachar();
+
+    @Query("""
+            select lo
+            from LugarOperativo lo
+            join fetch lo.tipo tipo
+            left join fetch lo.localidad localidad
+            left join fetch localidad.provincia provincia
+            where lo.activo = true
+                and lo.puedeRecibir = true
+            """)
+    List<LugarOperativo> findActivosByPuedeRecibir();
+
 }
