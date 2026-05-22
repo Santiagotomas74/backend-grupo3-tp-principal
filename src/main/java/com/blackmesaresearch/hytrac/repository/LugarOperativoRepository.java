@@ -14,6 +14,7 @@ public interface LugarOperativoRepository extends JpaRepository<LugarOperativo, 
 
     List<LugarOperativo> findByActivoTrue();
 
+<<<<<<< HEAD
     @Query("""
             select lo
             from LugarOperativo lo
@@ -24,5 +25,17 @@ public interface LugarOperativoRepository extends JpaRepository<LugarOperativo, 
                 and lower(tipo.nombre) = lower(:nombreTipo)
             """)
     List<LugarOperativo> findActivosByTipoNombre(@Param("nombreTipo") String nombreTipo);
+=======
+        @Query("""
+                        select lo
+                        from LugarOperativo lo
+                        join fetch lo.tipo tipo
+                        left join fetch lo.localidad localidad
+                        left join fetch localidad.provincia provincia
+                        where lo.activo = true
+                            and lower(tipo.nombre) = lower(:nombreTipo)
+                        """)
+        List<LugarOperativo> findActivosByTipoNombre(@Param("nombreTipo") String nombreTipo);
+>>>>>>> 5df270d33d9df5d9be29376f60cebc17b275eae7
 
 }

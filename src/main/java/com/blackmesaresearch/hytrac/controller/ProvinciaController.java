@@ -12,7 +12,11 @@ import com.blackmesaresearch.hytrac.dto.response.ProvinciaResponseDTO;
 import com.blackmesaresearch.hytrac.service.ProvinciaService;
 
 @RestController
+<<<<<<< HEAD
 @RequestMapping("/api/provincias")
+=======
+@RequestMapping("/provincias")
+>>>>>>> 5df270d33d9df5d9be29376f60cebc17b275eae7
 @CrossOrigin("*")
 public class ProvinciaController {
 
@@ -28,5 +32,9 @@ public class ProvinciaController {
     }
 }
 
+<<<<<<< HEAD
 // hacer un join de la localidad a las provincias, y de localidad a
 // plantas/estaciones
+=======
+//hacer un join de la localidad a las provincias, y de localidad a plantas/estaciones
+>>>>>>> 5df270d33d9df5d9be29376f60cebc17b275eae7

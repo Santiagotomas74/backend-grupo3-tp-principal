@@ -41,7 +41,7 @@ public class UsuarioService implements UserDetailsService {
                 .username(usuario.getEmail())
                 .password(usuario.getPasswordHash())
                 .disabled(!usuario.isActivo())
-                .authorities(authorities)
+                //.authorities(authorities)
                 .build();
     }
 }

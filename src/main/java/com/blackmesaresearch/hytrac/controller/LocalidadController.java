@@ -13,7 +13,11 @@ import com.blackmesaresearch.hytrac.dto.response.LocalidadResponseDTO;
 import com.blackmesaresearch.hytrac.service.LocalidadService;
 
 @RestController
+<<<<<<< HEAD
 @RequestMapping("/api/localidades")
+=======
+@RequestMapping("/localidades")
+>>>>>>> 5df270d33d9df5d9be29376f60cebc17b275eae7
 @CrossOrigin("*")
 public class LocalidadController {
 
@@ -29,8 +33,12 @@ public class LocalidadController {
     }
 
     @GetMapping("/provincia/{provinciaId}")
+<<<<<<< HEAD
     public ResponseEntity<List<LocalidadResponseDTO>> obtenerLocalidadesPorProvincia(
             @PathVariable Integer provinciaId) {
+=======
+    public ResponseEntity<List<LocalidadResponseDTO>> obtenerLocalidadesPorProvincia(@PathVariable Integer provinciaId) {
+>>>>>>> 5df270d33d9df5d9be29376f60cebc17b275eae7
         return ResponseEntity.ok(localidadService.obtenerPorProvincia(provinciaId));
     }
 }

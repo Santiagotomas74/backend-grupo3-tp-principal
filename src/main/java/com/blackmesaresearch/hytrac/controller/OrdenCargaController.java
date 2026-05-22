@@ -20,6 +20,10 @@ public class OrdenCargaController {
     @Autowired
     private OrdenCargaService ordenCargaService;
 
+<<<<<<< HEAD
+=======
+    //@PreAuthorize("hasAuthority('ORDEN_VER')")
+>>>>>>> 5df270d33d9df5d9be29376f60cebc17b275eae7
     @GetMapping("/get")
     public ResponseEntity<List<OrdenCargaResponseDTO>> obtenerOrdenes() {
         return ResponseEntity.ok(ordenCargaService.obtenerTodas());
