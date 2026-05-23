@@ -12,11 +12,7 @@ import com.blackmesaresearch.hytrac.dto.response.LugarOperativoResponseDTO;
 import com.blackmesaresearch.hytrac.service.LugarOperativoService;
 
 @RestController
-<<<<<<< HEAD
 @RequestMapping("/api/lugares-operativos")
-=======
-@RequestMapping("/lugares-operativos")
->>>>>>> 5df270d33d9df5d9be29376f60cebc17b275eae7
 @CrossOrigin("*")
 public class LugarOperativoController {
 

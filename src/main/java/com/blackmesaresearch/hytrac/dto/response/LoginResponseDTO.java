@@ -1,7 +1,5 @@
 package com.blackmesaresearch.hytrac.dto.response;
 
-import java.util.List;
-
 public record LoginResponseDTO(
 
         boolean success,
