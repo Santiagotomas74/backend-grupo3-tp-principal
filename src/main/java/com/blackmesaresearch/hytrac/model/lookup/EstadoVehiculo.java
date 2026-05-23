@@ -5,7 +5,10 @@ import lombok.*;
 
 @Entity
 @Table(name = "Estado_Vehiculo")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class EstadoVehiculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

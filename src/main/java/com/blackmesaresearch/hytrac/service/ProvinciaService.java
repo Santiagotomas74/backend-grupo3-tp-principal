@@ -34,7 +34,6 @@ public class ProvinciaService {
     private ProvinciaResponseDTO toResponseDTO(Provincia provincia) {
         return new ProvinciaResponseDTO(
                 provincia.getId(),
-                provincia.getNombre()
-        );
+                provincia.getNombre());
     }
 }

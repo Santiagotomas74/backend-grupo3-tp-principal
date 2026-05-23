@@ -1,0 +1,61 @@
+nombre,tipo_nombre,direccion,localidad_nombre,latitud,longitud,puede_recibir,puede_despachar,activo
+Axion Central 63,Estacion de Servicio,Avenida Ovidio Lagos 1997,Rosario,-32.956509,-60.663223,1,0,1
+Combustibles Sur 42,Aeropuerto / Base de Carga,Perú 988,Cordoba,-31.426547,-64.20234,1,0,1
+Axion Del Sol 88,Refineria,Laprida 380,Avellaneda,-34.660498,-58.358131,1,1,1
+Distribuidora Norte 73,Aeropuerto / Base de Carga,Remedios de Escalada 1521,Bahia Blanca,-38.722217,-62.23359,1,0,1
+YPF Del Sol 41,Aeropuerto / Base de Carga,Avenida Ramón Martirenez 5061,Municipio De Posadas,-27.394481,-55.904999,1,0,1
+Axion Sur 83,Refineria,14 de Julio 3963,Mar Del Plata,-38.011637,-57.57286,1,1,1
+Planta Logistica Oeste 73,Planta de Despacho,Alexander Fleming 2140,Cordoba,-31.434243,-64.235941,0,1,1
+Shell Sur 73,Estacion de Servicio,José Gomensoro 3502,Departamento Guaymallen,-32.886852,-68.791161,1,0,1
+Shell Del Sol 82,Aeropuerto / Base de Carga,Valentín Vergara 1788,Bahia Blanca,-38.667487,-62.241443,1,0,1
+Planta Logistica Oeste 65,Aeropuerto / Base de Carga,Misioneros 13,Bahia Blanca,-38.741588,-62.236736,1,0,1
+Axion Avenida 30,Planta de Despacho,Avenida Sorrento 644,Rosario,-32.90666,-60.687713,0,1,1
+Puma Sur 64,Aeropuerto / Base de Carga,Sáenz Peña 1604,Bahia Blanca,-38.749146,-62.26896,1,0,1
+Shell Oeste 72,Planta de Despacho,Vicente López 701,Salta,-24.781408,-65.404939,0,1,1
+Distribuidora San Martin 64,Estacion de Servicio,Segundo Sombra 4279,Villa Del Parque,-32.93243,-68.890486,1,0,1
+Axion San Martin 10,Planta de Despacho,Doctor Eduardo Bambil 1604,Bahia Blanca,-38.676556,-62.249644,0,1,1
+Puma Oeste 10,Aeropuerto / Base de Carga,Estomba 1019,Bahia Blanca,-38.709413,-62.277924,1,0,1
+Puma San Martin 52,Estacion de Servicio,Avenida Alem 2638,Bahia Blanca,-38.688722,-62.285576,1,0,1
+Puma Sur 66,Planta de Despacho,Chinchilla 1908,Cordoba,-31.382616,-64.146376,0,1,1
+Distribuidora San Martin 32,Aeropuerto / Base de Carga,Milán 2855,Cordoba,-31.376114,-64.151241,1,0,1
+Planta Logistica Norte 76,Aeropuerto / Base de Carga,General Alvear 1336,Departamento Guaymallen,-32.885607,-68.817214,1,0,1
+Combustibles Oeste 47,Planta de Despacho,Luis Pasteur 1602,Municipio De Posadas,-27.380299,-55.89361,0,1,1
+Distribuidora Ruta 3 43,Estacion de Servicio,Virrey Vertiz 3298,San Miguel De Tucuman,-26.804159,-65.242911,1,0,1
+Puma Del Sol 13,Aeropuerto / Base de Carga,Cerro Colorado 3074,Cordoba,-31.447582,-64.165708,1,0,1
+Puma Del Sol 82,Refineria,Avenida General Manuel Savio 5656,Cordoba,-31.462739,-64.124179,1,1,1
+Combustibles San Martin 54,Aeropuerto / Base de Carga,Viña del Mar 4086,Cordoba,-31.458017,-64.203762,1,0,1
+Axion Norte 86,Estacion de Servicio,Constituyentes 729,Bahia Blanca,-38.696902,-62.254005,1,0,1
+Puma Avenida 36,Estacion de Servicio,Cnel. Juan Esteban Rodríguez 184,Ciudad De Mendoza,-32.898557,-68.85413,1,0,1
+Planta Logistica Oeste 77,Refineria,Líbano 1302,Bahia Blanca,-38.720514,-62.298594,1,1,1
+Puma San Martin 89,Estacion de Servicio,Eduardo Marquina 2643,Cordoba,-31.382321,-64.192953,1,0,1
+Shell Norte 54,Estacion de Servicio,Bolivia 3001,Ciudad De Mendoza,-32.867703,-68.852546,1,0,1
+Shell Avenida 41,Aeropuerto / Base de Carga,Juan Rodríguez 1104,Cordoba,-31.421223,-64.149052,1,0,1
+YPF San Martin 86,Aeropuerto / Base de Carga,Bolivia 2498,San Miguel De Tucuman,-26.805411,-65.229556,1,0,1
+Axion Sur 33,Refineria,Río Negro 6528,Mar Del Plata,-37.965924,-57.575521,1,1,1
+YPF Ruta 3 18,Refineria,Rafaela 2726,Departamento Guaymallen,-32.920705,-68.826604,1,1,1
+Distribuidora Sur 92,Aeropuerto / Base de Carga,Ingeniero Guillermo Marconi 2625,Mar Del Plata,-37.993643,-57.579319,1,0,1
+Shell Del Sol 38,Planta de Despacho,Colombia 239,San Miguel De Tucuman,-26.80747,-65.194962,0,1,1
+Puma Central 41,Refineria,Antonio Bravo 259,Ciudad De Mendoza,-32.897431,-68.862463,1,1,1
+Distribuidora Avenida 90,Aeropuerto / Base de Carga,Callao 100 bis,Rosario,-32.932643,-60.657109,1,0,1
+Combustibles Avenida 65,Aeropuerto / Base de Carga,Parque Nacional Calileguá 3606,Cordoba,-31.446908,-64.235998,1,0,1
+Planta Logistica Del Sol 50,Estacion de Servicio,Jesús María 225,Cordoba,-31.413601,-64.146714,1,0,1
+Axion Ruta 3 71,Estacion de Servicio,Avenida Patricio Peralta Ramos 107,Mar Del Plata,-37.982832,-57.544561,1,0,1
+Planta Logistica Sur 18,Planta de Despacho,Cartago 1824,Cordoba,-31.378549,-64.164175,0,1,1
+YPF Avenida 51,Aeropuerto / Base de Carga,Rawson 1268,Mar Del Plata,-38.014453,-57.54018,1,0,1
+Combustibles Avenida 80,Aeropuerto / Base de Carga,Bulevar 27 de Febrero 1257,Rosario,-32.967312,-60.64573,1,0,1
+Shell Central 55,Refineria,Avenida Vértiz 6421,Mar Del Plata,-38.027518,-57.580242,1,1,1
+Combustibles Central 23,Refineria,Jerónimo Salguero 146,Buenos Aires,-34.609125,-58.420096,1,1,1
+Planta Logistica Avenida 76,Planta de Despacho,Caseros 1948,Cordoba,-31.409637,-64.21016,0,1,1
+YPF San Martin 23,Estacion de Servicio,Marcos Paz 1668,San Miguel De Tucuman,-26.8179,-65.220008,1,0,1
+Shell Oeste 43,Aeropuerto / Base de Carga,Juan José Paso 1431,Cordoba,-31.417659,-64.164156,1,0,1
+Planta Logistica Del Sol 83,Refineria,Amaranto Suárez 265,Neuquen,-38.969728,-68.055556,1,1,1
+Shell Central 79,Aeropuerto / Base de Carga,Matanza 3201,Buenos Aires,-34.655981,-58.427471,1,0,1
+Shell Sur 43,Refineria,Florentino Ameghino 2143,Municipio De Posadas,-27.38388,-55.899261,1,1,1
+YPF Avenida 73,Aeropuerto / Base de Carga,General Juan Antonio Álvarez de Arenales 960,Salta,-24.767315,-65.41451,1,0,1
+Shell Norte 17,Refineria,Las Casas 4124,Buenos Aires,-34.636297,-58.4236,1,1,1
+YPF Oeste 35,Aeropuerto / Base de Carga,Avenida Varela 3099,Buenos Aires,-34.658259,-58.435507,1,0,1
+YPF Sur 69,Refineria,Santafesino 2995,Rosario,-32.975162,-60.627057,1,1,1
+Combustibles Central 84,Aeropuerto / Base de Carga,Billinghurst 1642,Buenos Aires,-34.591469,-58.411176,1,0,1
+YPF San Martin 26,Refineria,Rosario 245,Cipolletti,-38.921899,-68.005835,1,1,1
+Distribuidora Ruta 3 46,Estacion de Servicio,Ortiz de Zárate 3002,Mar Del Plata,-38.047633,-57.547302,1,0,1
+Planta Logistica Avenida 35,Planta de Despacho,Luis Burela 583,Salta,-24.781172,-65.432366,0,1,1

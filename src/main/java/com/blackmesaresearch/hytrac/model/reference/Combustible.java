@@ -1,11 +1,14 @@
 package com.blackmesaresearch.hytrac.model.reference;
+
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Entity
 @Table(name = "Combustible")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Combustible {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

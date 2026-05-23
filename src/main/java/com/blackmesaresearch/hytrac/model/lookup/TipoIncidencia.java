@@ -5,7 +5,10 @@ import lombok.*;
 
 @Entity
 @Table(name = "Tipo_Incidencia")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TipoIncidencia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -28,7 +28,6 @@ public class OrdenCargaController {
     @Autowired
     private OrdenCargaService ordenCargaService;
 
-   
     @GetMapping("/get")
     public ResponseEntity<List<OrdenCargaResponseDTO>> obtenerOrdenes() {
         return ResponseEntity.ok(ordenCargaService.obtenerTodas());
@@ -88,32 +87,48 @@ public ResponseEntity<?> crearOrdenCarga(@RequestBody OrdenCargaRequestDTO dto) 
 
     try {
 
-        OrdenCargaResponseDTO response =
-                ordenCargaService.guardarNuevaOrdenCarga(dto);
-
-        return ResponseEntity.status(201).body(response);
+        return ResponseEntity.ok(
+            ordenCargaService.obtenerPorRemito(numeroRemito)
+        );
 
     } catch (IllegalArgumentException e) {
 
         return ResponseEntity.badRequest().body(
-                Map.of(
-                        "success", false,
-                        "message", e.getMessage()
-                )
-        );
-
-    } catch (Exception e) {
-
-        return ResponseEntity.status(500).body(
-                Map.of(
-                        "success", false,
-                        "message", "Error interno al crear la orden de carga"
-                )
+            Map.of(
+                "success", false,
+                "message", e.getMessage()
+            )
         );
     }
 }
+
+    @PostMapping("/crear")
+    public ResponseEntity<?> crearOrdenCarga(@RequestBody OrdenCargaRequestDTO dto) {
+
+        try {
+
+            OrdenCargaResponseDTO response = ordenCargaService.guardarNuevaOrdenCarga(dto);
+
+            return ResponseEntity.status(201).body(response);
+
+        } catch (IllegalArgumentException e) {
+
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
+
+        } catch (Exception e) {
+
+            return ResponseEntity.status(500).body(
+                    Map.of(
+                            "success", false,
+                            "message", "Error interno al crear la orden de carga"));
+        }
+    }
+
     @GetMapping("/{id}")
-public OrdenCargaDetalleResponseDTO obtenerPorId(@PathVariable Integer id) {
-    return ordenCargaService.obtenerDetallePorId(id);
-}
+    public OrdenCargaDetalleResponseDTO obtenerPorId(@PathVariable Integer id) {
+        return ordenCargaService.obtenerDetallePorId(id);
+    }
 }

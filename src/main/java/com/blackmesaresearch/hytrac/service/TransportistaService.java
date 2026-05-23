@@ -12,8 +12,7 @@ public class TransportistaService {
     private final TransportistaRepository transportistaRepository;
 
     public TransportistaService(
-            TransportistaRepository transportistaRepository
-    ) {
+            TransportistaRepository transportistaRepository) {
         this.transportistaRepository = transportistaRepository;
     }
 
@@ -27,11 +26,9 @@ public class TransportistaService {
 
                         t.getUsuario().getNombre(),
                         t.getUsuario().getApellido(),
-
                         t.getCuit(),
-
-                        t.getTipoVinculo().getNombre()
-                ))
+                        t.getUsuario().getLegajo(),
+                        t.getTipoVinculo().getNombre()))
                 .toList();
     }
 }

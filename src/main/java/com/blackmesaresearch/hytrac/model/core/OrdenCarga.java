@@ -23,6 +23,9 @@ public class OrdenCarga {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
+  @Column(name = "tracking_id", unique = true, nullable = false)
+  private String trackingId;
+  
   @Column(name = "numero_remito", unique = true, nullable = false)
   private String numeroRemito;
 
@@ -57,9 +60,9 @@ public class OrdenCarga {
   @JoinColumn(name = "combustible_id")
   private Combustible combustible;
 
-@ManyToOne
-@JoinColumn(name = "estado_id")
-private EstadoOrdenCarga estadoOrdenCarga;
+  @ManyToOne
+  @JoinColumn(name = "estado_id")
+  private EstadoOrdenCarga estadoOrdenCarga;
 
   @Column(name = "fecha_salida_planta")
   private LocalDateTime fechaSalidaPlanta;
@@ -69,12 +72,6 @@ private EstadoOrdenCarga estadoOrdenCarga;
 
   @Column(name = "fecha_entrega_real")
   private LocalDateTime fechaEntregaReal;
-
-  @Column(name = "temperatura_carga")
-  private Double temperaturaCarga;
-
-  @Column(name = "densidad_carga")
-  private Double densidadCarga;
 
   @Column(name = "litros_cargados")
   private Double litrosCargados;

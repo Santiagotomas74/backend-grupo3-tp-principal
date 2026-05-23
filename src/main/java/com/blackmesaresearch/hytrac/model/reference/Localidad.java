@@ -5,7 +5,10 @@ import lombok.*;
 
 @Entity
 @Table(name = "Localidad")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 
 public class Localidad {
     @Id

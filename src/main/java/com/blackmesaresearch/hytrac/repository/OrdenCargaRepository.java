@@ -1,16 +1,44 @@
 package com.blackmesaresearch.hytrac.repository;
 
 import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface OrdenCargaRepository extends JpaRepository<OrdenCarga, Integer> {
-    Optional<OrdenCarga> findByNumeroRemito(String numeroRemito);
-    Optional<OrdenCarga> findByCot(String cot);
+public interface OrdenCargaRepository
+        extends JpaRepository<OrdenCarga, Integer> {
 
+    Optional<OrdenCarga> findByTrackingId(
+        String trackingId
+    );
 
-    List<OrdenCarga> findByEstadoOrdenCarga_Nombre(String nombre);
+    Optional<OrdenCarga> findByNumeroRemito(
+        String numeroRemito
+    );
+
+    Optional<OrdenCarga> findByCot(
+        String cot
+    );
+
+    List<OrdenCarga> findByEstadoOrdenCarga_Nombre(
+        String nombre
+    );
+
+    // =========================
+    // TRANSPORTISTA
+    // =========================
+
+    List<OrdenCarga>
+findByTransportista_Usuario_LegajoAndConfirmadoTrueAndEstadoOrdenCarga_Nombre(
+    String legajo,
+    String estado
+);
+List<OrdenCarga>
+findByTransportista_Usuario_LegajoAndConfirmadoTrue(
+    String legajo
+);
 }

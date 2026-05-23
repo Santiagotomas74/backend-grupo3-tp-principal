@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
-@Repository 
+@Repository
 public interface EstadoOrdenCargaRepository extends JpaRepository<EstadoOrdenCarga, Integer> {
 
     Optional<EstadoOrdenCarga> findByNombre(String nombre);

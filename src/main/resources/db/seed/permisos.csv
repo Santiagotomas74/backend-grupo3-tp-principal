@@ -1,0 +1,7 @@
+codigo,descripcion
+ORDEN_CREAR,Crear ordenes
+ORDEN_VER,Ver ordenes
+ORDEN_EDITAR,Editar ordenes
+USUARIO_ADMIN,Administrar usuarios
+ORDEN_CONFIRMAR_ENTREGA,Confirmar que la entrega llego bien
+INCIDENCIA_CREAR,Reportar una incidencia

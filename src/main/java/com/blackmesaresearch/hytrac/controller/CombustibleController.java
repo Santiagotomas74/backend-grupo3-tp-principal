@@ -12,7 +12,8 @@ import java.util.List;
 @CrossOrigin("*")
 public class CombustibleController {
 
-    @Autowired private CombustibleService combustibleService;
+    @Autowired
+    private CombustibleService combustibleService;
 
     @GetMapping
     public ResponseEntity<List<CombustibleResponseDTO>> obtenerCombustibles() {

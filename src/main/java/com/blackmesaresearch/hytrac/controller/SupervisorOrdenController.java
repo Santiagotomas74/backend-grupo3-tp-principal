@@ -1,0 +1,130 @@
+
+package com.blackmesaresearch.hytrac.controller;
+
+import org.springframework.web.bind.annotation.*;
+
+import com.blackmesaresearch.hytrac.service.OrdenCargaService;
+
+import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorDetalleResponseDTO;
+import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorResponseDTO;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/supervisor/ordenes")
+@CrossOrigin("*")
+public class SupervisorOrdenController {
+
+    private final OrdenCargaService ordenCargaService;
+
+    public SupervisorOrdenController(
+        OrdenCargaService ordenCargaService
+    ) {
+        this.ordenCargaService = ordenCargaService;
+    }
+
+    // =========================
+    // TODAS LAS ORDENES
+    // =========================
+ 
+    @GetMapping
+    public ResponseEntity<List<OrdenSupervisorResponseDTO>>
+    obtenerTodas() {
+
+        return ResponseEntity.ok(
+            ordenCargaService.obtenerTodasSupervisor()
+        );
+    }
+
+    // =========================
+    // DETALLE POR ID
+    // =========================
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> obtenerPorId(
+        @PathVariable Integer id
+    ) {
+
+        try {
+
+            return ResponseEntity.ok(
+                ordenCargaService.obtenerOrdenSupervisor(id)
+            );
+
+        } catch (IllegalArgumentException e) {
+
+            return ResponseEntity.badRequest().body(
+                Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+                )
+            );
+        }
+    }
+
+    // =========================
+// CONFIRMAR ORDEN
+// =========================
+
+@PutMapping("/{id}/confirmar")
+public ResponseEntity<?> confirmarOrden(
+    @PathVariable Integer id
+) {
+
+    try {
+
+        ordenCargaService.confirmarOrden(id);
+
+        return ResponseEntity.ok(
+            Map.of(
+                "success", true,
+                "message", "Orden confirmada correctamente."
+            )
+        );
+
+    } catch (IllegalArgumentException e) {
+
+        return ResponseEntity.badRequest().body(
+            Map.of(
+                "success", false,
+                "message", e.getMessage()
+            )
+        );
+    }
+}
+
+// =========================
+// APROBAR INICIO DE VIAJE
+// =========================
+
+@PutMapping("/{id}/aprobar-inicio")
+public ResponseEntity<?> aprobarInicioViaje(
+    @PathVariable Integer id
+) {
+
+    try {
+
+        ordenCargaService.aprobarInicioViaje(id);
+
+        return ResponseEntity.ok(
+            Map.of(
+                "success", true,
+                "message",
+                "La orden pasó a estado En Curso."
+            )
+        );
+
+    } catch (IllegalArgumentException e) {
+
+        return ResponseEntity.badRequest().body(
+            Map.of(
+                "success", false,
+                "message", e.getMessage()
+            )
+        );
+    }
+}
+
+}

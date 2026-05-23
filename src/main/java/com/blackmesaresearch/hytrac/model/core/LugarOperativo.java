@@ -10,10 +10,12 @@ import com.blackmesaresearch.hytrac.model.reference.Localidad;
 
 import java.time.LocalDateTime;
 
-
 @Entity
 @Table(name = "LugarOperativo")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class LugarOperativo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,16 +44,14 @@ public class LugarOperativo {
     @Column(name = "puede_despachar")
     private Boolean puedeDespachar;
 
-
     private boolean activo = true;
-    
-@CreationTimestamp
-@Column(name = "created_at", updatable = false)
-private LocalDateTime fechaCreacion;
 
-@UpdateTimestamp
-@Column(name = "updated_at")
-private LocalDateTime fechaModificacion;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime fechaCreacion;
 
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime fechaModificacion;
 
 }
