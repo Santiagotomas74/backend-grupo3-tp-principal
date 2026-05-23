@@ -33,8 +33,31 @@ public class OrdenCargaController {
     public ResponseEntity<List<OrdenCargaResponseDTO>> obtenerOrdenes() {
         return ResponseEntity.ok(ordenCargaService.obtenerTodas());
     }
-    
-@PutMapping("/cancelar")
+
+// Edicion , Cancelacion y Creacion de Ordenes de Carga //
+@PutMapping("/{id}/editar")
+public ResponseEntity<?> editarOrdenCarga(@PathVariable Integer id, @RequestBody OrdenCargaRequestDTO dto) {
+    try {
+        OrdenCargaResponseDTO response = ordenCargaService.editarOrdenCarga(id, dto);
+        return ResponseEntity.ok(response);
+        
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(
+                Map.of(
+                        "success", false,
+                        "message", e.getMessage()
+                )
+        );
+    } catch (Exception e) {
+        return ResponseEntity.status(500).body(
+                Map.of(
+                        "success", false,
+                        "message", "Error interno al intentar editar la orden de carga"
+                )
+        );
+    }
+}    
+@PutMapping("/{id}/cancelar")
 public ResponseEntity<?> cancelarOrden(
         @PathVariable Integer id, 
         @RequestBody CancelarOrdenRequestDTO dto
@@ -60,7 +83,7 @@ public ResponseEntity<?> cancelarOrden(
     }
 }
     
-    @PostMapping("/crear")
+@PostMapping("/crear")
 public ResponseEntity<?> crearOrdenCarga(@RequestBody OrdenCargaRequestDTO dto) {
 
     try {
