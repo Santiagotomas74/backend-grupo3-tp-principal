@@ -30,6 +30,27 @@ public class OrdenCargaController {
     public ResponseEntity<List<OrdenCargaResponseDTO>> obtenerOrdenes() {
         return ResponseEntity.ok(ordenCargaService.obtenerTodas());
     }
+    @GetMapping("/remito/{numeroRemito}")
+public ResponseEntity<?> obtenerPorRemito(
+    @PathVariable String numeroRemito
+) {
+
+    try {
+
+        return ResponseEntity.ok(
+            ordenCargaService.obtenerPorRemito(numeroRemito)
+        );
+
+    } catch (IllegalArgumentException e) {
+
+        return ResponseEntity.badRequest().body(
+            Map.of(
+                "success", false,
+                "message", e.getMessage()
+            )
+        );
+    }
+}
 
     @PostMapping("/crear")
     public ResponseEntity<?> crearOrdenCarga(@RequestBody OrdenCargaRequestDTO dto) {

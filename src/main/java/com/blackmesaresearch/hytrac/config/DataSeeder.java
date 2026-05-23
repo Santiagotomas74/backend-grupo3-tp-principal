@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.springframework.boot.CommandLineRunner;
@@ -580,7 +581,11 @@ public class DataSeeder implements CommandLineRunner {
             }
 
             OrdenCarga orden = new OrdenCarga();
-            orden.setTrackingId("HT-" + System.currentTimeMillis());
+            Random random = new Random();
+
+            String randomNumber = String.format("%012d", random.nextLong() & Long.MAX_VALUE).substring(0, 12);
+            orden.setTrackingId("HT-" + randomNumber);
+            
             orden.setNumeroRemito(row.getNumeroRemito());
             orden.setCot(row.getCot());
             orden.setCamion(camion);
