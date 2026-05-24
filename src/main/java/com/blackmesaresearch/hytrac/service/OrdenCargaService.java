@@ -244,6 +244,9 @@ public class OrdenCargaService {
                 // NUEVOS DATOS
                 orden.getCamion().getPeso_maximo_admitido(),
                 orden.getAcoplado().getCapacidadMaximaLitros(),
+                orden.getRuta() != null
+                    ? orden.getRuta().getId()
+                    : null,
                 orden.getTransportista().getUsuario().getNombre()
                 + " "
                 + orden.getTransportista().getUsuario().getApellido(),
@@ -252,6 +255,7 @@ public class OrdenCargaService {
                 orden.getEstacionDestino().getNombre(),
                 orden.getLitrosCargados(),
                 orden.getLitrosEntregados(),
+                
                 orden.getFechaCreacion(),
                 orden.getFechaSalidaPlanta(),
                 orden.getFechaEntregaEstimada(),

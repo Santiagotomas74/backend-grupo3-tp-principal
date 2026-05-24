@@ -17,6 +17,7 @@ public record OrdenCargaDetalleResponseDTO(
                 // NUEVOS DATOS
                 Double pesoMaximoCamion,
                 Double capacidadTotalAcoplado,
+                Integer ruta,
 
                 String transportista,
                 String combustible,
