@@ -456,7 +456,9 @@ public class OrdenCargaService {
                                 orden.getPlantaDespacho().getNombre(),
                                 orden.getEstacionDestino().getNombre(),
                                 orden.getLitrosCargados(),
-                                orden.getRuta().getId(),
+                               orden.getRuta() != null
+    ? orden.getRuta().getId()
+    : null,
                                 orden.getFechaCreacion(),
                                 orden.getFechaEntregaEstimada(),
                                 orden.getCamion().getPatente(),
