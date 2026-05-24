@@ -90,6 +90,23 @@ public class RutaService {
     }
 
     /**
+     * Obtiene una ruta existente por su ID.
+     *
+     * @param id ID de la ruta a buscar
+     * @return RutaResponseDTO con los datos de la ruta
+     * @throws IllegalArgumentException si la ruta no existe
+     */
+    public RutaResponseDTO obtenerRutaPorId(Integer id) {
+        logger.info("Buscando ruta con ID: {}", id);
+
+        Ruta ruta = rutaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Ruta no encontrada con ID: " + id));
+
+        return toResponseDTO(ruta);
+    }
+
+    /**
      * Calcula una ruta mediante GraphHopper API y la guarda en la BD
      */
     private Ruta calcularYGuardarRuta(LugarOperativo origen, LugarOperativo destino) {

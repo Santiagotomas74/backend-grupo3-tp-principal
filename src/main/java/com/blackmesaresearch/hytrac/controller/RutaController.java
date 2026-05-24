@@ -20,7 +20,12 @@ public class RutaController {
         this.rutaService = rutaService;
     }
 
-    @GetMapping("/{origenId}/{destinoId}")
+    @GetMapping("/get/{id}")
+    public ResponseEntity<?> getRuta(@PathVariable Integer id) {
+        return ResponseEntity.ok(rutaService.obtenerRutaPorId(id));
+    }
+
+    @GetMapping("/calculate/{origenId}/{destinoId}")
     public ResponseEntity<?> calcularRuta(
             @PathVariable Integer origenId,
             @PathVariable Integer destinoId) {
