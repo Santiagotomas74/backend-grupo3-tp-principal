@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.blackmesaresearch.hytrac.dto.request.CancelarOrdenRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
+import com.blackmesaresearch.hytrac.dto.request.ConfirmarEntregaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorDetalleResponseDTO;
@@ -676,4 +677,62 @@ public class OrdenCargaService {
         }
     }
 
+    public void reportarEntrega(
+    Integer ordenId,
+    ConfirmarEntregaRequestDTO dto
+) {
+
+    OrdenCarga orden =
+        ordenCargaRepository.findById(ordenId)
+            .orElseThrow(() ->
+                new IllegalArgumentException(
+                    "Orden no encontrada."
+                )
+            );
+
+    // =========================
+    // VALIDAR ESTADO
+    // =========================
+
+    if (!orden.getEstadoOrdenCarga()
+        .getNombre()
+        .equalsIgnoreCase(
+            "Pendiente de confirmacion de entrega"
+        )) {
+
+        throw new IllegalArgumentException(
+            "La orden no está pendiente de confirmación de entrega."
+        );
+    }
+
+    // =========================
+    // VALIDAR LITROS
+    // =========================
+
+    if (dto.litrosEntregados() == null
+        || dto.litrosEntregados() <= 0) {
+
+        throw new IllegalArgumentException(
+            "Los litros entregados son obligatorios."
+        );
+    }
+
+    // =========================
+    // ACTUALIZAR DATOS
+    // =========================
+
+    orden.setLitrosEntregados(
+        dto.litrosEntregados()
+    );
+
+    orden.setObservaciones(
+        dto.observaciones()
+    );
+
+    orden.setFechaEntregaReal(
+        java.time.LocalDateTime.now()
+    );
+
+    ordenCargaRepository.save(orden);
+}
 }
