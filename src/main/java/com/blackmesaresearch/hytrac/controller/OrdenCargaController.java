@@ -100,12 +100,13 @@ public class OrdenCargaController {
         }
     }
 
-    @PutMapping("/{id}/cancelar")
+@PutMapping("/remito/{numeroRemito}/cancelar")
     public ResponseEntity<?> cancelarOrden(
-            @PathVariable Integer id,
+            @PathVariable String numeroRemito,
             @RequestBody CancelarOrdenRequestDTO dto) {
         try {
-            OrdenCargaResponseDTO response = ordenCargaService.cancelarOrden(id, dto);
+            // Enviamos el String (numeroRemito) al service modificado
+            OrdenCargaResponseDTO response = ordenCargaService.cancelarOrden(numeroRemito, dto);
             return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
@@ -117,7 +118,7 @@ public class OrdenCargaController {
             return ResponseEntity.status(500).body(
                     Map.of(
                             "success", false,
-                            "message", "Error interno al intentar cancelar la orden de carga"));
+                            "message", "Error interno al intentar procesar la cancelación de la orden"));
         }
     }
 

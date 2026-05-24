@@ -46,6 +46,10 @@ public class OrdenCargaService {
     private AcopladoRepository acopladoRepository;
     @Autowired
     private AuditoriaEstadoRepository auditoriaEstadoRepository;
+    @Autowired
+    private com.blackmesaresearch.hytrac.repository.IncidenciaRepository incidenciaRepository;
+    @Autowired
+    private com.blackmesaresearch.hytrac.repository.TipoIncidenciaRepository tipoIncidenciaRepository;
 
     public List<OrdenCargaResponseDTO> obtenerTodas() {
         return ordenCargaRepository.findAll()
@@ -604,54 +608,139 @@ public class OrdenCargaService {
         return toResponseDTO(modificada);
     }
 
-    public OrdenCargaResponseDTO cancelarOrden(Integer id, CancelarOrdenRequestDTO dto) {
+public OrdenCargaResponseDTO cancelarOrden(String numeroRemito, CancelarOrdenRequestDTO dto) {
 
-        // 1. Buscar la orden
-        OrdenCarga orden = ordenCargaRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Orden no encontrada."));
+        // Buscar la orden por número de remito 
+        OrdenCarga orden = ordenCargaRepository.findByNumeroRemito(numeroRemito)
+                .orElseThrow(() -> new IllegalArgumentException("Orden no encontrada con el remito: " + numeroRemito));
 
-        // 2. Validar que el estado actual no sea "Entregada"
-        if (orden.getEstadoOrdenCarga().getNombre().equalsIgnoreCase("Entregada")) {
+        //  Validar que la orden no este en un estado final irreversible
+        String estadoActual = orden.getEstadoOrdenCarga().getNombre();
+        if (estadoActual.equalsIgnoreCase("Entregada") || estadoActual.equalsIgnoreCase("Cancelada")) {
             throw new IllegalArgumentException(
-                    "No se puede cancelar una orden que ya se encuentra en estado 'Entregada'.");
+                    "No se puede gestionar la cancelación de una orden que ya se encuentra en estado '" + estadoActual + "'.");
         }
 
-        // 3. Validar motivo obligatorio
-        if (dto.motivo() == null || dto.motivo().trim().isEmpty()) {
-            throw new IllegalArgumentException("El motivo de cancelación es obligatorio.");
-        }
-
-        // 4. Buscar usuario solicitante
+        //  Buscar el usuario que realiza la acción
         Usuario solicitante = usuarioRepository.findById(dto.solicitanteId())
                 .orElseThrow(() -> new IllegalArgumentException("Usuario solicitante no encontrado."));
 
-        // 5. Buscar estado "Cancelada"
-        EstadoOrdenCarga estadoCancelada = estadoOrdenCargaRepository.findByNombre("Cancelada")
-                .orElseThrow(() -> new IllegalArgumentException("Estado 'Cancelada' no encontrado en el sistema."));
+        String rol = solicitante.getRol().getNombre();
 
-        EstadoOrdenCarga estadoAnterior = orden.getEstadoOrdenCarga();
+        // =========================================================================
+        // FLUJO 1: EL TRANSPORTISTA SOLICITA LA CANCELACIÓN
+        // =========================================================================
+        if (rol.equalsIgnoreCase("TRANSPORTISTA")) {
+            // El motivo es estrictamente obligatorio para el transportista
+            if (dto.motivo() == null || dto.motivo().trim().isEmpty()) {
+                throw new IllegalArgumentException("El motivo de cancelación es obligatorio para el transportista.");
+            }
 
-        // 6. Actualizar la orden
-        orden.setEstadoOrdenCarga(estadoCancelada);
+            // Verificar si ya existe una solicitud de cancelación abierta para esta orden
+            boolean tieneIncidenciaAbierta = incidenciaRepository.findAll().stream()
+                    .anyMatch(i -> i.getOrden().getId().equals(orden.getId()) 
+                            && !i.getResuelto() 
+                            && i.getDescripcion().startsWith("SOLICITUD DE CANCELACIÓN"));
+            
+            if (tieneIncidenciaAbierta) {
+                throw new IllegalArgumentException("Ya existe una solicitud de cancelación pendiente para esta orden.");
+            }
 
-        // Lo marcamos como no confirmado para que quede en la lista pendiente del
-        // supervisor
-        orden.setConfirmado(false);
+            // Buscamos el tipo de incidencia de tu base de datos (Lookups)
+            var tipoIncidencia = tipoIncidenciaRepository.findAll().stream()
+                    .filter(t -> t.getNombre().equalsIgnoreCase("Documentacion"))
+                    .findFirst()
+                    .orElse(tipoIncidenciaRepository.findAll().stream().findFirst().orElse(null));
 
-        OrdenCarga ordenActualizada = ordenCargaRepository.save(orden);
+            // Crear y guardar la Incidencia (Simulando la tarea/incidencia de Jira abierta)
+            com.blackmesaresearch.hytrac.model.core.Incidencia nuevaIncidencia = new com.blackmesaresearch.hytrac.model.core.Incidencia();
+            nuevaIncidencia.setOrden(orden);
+            nuevaIncidencia.setUsuarioRegistro(solicitante);
+            nuevaIncidencia.setTipoIncidencia(tipoIncidencia);
+            nuevaIncidencia.setDescripcion("SOLICITUD DE CANCELACIÓN - Motivo chofer: " + dto.motivo());
+            nuevaIncidencia.setFechaIncidente(java.time.LocalDateTime.now());
+            nuevaIncidencia.setResuelto(false); // Queda abierta para el supervisor
 
-        // 7. Registrar en auditoría el motivo y el cambio
-        AuditoriaEstado auditoria = new AuditoriaEstado();
-        auditoria.setOrden(ordenActualizada);
-        auditoria.setEstadoAnterior(estadoAnterior);
-        auditoria.setEstadoNuevo(estadoCancelada);
-        auditoria.setFechaCambio(java.time.LocalDateTime.now());
-        auditoria.setSolicitante(solicitante);
-        auditoria.setMotivo(dto.motivo());
+            incidenciaRepository.save(nuevaIncidencia);
 
-        auditoriaEstadoRepository.save(auditoria);
+            // Marcamos provisionalmente confirmado como false para alertar al supervisor en su panel
+            orden.setConfirmado(false);
+            OrdenCarga ordenGuardada = ordenCargaRepository.save(orden);
 
-        return toResponseDTO(ordenActualizada);
+            return toResponseDTO(ordenGuardada);
+        }
+
+        // =========================================================================
+        // FLUJO 2: EL SUPERVISOR (ADMIN o JEFE_ESTACION) ACEPTA O RECHAZA
+        //  Modificar/preguntar a gonza
+        // =========================================================================
+        else if (rol.equalsIgnoreCase("ADMIN") || rol.equalsIgnoreCase("JEFE_ESTACION")) {
+            
+            // Buscar la incidencia de cancelación abierta previamente por el transportista
+            com.blackmesaresearch.hytrac.model.core.Incidencia incidenciaPendiente = incidenciaRepository.findAll().stream()
+                    .filter(i -> i.getOrden().getId().equals(orden.getId()) 
+                            && !i.getResuelto() 
+                            && i.getDescripcion().startsWith("SOLICITUD DE CANCELACIÓN"))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException("No hay ninguna solicitud de cancelación pendiente de transportista para esta orden."));
+
+            // CASO A: El supervisor RECHAZA la cancelación del chofer
+            // (Para rechazar, acordamos con el front que envíe "RECHAZAR" o "RECHAZADO" en el motivo)
+            if (dto.motivo() != null && (dto.motivo().equalsIgnoreCase("RECHAZAR") || dto.motivo().equalsIgnoreCase("RECHAZADO"))) {
+                
+                // Se resuelve la incidencia (La incidencia resolvió)
+                incidenciaPendiente.setResuelto(true);
+                incidenciaPendiente.setUsuarioGestion(solicitante);
+                incidenciaPendiente.setFechaResolucion(java.time.LocalDateTime.now());
+                incidenciaPendiente.setAccionesTomadas("Solicitud de cancelación RECHAZADA por el supervisor. El viaje debe continuar.");
+                incidenciaRepository.save(incidenciaPendiente);
+
+                // Volvemos a dejar la orden disponible/confirmada para operar con normalidad
+                orden.setConfirmado(true);
+                OrdenCarga ordenGuardada = ordenCargaRepository.save(orden);
+
+                return toResponseDTO(ordenGuardada);
+            } 
+            
+            // CASO B: El supervisor CONFIRMA la cancelación
+            else {
+                // Buscar el estado "Cancelada"
+                EstadoOrdenCarga estadoCancelada = estadoOrdenCargaRepository.findByNombre("Cancelada")
+                        .orElseThrow(() -> new IllegalArgumentException("Estado 'Cancelada' no encontrado en el sistema."));
+
+                EstadoOrdenCarga estadoAnterior = orden.getEstadoOrdenCarga();
+
+                // Actualizar la orden a estado Cancelada definitivamente
+                orden.setEstadoOrdenCarga(estadoCancelada);
+                orden.setConfirmado(false);
+                OrdenCarga ordenActualizada = ordenCargaRepository.save(orden);
+
+                // Registrar en el historial de auditoría de estados de la orden
+                AuditoriaEstado auditoria = new AuditoriaEstado();
+                auditoria.setOrden(ordenActualizada);
+                auditoria.setEstadoAnterior(estadoAnterior);
+                auditoria.setEstadoNuevo(estadoCancelada);
+                auditoria.setFechaCambio(java.time.LocalDateTime.now());
+                auditoria.setSolicitante(solicitante);
+                auditoria.setMotivo("Cancelación aprobada por supervisor. Notas: " + dto.motivo());
+                auditoriaEstadoRepository.save(auditoria);
+
+                // Se resuelve la incidencia (La incidencia resolvio)
+                incidenciaPendiente.setResuelto(true);
+                incidenciaPendiente.setUsuarioGestion(solicitante);
+                incidenciaPendiente.setFechaResolucion(java.time.LocalDateTime.now());
+                incidenciaPendiente.setAccionesTomadas("Cancelación CONFIRMADA por supervisor. Orden dada de baja del sistema.");
+                incidenciaRepository.save(incidenciaPendiente);
+
+                return toResponseDTO(ordenActualizada);
+            }
+        } 
+        
+        // OTRO ROL NO INGRESA A ESTE FLUJO
+        else {
+            throw new IllegalArgumentException("Su rol no está autorizado para realizar o gestionar solicitudes de cancelación.");
+        }
     }
+
 
 }
