@@ -20,6 +20,5 @@ public interface RutaRepository extends JpaRepository<Ruta, Integer> {
             """)
     Optional<Ruta> findByOrigenIdAndDestinoId(
             @Param("origenId") Integer origenId,
-            @Param("destinoId") Integer destinoId
-    );
+            @Param("destinoId") Integer destinoId);
 }

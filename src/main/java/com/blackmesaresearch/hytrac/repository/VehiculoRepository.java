@@ -7,13 +7,11 @@ import org.springframework.stereotype.Repository;
 
 import com.blackmesaresearch.hytrac.model.core.Vehiculo;
 
-
 @Repository
 public interface VehiculoRepository extends JpaRepository<Vehiculo, Integer> {
 
     Optional<Vehiculo> findByPatente(String patente);
 
     boolean existsByPatente(String patente);
-
 
 }

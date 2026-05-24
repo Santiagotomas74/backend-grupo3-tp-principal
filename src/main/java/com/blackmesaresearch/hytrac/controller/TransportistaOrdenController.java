@@ -16,8 +16,7 @@ public class TransportistaOrdenController {
     private final TransportistaOrdenService service;
 
     public TransportistaOrdenController(
-        TransportistaOrdenService service
-    ) {
+            TransportistaOrdenService service) {
         this.service = service;
     }
 
@@ -27,24 +26,20 @@ public class TransportistaOrdenController {
 
     @GetMapping("/{legajo}/orden")
     public ResponseEntity<?> obtenerOrdenActiva(
-        @PathVariable String legajo
-    ) {
+            @PathVariable String legajo) {
 
         try {
 
-            OrdenTransportistaResponseDTO response =
-                service.obtenerOrdenPendiente(legajo);
+            OrdenTransportistaResponseDTO response = service.obtenerOrdenPendiente(legajo);
 
             return ResponseEntity.ok(response);
 
         } catch (IllegalArgumentException e) {
 
             return ResponseEntity.badRequest().body(
-                Map.of(
-                    "success", false,
-                    "message", e.getMessage()
-                )
-            );
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
         }
     }
 
@@ -54,89 +49,75 @@ public class TransportistaOrdenController {
 
     @PutMapping("/orden/{ordenId}/iniciar-viaje")
     public ResponseEntity<?> iniciarViaje(
-        @PathVariable Integer ordenId
-    ) {
+            @PathVariable Integer ordenId) {
 
         try {
 
             service.iniciarViaje(ordenId);
 
             return ResponseEntity.ok(
-                Map.of(
-                    "success", true,
-                    "message",
-                    "Viaje iniciado correctamente."
-                )
-            );
+                    Map.of(
+                            "success", true,
+                            "message",
+                            "Viaje iniciado correctamente."));
 
         } catch (IllegalArgumentException e) {
 
             return ResponseEntity.badRequest().body(
-                Map.of(
-                    "success", false,
-                    "message", e.getMessage()
-                )
-            );
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
         }
     }
 
     // =========================
-// OBTENER ORDEN EN CURSO
-// =========================
+    // OBTENER ORDEN EN CURSO
+    // =========================
 
-@GetMapping("/{legajo}/orden-en-curso")
-public ResponseEntity<?> obtenerOrdenEnCurso(
-    @PathVariable String legajo
-) {
+    @GetMapping("/{legajo}/orden-en-curso")
+    public ResponseEntity<?> obtenerOrdenEnCurso(
+            @PathVariable String legajo) {
 
-    try {
+        try {
 
-        OrdenTransportistaResponseDTO response =
-            service.obtenerOrdenEnCurso(legajo);
+            OrdenTransportistaResponseDTO response = service.obtenerOrdenEnCurso(legajo);
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
 
-    } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
 
-        return ResponseEntity.badRequest().body(
-            Map.of(
-                "success", false,
-                "message", e.getMessage()
-            )
-        );
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
+        }
     }
-}
 
-// =========================
-// NOTIFICAR ENTREGA
-// =========================
+    // =========================
+    // NOTIFICAR ENTREGA
+    // =========================
 
-@PutMapping("/orden/{ordenId}/notificar-entrega")
-public ResponseEntity<?> notificarEntrega(
-    @PathVariable Integer ordenId
-) {
+    @PutMapping("/orden/{ordenId}/notificar-entrega")
+    public ResponseEntity<?> notificarEntrega(
+            @PathVariable Integer ordenId) {
 
-    try {
+        try {
 
-        service.notificarEntrega(ordenId);
+            service.notificarEntrega(ordenId);
 
-        return ResponseEntity.ok(
-            Map.of(
-                "success", true,
-                "message",
-                "Entrega notificada correctamente."
-            )
-        );
+            return ResponseEntity.ok(
+                    Map.of(
+                            "success", true,
+                            "message",
+                            "Entrega notificada correctamente."));
 
-    } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
 
-        return ResponseEntity.badRequest().body(
-            Map.of(
-                "success", false,
-                "message", e.getMessage()
-            )
-        );
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
+        }
     }
-}
 
 }

@@ -13,61 +13,61 @@ import com.blackmesaresearch.hytrac.repository.UsuarioRepository;
 @Service
 public class AuthService {
 
-    private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
+        private final UsuarioRepository usuarioRepository;
+        private final PasswordEncoder passwordEncoder;
+        private final JwtService jwtService;
 
-    public AuthService(
-            UsuarioRepository usuarioRepository,
-            PasswordEncoder passwordEncoder,
-            JwtService jwtService) {
-        this.usuarioRepository = usuarioRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-    }
-
-    public LoginResponseDTO login(LoginRequestDTO dto) {
-
-        // =========================
-        // BUSCAR USUARIO
-        // =========================
-
-        Usuario usuario = usuarioRepository
-                .findByEmail(dto.email())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Email o contraseña incorrectos."));
-
-        // =========================
-        // VALIDAR PASSWORD
-        // =========================
-
-        boolean passwordCorrecta = passwordEncoder.matches(
-                dto.password(),
-                usuario.getPasswordHash());
-
-        if (!passwordCorrecta) {
-
-            throw new IllegalArgumentException(
-                    "Email o contraseña incorrectos.");
+        public AuthService(
+                        UsuarioRepository usuarioRepository,
+                        PasswordEncoder passwordEncoder,
+                        JwtService jwtService) {
+                this.usuarioRepository = usuarioRepository;
+                this.passwordEncoder = passwordEncoder;
+                this.jwtService = jwtService;
         }
 
-        // =========================
-        // GENERAR JWT
-        // =========================
+        public LoginResponseDTO login(LoginRequestDTO dto) {
 
-        String token = jwtService.generarToken(usuario);
+                // =========================
+                // BUSCAR USUARIO
+                // =========================
 
-        // =========================
-        // RESPONSE
-        // =========================
+                Usuario usuario = usuarioRepository
+                                .findByEmail(dto.email())
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Email o contraseña incorrectos."));
 
-        return new LoginResponseDTO(
-                true,
-                token,
-                usuario.getId(),
-                usuario.getNombre(),
-                usuario.getApellido(),
-                usuario.getEmail(),
-                usuario.getRol().getNombre());
-    }
+                // =========================
+                // VALIDAR PASSWORD
+                // =========================
+
+                boolean passwordCorrecta = passwordEncoder.matches(
+                                dto.password(),
+                                usuario.getPasswordHash());
+
+                if (!passwordCorrecta) {
+
+                        throw new IllegalArgumentException(
+                                        "Email o contraseña incorrectos.");
+                }
+
+                // =========================
+                // GENERAR JWT
+                // =========================
+
+                String token = jwtService.generarToken(usuario);
+
+                // =========================
+                // RESPONSE
+                // =========================
+
+                return new LoginResponseDTO(
+                                true,
+                                token,
+                                usuario.getId(),
+                                usuario.getNombre(),
+                                usuario.getApellido(),
+                                usuario.getEmail(),
+                                usuario.getRol().getNombre());
+        }
 }

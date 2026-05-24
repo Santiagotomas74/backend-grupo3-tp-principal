@@ -16,8 +16,7 @@ public class SupervisorIncidenciaController {
     private final IncidenciaService incidenciaService;
 
     public SupervisorIncidenciaController(
-        IncidenciaService incidenciaService
-    ) {
+            IncidenciaService incidenciaService) {
         this.incidenciaService = incidenciaService;
     }
 
@@ -26,11 +25,9 @@ public class SupervisorIncidenciaController {
     // =========================
 
     @GetMapping
-    public ResponseEntity<List<IncidenciaResponseDTO>>
-    obtenerTodas() {
+    public ResponseEntity<List<IncidenciaResponseDTO>> obtenerTodas() {
 
         return ResponseEntity.ok(
-            incidenciaService.obtenerTodas()
-        );
+                incidenciaService.obtenerTodas());
     }
 }

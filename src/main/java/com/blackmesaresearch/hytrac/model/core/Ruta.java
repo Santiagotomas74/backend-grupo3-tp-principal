@@ -3,7 +3,6 @@ package com.blackmesaresearch.hytrac.model.core;
 import jakarta.persistence.*;
 import lombok.*;
 
-
 @Entity
 @Table(name = "Ruta")
 @Getter
@@ -34,4 +33,3 @@ public class Ruta {
   private String geometriaJson;
 
 }
-

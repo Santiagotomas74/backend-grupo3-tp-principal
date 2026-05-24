@@ -25,8 +25,7 @@ public interface LugarOperativoRepository
                 and lower(tipo.nombre) = lower(:nombreTipo)
             """)
     List<LugarOperativo> findActivosByTipoNombre(
-            @Param("nombreTipo") String nombreTipo
-    );
+            @Param("nombreTipo") String nombreTipo);
 
     @Query("""
             select lo
@@ -50,9 +49,7 @@ public interface LugarOperativoRepository
             """)
     List<LugarOperativo> findActivosByPuedeRecibir();
 
-    List<LugarOperativo>
-    findByLocalidad_IdAndTipo_Nombre(
-        Integer localidadId,
-        String tipoLugar
-    );
+    List<LugarOperativo> findByLocalidad_IdAndTipo_Nombre(
+            Integer localidadId,
+            String tipoLugar);
 }

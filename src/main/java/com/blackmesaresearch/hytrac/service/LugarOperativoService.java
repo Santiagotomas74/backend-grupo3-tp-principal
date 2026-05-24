@@ -11,133 +11,119 @@ import com.blackmesaresearch.hytrac.repository.LugarOperativoRepository;
 @Service
 public class LugarOperativoService {
 
-    private final LugarOperativoRepository lugarOperativoRepository;
+        private final LugarOperativoRepository lugarOperativoRepository;
 
-    public LugarOperativoService(
-        LugarOperativoRepository lugarOperativoRepository
-    ) {
-        this.lugarOperativoRepository = lugarOperativoRepository;
-    }
+        public LugarOperativoService(
+                        LugarOperativoRepository lugarOperativoRepository) {
+                this.lugarOperativoRepository = lugarOperativoRepository;
+        }
 
-    // =========================
-    // TODAS LAS PLANTAS
-    // =========================
+        // =========================
+        // TODAS LAS PLANTAS
+        // =========================
 
-    public List<LugarOperativoResponseDTO> obtenerPlantas() {
+        public List<LugarOperativoResponseDTO> obtenerPlantas() {
 
-        return lugarOperativoRepository
-                .findActivosByPuedeDespachar()
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
-    }
+                return lugarOperativoRepository
+                                .findActivosByPuedeDespachar()
+                                .stream()
+                                .map(this::toResponseDTO)
+                                .toList();
+        }
 
-    // =========================
-    // TODAS LAS ESTACIONES
-    // =========================
+        // =========================
+        // TODAS LAS ESTACIONES
+        // =========================
 
-    public List<LugarOperativoResponseDTO>
-    obtenerEstacionesServicio() {
+        public List<LugarOperativoResponseDTO> obtenerEstacionesServicio() {
 
-        return lugarOperativoRepository
-                .findActivosByPuedeRecibir()
-                .stream()
-                .map(this::toResponseDTO)
-                .toList();
-    }
+                return lugarOperativoRepository
+                                .findActivosByPuedeRecibir()
+                                .stream()
+                                .map(this::toResponseDTO)
+                                .toList();
+        }
 
-    // =========================
-    // PLANTAS POR LOCALIDAD
-    // =========================
+        // =========================
+        // PLANTAS POR LOCALIDAD
+        // =========================
 
-    public List<LugarOperativoResponseDTO>
-    obtenerPlantasPorLocalidad(Integer localidadId) {
+        public List<LugarOperativoResponseDTO> obtenerPlantasPorLocalidad(Integer localidadId) {
 
-        return lugarOperativoRepository
-                .findActivosByPuedeDespachar()
-                .stream()
-                .filter(lugar ->
-                    lugar.getLocalidad() != null
-                    &&
-                    lugar.getLocalidad().getId().equals(localidadId)
-                )
-                .map(this::toResponseDTO)
-                .toList();
-    }
+                return lugarOperativoRepository
+                                .findActivosByPuedeDespachar()
+                                .stream()
+                                .filter(lugar -> lugar.getLocalidad() != null
+                                                &&
+                                                lugar.getLocalidad().getId().equals(localidadId))
+                                .map(this::toResponseDTO)
+                                .toList();
+        }
 
-    // =========================
-    // ESTACIONES POR LOCALIDAD
-    // =========================
+        // =========================
+        // ESTACIONES POR LOCALIDAD
+        // =========================
 
-    public List<LugarOperativoResponseDTO>
-    obtenerEstacionesPorLocalidad(Integer localidadId) {
+        public List<LugarOperativoResponseDTO> obtenerEstacionesPorLocalidad(Integer localidadId) {
 
-        return lugarOperativoRepository
-                .findActivosByPuedeRecibir()
-                .stream()
-                .filter(lugar ->
-                    lugar.getLocalidad() != null
-                    &&
-                    lugar.getLocalidad().getId().equals(localidadId)
-                )
-                .map(this::toResponseDTO)
-                .toList();
-    }
+                return lugarOperativoRepository
+                                .findActivosByPuedeRecibir()
+                                .stream()
+                                .filter(lugar -> lugar.getLocalidad() != null
+                                                &&
+                                                lugar.getLocalidad().getId().equals(localidadId))
+                                .map(this::toResponseDTO)
+                                .toList();
+        }
 
-    // =========================
-    // DTO
-    // =========================
+        // =========================
+        // DTO
+        // =========================
 
-    private LugarOperativoResponseDTO
-    toResponseDTO(LugarOperativo lugarOperativo) {
+        private LugarOperativoResponseDTO toResponseDTO(LugarOperativo lugarOperativo) {
 
-        Integer localidadId =
-                lugarOperativo.getLocalidad() != null
-                        ? lugarOperativo.getLocalidad().getId()
-                        : null;
+                Integer localidadId = lugarOperativo.getLocalidad() != null
+                                ? lugarOperativo.getLocalidad().getId()
+                                : null;
 
-        String localidadNombre =
-                lugarOperativo.getLocalidad() != null
-                        ? lugarOperativo.getLocalidad().getNombre()
-                        : null;
+                String localidadNombre = lugarOperativo.getLocalidad() != null
+                                ? lugarOperativo.getLocalidad().getNombre()
+                                : null;
 
-        Integer provinciaId =
-                lugarOperativo.getLocalidad() != null
-                &&
-                lugarOperativo.getLocalidad().getProvincia() != null
-                        ? lugarOperativo.getLocalidad()
-                                .getProvincia()
-                                .getId()
-                        : null;
+                Integer provinciaId = lugarOperativo.getLocalidad() != null
+                                &&
+                                lugarOperativo.getLocalidad().getProvincia() != null
+                                                ? lugarOperativo.getLocalidad()
+                                                                .getProvincia()
+                                                                .getId()
+                                                : null;
 
-        String provinciaNombre =
-                lugarOperativo.getLocalidad() != null
-                &&
-                lugarOperativo.getLocalidad().getProvincia() != null
-                        ? lugarOperativo.getLocalidad()
-                                .getProvincia()
-                                .getNombre()
-                        : null;
+                String provinciaNombre = lugarOperativo.getLocalidad() != null
+                                &&
+                                lugarOperativo.getLocalidad().getProvincia() != null
+                                                ? lugarOperativo.getLocalidad()
+                                                                .getProvincia()
+                                                                .getNombre()
+                                                : null;
 
-        return new LugarOperativoResponseDTO(
+                return new LugarOperativoResponseDTO(
 
-                lugarOperativo.getId(),
+                                lugarOperativo.getId(),
 
-                lugarOperativo.getNombre(),
+                                lugarOperativo.getNombre(),
 
-                lugarOperativo.getDireccion(),
+                                lugarOperativo.getDireccion(),
 
-                localidadId,
-                localidadNombre,
+                                localidadId,
+                                localidadNombre,
 
-                provinciaId,
-                provinciaNombre,
+                                provinciaId,
+                                provinciaNombre,
 
-                lugarOperativo.getLatitud(),
-                lugarOperativo.getLongitud(),
+                                lugarOperativo.getLatitud(),
+                                lugarOperativo.getLongitud(),
 
-                lugarOperativo.getPuedeRecibir(),
-                lugarOperativo.getPuedeDespachar()
-        );
-    }
+                                lugarOperativo.getPuedeRecibir(),
+                                lugarOperativo.getPuedeDespachar());
+        }
 }

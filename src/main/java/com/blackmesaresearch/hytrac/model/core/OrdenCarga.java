@@ -25,7 +25,7 @@ public class OrdenCarga {
 
   @Column(name = "tracking_id", unique = true, nullable = false)
   private String trackingId;
-  
+
   @Column(name = "numero_remito", unique = true, nullable = false)
   private String numeroRemito;
 

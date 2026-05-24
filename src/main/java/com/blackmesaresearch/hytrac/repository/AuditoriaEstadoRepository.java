@@ -10,5 +10,4 @@ public interface AuditoriaEstadoRepository extends JpaRepository<AuditoriaEstado
 
     List<AuditoriaEstado> findByOrdenIdOrderByFechaCambioDesc(Integer ordenId);
 
-
 }

@@ -14,9 +14,8 @@ public class TransportistaOrdenService {
     private final EstadoOrdenCargaRepository estadoRepository;
 
     public TransportistaOrdenService(
-        OrdenCargaRepository ordenCargaRepository,
-        EstadoOrdenCargaRepository estadoRepository
-    ) {
+            OrdenCargaRepository ordenCargaRepository,
+            EstadoOrdenCargaRepository estadoRepository) {
         this.ordenCargaRepository = ordenCargaRepository;
         this.estadoRepository = estadoRepository;
     }
@@ -25,46 +24,39 @@ public class TransportistaOrdenService {
     // OBTENER ORDEN PENDIENTE
     // =========================
 
-    public OrdenTransportistaResponseDTO
-    obtenerOrdenPendiente(String legajo) {
+    public OrdenTransportistaResponseDTO obtenerOrdenPendiente(String legajo) {
 
-        OrdenCarga orden =
-            ordenCargaRepository
+        OrdenCarga orden = ordenCargaRepository
                 .findByTransportista_Usuario_LegajoAndConfirmadoTrueAndEstadoOrdenCarga_Nombre(
-                    legajo,
-                    "Pendiente"
-                )
+                        legajo,
+                        "Pendiente")
                 .stream()
                 .findFirst()
-                .orElseThrow(() ->
-                    new IllegalArgumentException(
-                        "No hay órdenes pendientes."
-                    )
-                );
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No hay órdenes pendientes."));
 
         return new OrdenTransportistaResponseDTO(
 
-            orden.getId(),
+                orden.getId(),
 
-            orden.getNumeroRemito(),
-            orden.getCot(),
+                orden.getNumeroRemito(),
+                orden.getCot(),
 
-            orden.getEstadoOrdenCarga().getNombre(),
+                orden.getEstadoOrdenCarga().getNombre(),
 
-            orden.getCamion().getPatente(),
-            orden.getAcoplado().getPatente(),
+                orden.getCamion().getPatente(),
+                orden.getAcoplado().getPatente(),
 
-            orden.getCombustible().getNombre(),
+                orden.getCombustible().getNombre(),
 
-            orden.getLitrosCargados(),
+                orden.getLitrosCargados(),
 
-            orden.getPlantaDespacho().getNombre(),
-            orden.getEstacionDestino().getNombre(),
+                orden.getPlantaDespacho().getNombre(),
+                orden.getEstacionDestino().getNombre(),
 
-            orden.getFechaEntregaEstimada(),
+                orden.getFechaEntregaEstimada(),
 
-            orden.getConfirmado()
-        );
+                orden.getConfirmado());
     }
 
     // =========================
@@ -73,139 +65,110 @@ public class TransportistaOrdenService {
 
     public void iniciarViaje(Integer ordenId) {
 
-        OrdenCarga orden =
-            ordenCargaRepository.findById(ordenId)
-                .orElseThrow(() ->
-                    new IllegalArgumentException(
-                        "Orden no encontrada."
-                    )
-                );
+        OrdenCarga orden = ordenCargaRepository.findById(ordenId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Orden no encontrada."));
 
         if (!orden.getEstadoOrdenCarga()
-            .getNombre()
-            .equalsIgnoreCase("Pendiente")) {
+                .getNombre()
+                .equalsIgnoreCase("Pendiente")) {
 
             throw new IllegalArgumentException(
-                "La orden no está en estado pendiente."
-            );
+                    "La orden no está en estado pendiente.");
         }
 
-        var nuevoEstado =
-            estadoRepository
+        var nuevoEstado = estadoRepository
                 .findByNombre("Pendiente de inicio de viaje")
-                .orElseThrow(() ->
-                    new IllegalArgumentException(
-                        "Estado no encontrado."
-                    )
-                );
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Estado no encontrado."));
 
         orden.setEstadoOrdenCarga(nuevoEstado);
 
         orden.setFechaSalidaPlanta(
-            java.time.LocalDateTime.now()
-        );
+                java.time.LocalDateTime.now());
 
         ordenCargaRepository.save(orden);
     }
 
     // =========================
-// OBTENER ORDEN EN CURSO
-// =========================
-
-public OrdenTransportistaResponseDTO
-obtenerOrdenEnCurso(String legajo) {
-
-    OrdenCarga orden =
-        ordenCargaRepository
-            .findByTransportista_Usuario_LegajoAndConfirmadoTrue(
-                legajo
-            )
-            .stream()
-            .filter(o ->
-                o.getEstadoOrdenCarga()
-                    .getNombre()
-                    .equalsIgnoreCase("En Curso")
-            )
-            .findFirst()
-            .orElseThrow(() ->
-                new IllegalArgumentException(
-                    "No hay órdenes en curso."
-                )
-            );
-
-    return new OrdenTransportistaResponseDTO(
-
-        orden.getId(),
-
-        orden.getNumeroRemito(),
-        orden.getCot(),
-
-        orden.getEstadoOrdenCarga().getNombre(),
-
-        orden.getCamion().getPatente(),
-        orden.getAcoplado().getPatente(),
-
-        orden.getCombustible().getNombre(),
-
-        orden.getLitrosCargados(),
-
-        orden.getPlantaDespacho().getNombre(),
-        orden.getEstacionDestino().getNombre(),
-
-        orden.getFechaEntregaEstimada(),
-
-        orden.getConfirmado()
-    );
-}
-// =========================
-// NOTIFICAR ENTREGA
-// =========================
-
-public void notificarEntrega(Integer ordenId) {
-
-    OrdenCarga orden =
-        ordenCargaRepository.findById(ordenId)
-            .orElseThrow(() ->
-                new IllegalArgumentException(
-                    "Orden no encontrada."
-                )
-            );
-
-    // =========================
-    // VALIDAR ESTADO ACTUAL
+    // OBTENER ORDEN EN CURSO
     // =========================
 
-    if (!orden.getEstadoOrdenCarga()
-        .getNombre()
-        .equalsIgnoreCase("En Curso")) {
+    public OrdenTransportistaResponseDTO obtenerOrdenEnCurso(String legajo) {
 
-        throw new IllegalArgumentException(
-            "La orden no está en curso."
-        );
+        OrdenCarga orden = ordenCargaRepository
+                .findByTransportista_Usuario_LegajoAndConfirmadoTrue(
+                        legajo)
+                .stream()
+                .filter(o -> o.getEstadoOrdenCarga()
+                        .getNombre()
+                        .equalsIgnoreCase("En Curso"))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No hay órdenes en curso."));
+
+        return new OrdenTransportistaResponseDTO(
+
+                orden.getId(),
+
+                orden.getNumeroRemito(),
+                orden.getCot(),
+
+                orden.getEstadoOrdenCarga().getNombre(),
+
+                orden.getCamion().getPatente(),
+                orden.getAcoplado().getPatente(),
+
+                orden.getCombustible().getNombre(),
+
+                orden.getLitrosCargados(),
+
+                orden.getPlantaDespacho().getNombre(),
+                orden.getEstacionDestino().getNombre(),
+
+                orden.getFechaEntregaEstimada(),
+
+                orden.getConfirmado());
     }
-
     // =========================
-    // NUEVO ESTADO
-    // =========================
-
-    var nuevoEstado =
-        estadoRepository
-            .findByNombre(
-                "Pendiente de confirmacion de entrega"
-            )
-            .orElseThrow(() ->
-                new IllegalArgumentException(
-                    "Estado no encontrado."
-                )
-            );
-
-    // =========================
-    // ACTUALIZAR
+    // NOTIFICAR ENTREGA
     // =========================
 
-    orden.setEstadoOrdenCarga(nuevoEstado);
+    public void notificarEntrega(Integer ordenId) {
 
-    ordenCargaRepository.save(orden);
-}
+        OrdenCarga orden = ordenCargaRepository.findById(ordenId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Orden no encontrada."));
+
+        // =========================
+        // VALIDAR ESTADO ACTUAL
+        // =========================
+
+        if (!orden.getEstadoOrdenCarga()
+                .getNombre()
+                .equalsIgnoreCase("En Curso")) {
+
+            throw new IllegalArgumentException(
+                    "La orden no está en curso.");
+        }
+
+        // =========================
+        // NUEVO ESTADO
+        // =========================
+
+        var nuevoEstado = estadoRepository
+                .findByNombre(
+                        "Pendiente de confirmacion de entrega")
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Estado no encontrado."));
+
+        // =========================
+        // ACTUALIZAR
+        // =========================
+
+        orden.setEstadoOrdenCarga(nuevoEstado);
+
+        ordenCargaRepository.save(orden);
+    }
 
 }

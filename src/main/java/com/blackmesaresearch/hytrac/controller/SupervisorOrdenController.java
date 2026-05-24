@@ -20,22 +20,19 @@ public class SupervisorOrdenController {
     private final OrdenCargaService ordenCargaService;
 
     public SupervisorOrdenController(
-        OrdenCargaService ordenCargaService
-    ) {
+            OrdenCargaService ordenCargaService) {
         this.ordenCargaService = ordenCargaService;
     }
 
     // =========================
     // TODAS LAS ORDENES
     // =========================
- 
+
     @GetMapping
-    public ResponseEntity<List<OrdenSupervisorResponseDTO>>
-    obtenerTodas() {
+    public ResponseEntity<List<OrdenSupervisorResponseDTO>> obtenerTodas() {
 
         return ResponseEntity.ok(
-            ordenCargaService.obtenerTodasSupervisor()
-        );
+                ordenCargaService.obtenerTodasSupervisor());
     }
 
     // =========================
@@ -44,87 +41,73 @@ public class SupervisorOrdenController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerPorId(
-        @PathVariable Integer id
-    ) {
+            @PathVariable Integer id) {
 
         try {
 
             return ResponseEntity.ok(
-                ordenCargaService.obtenerOrdenSupervisor(id)
-            );
+                    ordenCargaService.obtenerOrdenSupervisor(id));
 
         } catch (IllegalArgumentException e) {
 
             return ResponseEntity.badRequest().body(
-                Map.of(
-                    "success", false,
-                    "message", e.getMessage()
-                )
-            );
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
         }
     }
 
     // =========================
-// CONFIRMAR ORDEN
-// =========================
+    // CONFIRMAR ORDEN
+    // =========================
 
-@PutMapping("/{id}/confirmar")
-public ResponseEntity<?> confirmarOrden(
-    @PathVariable Integer id
-) {
+    @PutMapping("/{id}/confirmar")
+    public ResponseEntity<?> confirmarOrden(
+            @PathVariable Integer id) {
 
-    try {
+        try {
 
-        ordenCargaService.confirmarOrden(id);
+            ordenCargaService.confirmarOrden(id);
 
-        return ResponseEntity.ok(
-            Map.of(
-                "success", true,
-                "message", "Orden confirmada correctamente."
-            )
-        );
+            return ResponseEntity.ok(
+                    Map.of(
+                            "success", true,
+                            "message", "Orden confirmada correctamente."));
 
-    } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
 
-        return ResponseEntity.badRequest().body(
-            Map.of(
-                "success", false,
-                "message", e.getMessage()
-            )
-        );
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
+        }
     }
-}
 
-// =========================
-// APROBAR INICIO DE VIAJE
-// =========================
+    // =========================
+    // APROBAR INICIO DE VIAJE
+    // =========================
 
-@PutMapping("/{id}/aprobar-inicio")
-public ResponseEntity<?> aprobarInicioViaje(
-    @PathVariable Integer id
-) {
+    @PutMapping("/{id}/aprobar-inicio")
+    public ResponseEntity<?> aprobarInicioViaje(
+            @PathVariable Integer id) {
 
-    try {
+        try {
 
-        ordenCargaService.aprobarInicioViaje(id);
+            ordenCargaService.aprobarInicioViaje(id);
 
-        return ResponseEntity.ok(
-            Map.of(
-                "success", true,
-                "message",
-                "La orden pasó a estado En Curso."
-            )
-        );
+            return ResponseEntity.ok(
+                    Map.of(
+                            "success", true,
+                            "message",
+                            "La orden pasó a estado En Curso."));
 
-    } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
 
-        return ResponseEntity.badRequest().body(
-            Map.of(
-                "success", false,
-                "message", e.getMessage()
-            )
-        );
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
+        }
     }
-}
 
 }

@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import com.blackmesaresearch.hytrac.model.reference.Combustible;
 
-
 @Service
 public class CombustibleService {
 
-    @Autowired private CombustibleRepository combustibleRepository;
+    @Autowired
+    private CombustibleRepository combustibleRepository;
 
     public List<CombustibleResponseDTO> obtenerCombustibles() {
         return combustibleRepository.findAll().stream()
@@ -21,8 +21,7 @@ public class CombustibleService {
                         c.getNumeroOnu(),
                         c.getClaseRiesgo(),
                         c.getDensidad(),
-                        c.getTemperaturaReferencia()
-                ))
+                        c.getTemperaturaReferencia()))
                 .toList();
     }
 }

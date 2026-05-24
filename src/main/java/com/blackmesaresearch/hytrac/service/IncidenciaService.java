@@ -13,8 +13,7 @@ public class IncidenciaService {
     private final IncidenciaRepository incidenciaRepository;
 
     public IncidenciaService(
-        IncidenciaRepository incidenciaRepository
-    ) {
+            IncidenciaRepository incidenciaRepository) {
         this.incidenciaRepository = incidenciaRepository;
     }
 
@@ -25,35 +24,35 @@ public class IncidenciaService {
     public List<IncidenciaResponseDTO> obtenerTodas() {
 
         return incidenciaRepository.findAll()
-            .stream()
-            .map(incidencia -> new IncidenciaResponseDTO(
+                .stream()
+                .map(incidencia -> new IncidenciaResponseDTO(
 
-                incidencia.getId(),
+                        incidencia.getId(),
 
-                incidencia.getOrden()
-                    .getNumeroRemito(),
+                        incidencia.getOrden()
+                                .getNumeroRemito(),
 
-                incidencia.getUsuarioRegistro()
-                    .getLegajo(),
+                        incidencia.getUsuarioRegistro()
+                                .getLegajo(),
 
-                incidencia.getUsuarioGestion() != null
-                    ? incidencia.getUsuarioGestion().getLegajo()
-                    : null,
+                        incidencia.getUsuarioGestion() != null
+                                ? incidencia.getUsuarioGestion().getLegajo()
+                                : null,
 
-                incidencia.getTipoIncidencia()
-                    .getNombre(),
+                        incidencia.getTipoIncidencia()
+                                .getNombre(),
 
-                incidencia.getDescripcion(),
+                        incidencia.getDescripcion(),
 
-                incidencia.getFechaIncidente(),
+                        incidencia.getFechaIncidente(),
 
-                incidencia.getLeyAplicada(),
+                        incidencia.getLeyAplicada(),
 
-                incidencia.getAccionesTomadas(),
+                        incidencia.getAccionesTomadas(),
 
-                incidencia.getResuelto()
+                        incidencia.getResuelto()
 
-            ))
-            .toList();
+                ))
+                .toList();
     }
 }

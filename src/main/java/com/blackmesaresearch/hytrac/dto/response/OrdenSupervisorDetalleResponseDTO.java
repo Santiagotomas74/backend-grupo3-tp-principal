@@ -4,85 +4,86 @@ import java.time.LocalDateTime;
 
 public record OrdenSupervisorDetalleResponseDTO(
 
-    // =========================
-    // ORDEN
-    // =========================
+        // =========================
+        // ORDEN
+        // =========================
 
-    Integer id,
-    String numeroRemito,
-    String cot,
+        Integer id,
+        String numeroRemito,
+        String cot,
 
-    String estado,
+        String estado,
 
-    Boolean confirmado,
-    Boolean fieAdjunta,
+        Boolean confirmado,
+        Boolean fieAdjunta,
 
-    String observaciones,
+        String observaciones,
 
-    // =========================
-    // FECHAS
-    // =========================
+        // =========================
+        // FECHAS
+        // =========================
 
-    LocalDateTime fechaCreacion,
-    LocalDateTime fechaSalidaPlanta,
-    LocalDateTime fechaEntregaEstimada,
-    LocalDateTime fechaEntregaReal,
+        LocalDateTime fechaCreacion,
+        LocalDateTime fechaSalidaPlanta,
+        LocalDateTime fechaEntregaEstimada,
+        LocalDateTime fechaEntregaReal,
 
-    // =========================
-    // CARGA
-    // =========================
+        // =========================
+        // CARGA
+        // =========================
 
-    Double litrosCargados,
-    Double litrosEntregados,
+        Double litrosCargados,
+        Double litrosEntregados,
 
-    // =========================
-    // CAMION
-    // =========================
+        // =========================
+        // CAMION
+        // =========================
 
-    Integer camionId,
-    String camionPatente,
-    String camionMarca,
-    String camionModelo,
-    Double camionPesoMaximo,
+        Integer camionId,
+        String camionPatente,
+        String camionMarca,
+        String camionModelo,
+        Double camionPesoMaximo,
 
-    // =========================
-    // ACOPLADO
-    // =========================
+        // =========================
+        // ACOPLADO
+        // =========================
 
-    Integer acopladoId,
-    String acopladoPatente,
-    Double acopladoCapacidad,
+        Integer acopladoId,
+        String acopladoPatente,
+        Double acopladoCapacidad,
 
-    // =========================
-    // TRANSPORTISTA
-    // =========================
+        // =========================
+        // TRANSPORTISTA
+        // =========================
 
-    Integer transportistaId,
-    String transportistaNombre,
-    String transportistaApellido,
-    String transportistaCuit,
-    String tipoVinculo,
+        Integer transportistaId,
+        String transportistaNombre,
+        String transportistaApellido,
+        String transportistaCuit,
+        String tipoVinculo,
 
-    // =========================
-    // COMBUSTIBLE
-    // =========================
+        // =========================
+        // COMBUSTIBLE
+        // =========================
 
-    Integer combustibleId,
-    String combustibleNombre,
-    String numeroOnu,
-    String claseRiesgo,
+        Integer combustibleId,
+        String combustibleNombre,
+        String numeroOnu,
+        String claseRiesgo,
 
-    // =========================
-    // LUGARES
-    // =========================
+        // =========================
+        // LUGARES
+        // =========================
 
-    String plantaDespacho,
-    String estacionDestino,
+        String plantaDespacho,
+        String estacionDestino,
 
-    // =========================
-    // OPERADOR
-    // =========================
+        // =========================
+        // OPERADOR
+        // =========================
 
-    String operadorNombre
+        String operadorNombre
 
-) {}
+) {
+}

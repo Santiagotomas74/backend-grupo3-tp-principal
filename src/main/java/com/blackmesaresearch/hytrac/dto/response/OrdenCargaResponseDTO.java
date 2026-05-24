@@ -3,32 +3,31 @@ package com.blackmesaresearch.hytrac.dto.response;
 import java.time.LocalDateTime;
 
 public record OrdenCargaResponseDTO(
-    Integer id,
-    String trackingId,
+        Integer id,
+        String trackingId,
 
-    String numeroRemito,
-    String cot,
+        String numeroRemito,
+        String cot,
 
-    String estado,
-    String combustible,
+        String estado,
+        String combustible,
 
-    String plantaDespacho,
-    String estacionDestino,
+        String plantaDespacho,
+        String estacionDestino,
 
-    Double litrosCargados,
+        Double litrosCargados,
 
-    LocalDateTime fechaCreacion,
-    LocalDateTime fechaEntregaEstimada,
+        LocalDateTime fechaCreacion,
+        LocalDateTime fechaEntregaEstimada,
 
-    String camionPatente,
-    String acopladoPatente,
+        String camionPatente,
+        String acopladoPatente,
 
-    String transportistaNombre,
-    String transportistaApellido,
-    String transportistaLegajo,
+        String transportistaNombre,
+        String transportistaApellido,
+        String transportistaLegajo,
 
-    String operadorLegajo,
+        String operadorLegajo,
 
-    Boolean confirmado
-) {
+        Boolean confirmado) {
 }

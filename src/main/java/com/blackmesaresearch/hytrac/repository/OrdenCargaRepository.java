@@ -13,32 +13,25 @@ public interface OrdenCargaRepository
         extends JpaRepository<OrdenCarga, Integer> {
 
     Optional<OrdenCarga> findByTrackingId(
-        String trackingId
-    );
+            String trackingId);
 
     Optional<OrdenCarga> findByNumeroRemito(
-        String numeroRemito
-    );
+            String numeroRemito);
 
     Optional<OrdenCarga> findByCot(
-        String cot
-    );
+            String cot);
 
     List<OrdenCarga> findByEstadoOrdenCarga_Nombre(
-        String nombre
-    );
+            String nombre);
 
     // =========================
     // TRANSPORTISTA
     // =========================
 
-    List<OrdenCarga>
-findByTransportista_Usuario_LegajoAndConfirmadoTrueAndEstadoOrdenCarga_Nombre(
-    String legajo,
-    String estado
-);
-List<OrdenCarga>
-findByTransportista_Usuario_LegajoAndConfirmadoTrue(
-    String legajo
-);
+    List<OrdenCarga> findByTransportista_Usuario_LegajoAndConfirmadoTrueAndEstadoOrdenCarga_Nombre(
+            String legajo,
+            String estado);
+
+    List<OrdenCarga> findByTransportista_Usuario_LegajoAndConfirmadoTrue(
+            String legajo);
 }

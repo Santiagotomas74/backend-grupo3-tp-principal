@@ -33,19 +33,16 @@ public class LugarOperativoController {
         return ResponseEntity.ok(lugarOperativoService.obtenerEstacionesServicio());
     }
 
-     // =========================
+    // =========================
     // PLANTAS
     // =========================
 
     @GetMapping("/plantas/{localidadId}")
-    public ResponseEntity<List<LugarOperativoResponseDTO>>
-    obtenerPlantas(
-        @PathVariable Integer localidadId
-    ) {
+    public ResponseEntity<List<LugarOperativoResponseDTO>> obtenerPlantas(
+            @PathVariable Integer localidadId) {
 
         return ResponseEntity.ok(
-            lugarOperativoService.obtenerPlantasPorLocalidad(localidadId)
-        );
+                lugarOperativoService.obtenerPlantasPorLocalidad(localidadId));
     }
 
     // =========================
@@ -53,13 +50,10 @@ public class LugarOperativoController {
     // =========================
 
     @GetMapping("/estaciones/{localidadId}")
-    public ResponseEntity<List<LugarOperativoResponseDTO>>
-    obtenerEstaciones(
-        @PathVariable Integer localidadId
-    ) {
+    public ResponseEntity<List<LugarOperativoResponseDTO>> obtenerEstaciones(
+            @PathVariable Integer localidadId) {
 
         return ResponseEntity.ok(
-            lugarOperativoService.obtenerEstacionesPorLocalidad(localidadId)
-        );
+                lugarOperativoService.obtenerEstacionesPorLocalidad(localidadId));
     }
 }

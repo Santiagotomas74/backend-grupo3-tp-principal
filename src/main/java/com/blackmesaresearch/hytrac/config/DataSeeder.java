@@ -585,7 +585,7 @@ public class DataSeeder implements CommandLineRunner {
 
             String randomNumber = String.format("%012d", random.nextLong() & Long.MAX_VALUE).substring(0, 12);
             orden.setTrackingId("HT-" + randomNumber);
-            
+
             orden.setNumeroRemito(row.getNumeroRemito());
             orden.setCot(row.getCot());
             orden.setCamion(camion);
@@ -614,7 +614,7 @@ public class DataSeeder implements CommandLineRunner {
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         MappingIterator<Map<String, String>> it = csvMapper.readerFor(new TypeReference<Map<String, String>>() {
-                })
+        })
                 .with(schema).readValues(is);
 
         Map<String, TipoDocumento> tipoDocumentoMap = tipoDocumentoRepo.findAll().stream()
@@ -664,7 +664,7 @@ public class DataSeeder implements CommandLineRunner {
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         MappingIterator<Map<String, String>> it = csvMapper.readerFor(new TypeReference<Map<String, String>>() {
-                })
+        })
                 .with(schema).readValues(is);
 
         Map<String, OrdenCarga> ordenMap = ordenCargaRepo.findAll().stream()
@@ -712,7 +712,7 @@ public class DataSeeder implements CommandLineRunner {
         CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
         MappingIterator<Map<String, String>> it = csvMapper.readerFor(new TypeReference<Map<String, String>>() {
-                })
+        })
                 .with(schema).readValues(is);
 
         Map<String, OrdenCarga> ordenMap = ordenCargaRepo.findAll().stream()

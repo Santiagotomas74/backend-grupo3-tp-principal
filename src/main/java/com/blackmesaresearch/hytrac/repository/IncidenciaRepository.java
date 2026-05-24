@@ -7,6 +7,6 @@ import com.blackmesaresearch.hytrac.model.core.Incidencia;
 
 @Repository
 public interface IncidenciaRepository
-    extends JpaRepository<Incidencia, Integer> {
+        extends JpaRepository<Incidencia, Integer> {
 
 }

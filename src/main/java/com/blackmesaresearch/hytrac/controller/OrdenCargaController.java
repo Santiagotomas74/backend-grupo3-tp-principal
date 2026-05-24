@@ -32,27 +32,24 @@ public class OrdenCargaController {
     public ResponseEntity<List<OrdenCargaResponseDTO>> obtenerOrdenes() {
         return ResponseEntity.ok(ordenCargaService.obtenerTodas());
     }
+
     @GetMapping("/remito/{numeroRemito}")
-public ResponseEntity<?> obtenerPorRemito(
-    @PathVariable String numeroRemito
-) {
+    public ResponseEntity<?> obtenerPorRemito(
+            @PathVariable String numeroRemito) {
 
-    try {
+        try {
 
-        return ResponseEntity.ok(
-            ordenCargaService.obtenerPorRemito(numeroRemito)
-        );
+            return ResponseEntity.ok(
+                    ordenCargaService.obtenerPorRemito(numeroRemito));
 
-    } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
 
-        return ResponseEntity.badRequest().body(
-            Map.of(
-                "success", false,
-                "message", e.getMessage()
-            )
-        );
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
+        }
     }
-}
 
     @PostMapping("/crear")
     public ResponseEntity<?> crearOrdenCarga(@RequestBody OrdenCargaRequestDTO dto) {
@@ -85,54 +82,43 @@ public ResponseEntity<?> obtenerPorRemito(
     }
 
     @PutMapping("/{id}/editar")
-public ResponseEntity<?> editarOrdenCarga(@PathVariable Integer id, @RequestBody OrdenCargaRequestDTO dto) {
-    try {
-        OrdenCargaResponseDTO response = ordenCargaService.editarOrdenCarga(id, dto);
-        return ResponseEntity.ok(response);
-        
-    } catch (IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(
-                Map.of(
-                        "success", false,
-                        "message", e.getMessage()
-                )
-        );
-    } catch (Exception e) {
-        return ResponseEntity.status(500).body(
-                Map.of(
-                        "success", false,
-                        "message", "Error interno al intentar editar la orden de carga"
-                )
-        );
+    public ResponseEntity<?> editarOrdenCarga(@PathVariable Integer id, @RequestBody OrdenCargaRequestDTO dto) {
+        try {
+            OrdenCargaResponseDTO response = ordenCargaService.editarOrdenCarga(id, dto);
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(
+                    Map.of(
+                            "success", false,
+                            "message", "Error interno al intentar editar la orden de carga"));
+        }
     }
-}    
-@PutMapping("/{id}/cancelar")
-public ResponseEntity<?> cancelarOrden(
-        @PathVariable Integer id, 
-        @RequestBody CancelarOrdenRequestDTO dto
-) {
-    try {
-        OrdenCargaResponseDTO response = ordenCargaService.cancelarOrden(id, dto);
-        return ResponseEntity.ok(response);
-        
-    } catch (IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(
-                Map.of(
-                        "success", false,
-                        "message", e.getMessage()
-                )
-        );
-    } catch (Exception e) {
-        return ResponseEntity.status(500).body(
-                Map.of(
-                        "success", false,
-                        "message", "Error interno al intentar cancelar la orden de carga"
-                )
-        );
+
+    @PutMapping("/{id}/cancelar")
+    public ResponseEntity<?> cancelarOrden(
+            @PathVariable Integer id,
+            @RequestBody CancelarOrdenRequestDTO dto) {
+        try {
+            OrdenCargaResponseDTO response = ordenCargaService.cancelarOrden(id, dto);
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(
+                    Map.of(
+                            "success", false,
+                            "message", "Error interno al intentar cancelar la orden de carga"));
+        }
     }
-}
-
-
-
 
 }
