@@ -95,4 +95,8 @@ public class OrdenCarga {
 
   @Column(name = "confirmado")
   private Boolean confirmado = false;
+
+  @ManyToOne
+  @JoinColumn(name = "ruta_id")
+  private Ruta ruta;
 }
