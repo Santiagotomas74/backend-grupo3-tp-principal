@@ -13,6 +13,7 @@ public record OrdenCargaRequestDTO(
         Integer operadorId,
         Integer estadoId,
         Integer combustibleId,
+        Integer ruta,
         Double litrosCargados,
         Double litrosEntregados,
         LocalDateTime fechaCreacion,

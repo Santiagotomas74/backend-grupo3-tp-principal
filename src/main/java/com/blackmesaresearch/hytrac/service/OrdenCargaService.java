@@ -190,28 +190,44 @@ public class OrdenCargaService {
         return toResponseDTO(guardada);
     }
 
-    private OrdenCargaResponseDTO toResponseDTO(OrdenCarga orden) {
-        return new OrdenCargaResponseDTO(
-                orden.getId(),
-                orden.getTrackingId(),
-                orden.getNumeroRemito(),
-                orden.getCot(),
-                orden.getEstadoOrdenCarga().getNombre(),
-                orden.getCombustible().getNombre(),
-                orden.getPlantaDespacho().getNombre(),
-                orden.getEstacionDestino().getNombre(),
-                orden.getLitrosCargados(),
-                orden.getFechaCreacion(),
-                orden.getFechaEntregaEstimada(),
-                orden.getCamion().getPatente(),
-                orden.getAcoplado().getPatente(),
-                orden.getTransportista().getUsuario().getNombre(),
-                orden.getTransportista().getUsuario().getApellido(),
-                orden.getTransportista().getUsuario().getLegajo(),
-                orden.getOperador().getLegajo(),
-                orden.getConfirmado());
-    }
+ private OrdenCargaResponseDTO toResponseDTO(
+    OrdenCarga orden
+) {
 
+    return new OrdenCargaResponseDTO(
+
+        orden.getId(),
+        orden.getTrackingId(),
+        orden.getNumeroRemito(),
+        orden.getCot(),
+
+        orden.getEstadoOrdenCarga().getNombre(),
+        orden.getCombustible().getNombre(),
+
+        orden.getPlantaDespacho().getNombre(),
+        orden.getEstacionDestino().getNombre(),
+
+        orden.getLitrosCargados(),
+
+        orden.getRuta() != null
+            ? orden.getRuta().getId()
+            : null,
+
+        orden.getFechaCreacion(),
+        orden.getFechaEntregaEstimada(),
+
+        orden.getCamion().getPatente(),
+        orden.getAcoplado().getPatente(),
+
+        orden.getTransportista().getUsuario().getNombre(),
+        orden.getTransportista().getUsuario().getApellido(),
+        orden.getTransportista().getUsuario().getLegajo(),
+
+        orden.getOperador().getLegajo(),
+
+        orden.getConfirmado()
+    );
+}
     public OrdenCargaDetalleResponseDTO obtenerDetallePorId(Integer id) {
 
         OrdenCarga orden = ordenCargaRepository.findById(id)
@@ -430,6 +446,7 @@ public class OrdenCargaService {
                 orden.getPlantaDespacho().getNombre(),
                 orden.getEstacionDestino().getNombre(),
                 orden.getLitrosCargados(),
+                orden.getRuta().getId(),
                 orden.getFechaCreacion(),
                 orden.getFechaEntregaEstimada(),
                 orden.getCamion().getPatente(),
