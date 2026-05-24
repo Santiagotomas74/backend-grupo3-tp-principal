@@ -199,6 +199,7 @@ CREATE TABLE Orden_Carga (
     litros_entregados DECIMAL(12, 2),
     confirmado BOOLEAN DEFAULT 0,
     fie_adjunta BOOLEAN DEFAULT 0,
+    ruta_id INTEGER,
     observaciones TEXT,
     FOREIGN KEY (camion_id) REFERENCES Vehiculo(id),
     FOREIGN KEY (acoplado_id) REFERENCES Acoplado(id),
@@ -208,6 +209,7 @@ CREATE TABLE Orden_Carga (
     FOREIGN KEY (operador_id) REFERENCES Usuario(id),
     FOREIGN KEY (combustible_id) REFERENCES Combustible(id),
     FOREIGN KEY (estado_id) REFERENCES Estado_Orden_Carga(id)
+    FOREIGN KEY (ruta_id) REFERENCES Ruta(id)
 );
 
 -- =========================
@@ -274,6 +276,20 @@ CREATE TABLE Auditoria_Estado (
     FOREIGN KEY (estado_nuevo_id) REFERENCES Estado_Orden_Carga(id),
     FOREIGN KEY (solicitante_id) REFERENCES Usuario(id),
     FOREIGN KEY (confirmador_id) REFERENCES Usuario(id)
+);
+
+-- =========================
+-- RUTAS
+-- =========================
+CREATE TABLE Ruta (
+    id INTEGER PRIMARY KEY,
+    origen_id INTEGER,
+    destino_id INTEGER,
+    distancia_km DECIMAL(10, 2),
+    tiempo_estimado_horas DECIMAL(10, 2),
+    geometria_json TEXT,
+    FOREIGN KEY (origen_id) REFERENCES Lugar_Operativo(id),
+    FOREIGN KEY (destino_id) REFERENCES Lugar_Operativo(id)
 );
 
 -- =========================
