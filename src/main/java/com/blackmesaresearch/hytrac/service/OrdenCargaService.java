@@ -622,12 +622,10 @@ public class OrdenCargaService {
 
             // Buscar la incidencia de cancelación abierta previamente por el transportista
             com.blackmesaresearch.hytrac.model.core.Incidencia incidenciaPendiente = incidenciaRepository.findAll().stream()
-                    .filter(i -> i.getOrden().getNumeroRemito().equals(orden.getNumeroRemito())
-                    && !i.getResuelto()
-                    && MOTIVOS_CANCELACION.stream().anyMatch(m -> m.equalsIgnoreCase(i.getDescripcion())))
+                    .filter(i -> i.getOrden().getNumeroRemito().equals(orden.getNumeroRemito()) 
+                        && !i.getResuelto())
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("No hay ninguna solicitud de cancelación pendiente de transportista para esta orden."));
-
             // CASO A: El supervisor RECHAZA la cancelación del chofer
             if (dto.motivo() != null && (dto.motivo().equalsIgnoreCase("RECHAZADO"))) {
 
