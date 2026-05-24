@@ -50,6 +50,7 @@ public class OrdenCargaService {
     private com.blackmesaresearch.hytrac.repository.IncidenciaRepository incidenciaRepository;
     @Autowired
     private com.blackmesaresearch.hytrac.repository.TipoIncidenciaRepository tipoIncidenciaRepository;
+    private static final List<String> MOTIVOS_CANCELACION = List.of("DEMORA", "ACCIDENTE", "DOCUMENTACION");
 
     public List<OrdenCargaResponseDTO> obtenerTodas() {
         return ordenCargaRepository.findAll()
@@ -579,9 +580,9 @@ public class OrdenCargaService {
 
             // Verificar si ya existe una solicitud de cancelación abierta para esta orden
             boolean tieneIncidenciaAbierta = incidenciaRepository.findAll().stream()
-                    .anyMatch(i -> i.getOrden().getId().equals(orden.getId())
+                    .anyMatch(i -> i.getOrden().getNumeroRemito().equals(orden.getNumeroRemito())
                     && !i.getResuelto()
-                    && i.getDescripcion().startsWith("SOLICITUD DE CANCELACIÓN"));
+                    && MOTIVOS_CANCELACION.stream().anyMatch(m -> m.equalsIgnoreCase(i.getDescripcion())));
 
             if (tieneIncidenciaAbierta) {
                 throw new IllegalArgumentException("Ya existe una solicitud de cancelación pendiente para esta orden.");

@@ -1,10 +1,10 @@
 package com.blackmesaresearch.hytrac.repository;
 
-import com.blackmesaresearch.hytrac.model.core.Usuario;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import com.blackmesaresearch.hytrac.model.core.Usuario;
 
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
