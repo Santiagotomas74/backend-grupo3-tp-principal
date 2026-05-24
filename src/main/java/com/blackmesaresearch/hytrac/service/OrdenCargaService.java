@@ -610,7 +610,6 @@ public class OrdenCargaService {
             incidenciaRepository.save(nuevaIncidencia);
 
             // Marcamos provisionalmente confirmado como false para alertar al supervisor en su panel
-            orden.setConfirmado(false);
             OrdenCarga ordenGuardada = ordenCargaRepository.save(orden);
 
             return toResponseDTO(ordenGuardada);
@@ -637,7 +636,6 @@ public class OrdenCargaService {
                 incidenciaRepository.save(incidenciaPendiente);
 
                 // Volvemos a dejar la orden disponible/confirmada para operar con normalidad
-                orden.setConfirmado(true);
                 OrdenCarga ordenGuardada = ordenCargaRepository.save(orden);
 
                 return toResponseDTO(ordenGuardada);
