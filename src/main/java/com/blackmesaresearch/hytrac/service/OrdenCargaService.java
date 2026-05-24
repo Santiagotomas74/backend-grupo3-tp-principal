@@ -651,7 +651,6 @@ public class OrdenCargaService {
 
                 // Actualizar la orden a estado Cancelada definitivamente
                 orden.setEstadoOrdenCarga(estadoCancelada);
-                orden.setConfirmado(false);
                 OrdenCarga ordenActualizada = ordenCargaRepository.save(orden);
 
                 // Registrar en el historial de auditoría de estados de la orden
