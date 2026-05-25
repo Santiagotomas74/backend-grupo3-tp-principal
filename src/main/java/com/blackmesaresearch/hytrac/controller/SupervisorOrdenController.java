@@ -4,7 +4,8 @@ package com.blackmesaresearch.hytrac.controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.blackmesaresearch.hytrac.service.OrdenCargaService;
-
+import com.blackmesaresearch.hytrac.dto.request.CancelarOrdenRequestDTO;
+import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorResponseDTO;
 import org.springframework.http.ResponseEntity;
@@ -107,6 +108,28 @@ public class SupervisorOrdenController {
                     Map.of(
                             "success", false,
                             "message", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/remito/{numeroRemito}/gestion-incidencia")
+    public ResponseEntity<?> cancelarOrden(
+            @PathVariable String numeroRemito,
+            @RequestBody CancelarOrdenRequestDTO dto) {
+        try {
+            // Enviamos el String (numeroRemito) al service modificado
+            OrdenCargaResponseDTO response = ordenCargaService.cancelarOrden(numeroRemito, dto);
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(
+                    Map.of(
+                            "success", false,
+                            "message", "Error interno al intentar procesar la cancelación de la orden"));
         }
     }
 

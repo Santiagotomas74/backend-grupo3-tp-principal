@@ -606,65 +606,10 @@ public class OrdenCargaService {
                 String rol = solicitante.getRol().getNombre();
 
                 // =========================================================================
-                // FLUJO 1: EL TRANSPORTISTA SOLICITA LA CANCELACIÓN
-                // =========================================================================
-                if (rol.equalsIgnoreCase("TRANSPORTISTA")) {
-
-                        // 3 motivos predefinidos de cancelación, el chofer debe elegir uno al solicitar
-                        // la cancelación. Validamos que haya enviado un motivo válido dentro de las
-                        // opciones predefinidas.
-                        boolean esMotivoValido = MOTIVOS_CANCELACION.stream()
-                                        .anyMatch(m -> m.equalsIgnoreCase(dto.motivo()));
-
-                        if (!esMotivoValido) {
-                                throw new IllegalArgumentException(
-                                                "El motivo de cancelación no es válido. Debe ser uno de: "
-                                                                + MOTIVOS_CANCELACION);
-                        }
-
-                        // Verificar si ya existe una solicitud de cancelación abierta para esta orden
-                        boolean tieneIncidenciaAbierta = incidenciaRepository.findAll().stream()
-                                        .anyMatch(i -> i.getOrden().getNumeroRemito().equals(orden.getNumeroRemito())
-                                                        && !i.getResuelto()
-                                                        && MOTIVOS_CANCELACION.stream().anyMatch(
-                                                                        m -> m.equalsIgnoreCase(i.getDescripcion())));
-
-                        if (tieneIncidenciaAbierta) {
-                                throw new IllegalArgumentException(
-                                                "Ya existe una solicitud de cancelación pendiente para esta orden.");
-                        }
-
-                        // Buscamos el tipo de incidencia de tu base de datos para asociarlo a esta
-                        // solicitud de cancelación. Si no existe, se asigna null (podría mejorarse
-                        // creando un tipo específico para cancelaciones)
-                        var tipoIncidencia = tipoIncidenciaRepository.findAll().stream()
-                                        .filter(t -> t.getNombre().equalsIgnoreCase(dto.motivo()))
-                                        .findFirst()
-                                        .orElseThrow(() -> new IllegalArgumentException("El tipo de incidencia '"
-                                                        + dto.motivo() + "' no está dado de alta en el sistema."));
-
-                        // Crear y guardar la Incidencia asociada a esta solicitud de cancelación (La
-                        // incidencia quedará abierta para que el supervisor la gestione desde su panel)
-                        com.blackmesaresearch.hytrac.model.core.Incidencia nuevaIncidencia = new com.blackmesaresearch.hytrac.model.core.Incidencia();
-                        nuevaIncidencia.setOrden(orden);
-                        nuevaIncidencia.setUsuarioRegistro(solicitante);
-                        nuevaIncidencia.setTipoIncidencia(tipoIncidencia);
-                        nuevaIncidencia.setDescripcion("SOLICITUD DE CANCELACIÓN - Motivo chofer: " + dto.motivo());
-                        nuevaIncidencia.setFechaIncidente(java.time.LocalDateTime.now());
-                        nuevaIncidencia.setResuelto(false); // Queda abierta para el supervisor
-
-                        incidenciaRepository.save(nuevaIncidencia);
-
-                        // Marcamos provisionalmente confirmado como false para alertar al supervisor en
-                        // su panel
-                        OrdenCarga ordenGuardada = ordenCargaRepository.save(orden);
-
-                        return toResponseDTO(ordenGuardada);
-                } // =========================================================================
                   // FLUJO 2: EL ADMIN(Mas adelante supervisor/cambiar) ACEPTA O RECHAZA
                   // Modificar/preguntar a gonza
                   // =========================================================================
-                else if (rol.equalsIgnoreCase("ADMIN")) {
+               if (rol.equalsIgnoreCase("ADMIN")) {
 
                         // Buscar la incidencia de cancelación abierta previamente por el transportista
                         com.blackmesaresearch.hytrac.model.core.Incidencia incidenciaPendiente = incidenciaRepository
