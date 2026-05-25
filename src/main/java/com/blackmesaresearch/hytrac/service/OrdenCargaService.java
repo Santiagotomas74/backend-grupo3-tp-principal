@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.blackmesaresearch.hytrac.dto.request.CancelarOrdenRequestDTO;
-import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.ConfirmarEntregaRequestDTO;
+import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorDetalleResponseDTO;
@@ -421,6 +421,13 @@ public class OrdenCargaService {
                         throw new IllegalArgumentException(
                                         "La orden no está pendiente de inicio de viaje.");
                 }
+                // ==========================================================
+                // VALIDACION DE SEGURIDAD ANTES DE SALIR
+                // ==========================================================
+                if (orden.getRuta() == null) {
+                throw new IllegalArgumentException(
+                        "No se puede iniciar el viaje porque la orden no tiene una ruta asignada. Por favor, edite la orden y confirme el recorrido.");
+                }
 
                 // =========================
                 // OBTENER NUEVO ESTADO
@@ -549,6 +556,8 @@ public class OrdenCargaService {
                 var estado = estadoOrdenCargaRepository.findById(dto.estadoId())
                                 .orElseThrow(() -> new IllegalArgumentException("Estado no encontrado."));
 
+                var ruta = rutaRepository.findById(dto.rutaId())
+                        .orElse(null);
                 // Reglas de Negocio Cruzadas
                 if (!camion.getEmpresa().getId().equals(acoplado.getEmpresa().getId())) {
                         throw new IllegalArgumentException("El camión y el acoplado pertenecen a empresas distintas.");
@@ -577,7 +586,8 @@ public class OrdenCargaService {
                 orden.setObservaciones(dto.observaciones());
                 orden.setFieAdjunta(dto.fieAdjunta());
                 orden.setConfirmado(dto.confirmado());
-
+                
+                orden.setRuta(ruta);
                 // Guardar la orden modificada
                 OrdenCarga modificada = ordenCargaRepository.save(orden);
 
