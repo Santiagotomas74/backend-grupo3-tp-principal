@@ -18,9 +18,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.blackmesaresearch.hytrac.dto.request.CancelarOrdenRequestDTO;
+import com.blackmesaresearch.hytrac.dto.request.ConfirmarEntregaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
 import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
+import com.blackmesaresearch.hytrac.model.core.Usuario;
 import com.blackmesaresearch.hytrac.model.core.Vehiculo;
+import com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga;
+import com.blackmesaresearch.hytrac.model.lookup.Rol;
 import com.blackmesaresearch.hytrac.repository.AcopladoRepository;
 import com.blackmesaresearch.hytrac.repository.CombustibleRepository;
 import com.blackmesaresearch.hytrac.repository.EstadoOrdenCargaRepository;
@@ -43,6 +48,8 @@ public class OrdenCargaServiceTest {
     @Mock private UsuarioRepository usuarioRepository;
     @Mock private AcopladoRepository acopladoRepository;
     @Mock private RutaRepository rutaRepository;
+
+
 
     @InjectMocks
     private OrdenCargaService ordenCargaService;
@@ -558,5 +565,309 @@ public class OrdenCargaServiceTest {
         assertTrue(resultado.isEmpty());
     }
 
+    // Editar Orden Carga //
+
+    @Test
+    void editarOrdenCarga_DebeLanzarExcepcionCuandoOrdenNoExiste() {
+
+        when(ordenCargaRepository.findById(99)).thenReturn(Optional.empty());
+
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
+            () -> ordenCargaService.editarOrdenCarga(99, dtoValido)
+        );
+
+        assertEquals("Orden no encontrada.", excepcion.getMessage());
+
+        verify(ordenCargaRepository, never()).save(any());
+    }
+
+    @Test
+    void editarOrdenCarga_DebeLanzarExcepcionCuandoOrdenEstaEntregada() {
+        var estado = new EstadoOrdenCarga();
+        estado.setNombre("Entregada");
+        var orden = new OrdenCarga();
+        orden.setEstadoOrdenCarga(estado);
+
+        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
+            () -> ordenCargaService.editarOrdenCarga(1, dtoValido)
+        );
+
+        assertTrue(excepcion.getMessage().contains("Entregada"));
+        
+        verify(ordenCargaRepository, never()).save(any());
+    }
+
+    @Test
+    void editarOrdenCarga_DebeLanzarExcepcionCuandoOrdenEstaCancelada() {
+        var estado = new EstadoOrdenCarga();
+        estado.setNombre("Cancelada");
+        var orden = new OrdenCarga();
+        orden.setEstadoOrdenCarga(estado);
+
+        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
+            () -> ordenCargaService.editarOrdenCarga(1, dtoValido)
+        );
+
+        assertTrue(excepcion.getMessage().contains("Cancelada"));
+        
+        verify(ordenCargaRepository, never()).save(any());
+    }
+
+    @Test
+    void editarOrdenCarga_DebeLanzarExcepcionCuandoRemitoYaExisteEnOtraOrden() {
+        var estado = new EstadoOrdenCarga();
+        estado.setNombre("Pendiente");
+        var orden = new OrdenCarga();
+        orden.setId(1);
+        orden.setEstadoOrdenCarga(estado);
+
+        var otraOrden = new OrdenCarga();
+        otraOrden.setId(99);
+
+        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.of(otraOrden));
+
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
+            () -> ordenCargaService.editarOrdenCarga(1, dtoValido)
+        );
+
+        assertEquals("El número de remito ya existe en otra orden del sistema.", excepcion.getMessage());
+        verify(ordenCargaRepository, never()).save(any());
+    }
+
+    @Test
+    void editarOrdenCarga_DebeLanzarExcepcionCuandoCotYaExisteEnOtraOrden() {
+        var estado = new EstadoOrdenCarga();
+        estado.setNombre("Pendiente");
+        var orden = new OrdenCarga();
+        orden.setId(1);
+        orden.setEstadoOrdenCarga(estado);
+
+        var otraOrden = new OrdenCarga();
+        otraOrden.setId(99);
+
+        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+        when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.of(otraOrden));
+
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
+            () -> ordenCargaService.editarOrdenCarga(1, dtoValido)
+        );
+
+        assertEquals("El COT ya existe en otra orden del sistema.", excepcion.getMessage());
+        verify(ordenCargaRepository, never()).save(any());
+    }
+
+    @Test
+    void editarOrdenCarga_DebeLanzarExcepcionCuandoLitrosSonCero() {
+        var estado = new EstadoOrdenCarga();
+        estado.setNombre("Pendiente");
+        var orden = new OrdenCarga();
+        orden.setId(1);
+        orden.setEstadoOrdenCarga(estado);
+
+        OrdenCargaRequestDTO dtoSinLitros = new OrdenCargaRequestDTO(
+            "REM-001", "COT-001", 1,1,1,1,2,1,1,1,1, 0.0, 0.0, null, null, null, 0.0, 0.0, "Obs", false, false
+        );
+
+        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
+        when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.empty());
+
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
+            () -> ordenCargaService.editarOrdenCarga(1, dtoSinLitros)
+        );
+
+        assertEquals("Los litros cargados son obligatorios y deben ser mayores a cero.", excepcion.getMessage());
+    }
+
+    @Test
+    void editarOrdenCarga_DebeLanzarExcepcionCuanoPlantayDestinoSonIguales() {
+        var estado = new EstadoOrdenCarga();
+        estado.setNombre("Pendiente");
+        var orden = new OrdenCarga();
+        orden.setId(1);
+        orden.setEstadoOrdenCarga(estado);
+
+        OrdenCargaRequestDTO dtoIgual = new OrdenCargaRequestDTO(
+            "REM-001", "COT-001", 1,1,1,1,1,1,1,1,1, 5000.0, 0.0, null, null, null, 0.0, 0.0, "Obs", false, false
+        );
+
+        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
+        when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.empty());
+
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
+            () -> ordenCargaService.editarOrdenCarga(1, dtoIgual)
+        );
+
+        assertEquals("La planta de despacho y el destino no pueden ser iguales.", excepcion.getMessage());
+    }
+
+
+    // Cancelar Orden //
+
+    @Test
+    void cancelarOrden_DebeLanzarExcepcionCuandoOrdenNoExiste() {
+        when(ordenCargaRepository.findByNumeroRemito("REM-999")).thenReturn(Optional.empty());
+
+        CancelarOrdenRequestDTO dto = new CancelarOrdenRequestDTO("LEG-001", "Motivo Test");
+
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
+            () -> ordenCargaService.cancelarOrden("REM-999", dto)
+        );
+
+        assertTrue(excepcion.getMessage().contains("REM-999"));
+
+        verify(ordenCargaRepository, never()).save(any());
+    }
+
+    @Test
+    void cancelarOrden_DebeLanzarExcepcionCuandoOrdenYaEstaEntregada() {
+        var estado = new EstadoOrdenCarga();
+        estado.setNombre("Entregada");
+        var orden = new OrdenCarga();
+        orden.setEstadoOrdenCarga(estado);
+
+        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.of(orden));
+
+        CancelarOrdenRequestDTO dto = new CancelarOrdenRequestDTO("LEG-001", "Motivo");
+
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class, ()
+            -> ordenCargaService.cancelarOrden("REM-001", dto)
+        );
+
+        assertTrue(excepcion.getMessage().contains("Entregada"));
+        verify(ordenCargaRepository, never()).save(any());
+
+    }
+
+    @Test
+    void cancelarOrden_DebeLanzarExcepcionCuandoOrdenYaEstaCancelada() {
+        var estado = new EstadoOrdenCarga();
+        estado.setNombre("Cancelada");
+        var orden = new OrdenCarga();
+        orden.setEstadoOrdenCarga(estado);
+
+        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.of(orden));
+
+        CancelarOrdenRequestDTO dto = new CancelarOrdenRequestDTO("LEG-001", "Motivo");
+
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class, ()
+            -> ordenCargaService.cancelarOrden("REM-001", dto)
+        );
+
+        assertTrue(excepcion.getMessage().contains("Cancelada"));
+        verify(ordenCargaRepository, never()).save(any());
+
+    }
+
+
+    @Test
+    void cancelarOrden_DebeLanzarExcepcionCuanoRolNoEsSupervisor() {
+        var estado = new EstadoOrdenCarga();
+        estado.setNombre("Pendiente");
+        var orden = new OrdenCarga();
+        orden.setNumeroRemito("REM-001");
+        orden.setEstadoOrdenCarga(estado);
+
+        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.of(orden));
+
+        var rol = new Rol();
+        rol.setNombre("OPERADOR");
+        var solicitante = new Usuario();
+        solicitante.setRol(rol);
+
+        when(usuarioRepository.findByLegajo("LEG-001")).thenReturn(Optional.of(solicitante));
+
+        CancelarOrdenRequestDTO dto = new CancelarOrdenRequestDTO("LEG-001", "Motivo");
+
+        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class, ()
+            -> ordenCargaService.cancelarOrden("REM-001", dto)
+        );
+
+        assertEquals("Su rol no está autorizado para realizar o gestionar solicitudes de cancelación.", excepcion.getMessage());
+        verify(ordenCargaRepository, never()).save(any());
+    }
+
+
+    // Reportar Entrega //
+
+    @Test
+    void reportarEntrega_DebeLanzarExcepcionCuandoOrdenNoExiste() {
+
+        when(ordenCargaRepository.findById(99)).thenReturn(Optional.empty());
+
+        ConfirmarEntregaRequestDTO dto = new ConfirmarEntregaRequestDTO(5000.0, "Sin obs");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> ordenCargaService.reportarEntrega(99, dto)
+        );
+
+        assertEquals("Orden no encontrada.",exception.getMessage());
+        verify(ordenCargaRepository, never()).save(any());
+    }
+
+    @Test
+    void reportarEntrega_DebeLanzarExcepcionCuandoEstadoNoPendienteDeConfirmacion() {
+        var estado = new EstadoOrdenCarga();
+        estado.setNombre("En Curso");
+
+        var orden = new OrdenCarga();
+        orden.setEstadoOrdenCarga(estado);
+
+        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+
+        ConfirmarEntregaRequestDTO dto = new ConfirmarEntregaRequestDTO(5000.0, "Sin obs");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> ordenCargaService.reportarEntrega(1, dto)
+        );
+
+        assertEquals("La orden no está pendiente de confirmación de entrega.", exception.getMessage());
+        verify(ordenCargaRepository, never()).save(any());
+    }
+
+    @Test
+    void reportarEntrega_DebeLanzarExcepcionCuandoLitrosEntregadosSonCero() {
+        var estado = new EstadoOrdenCarga();
+        estado.setNombre("Pendiente de confirmacion de entrega");
+
+        var orden = new OrdenCarga();
+        orden.setEstadoOrdenCarga(estado);
+
+        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+
+        ConfirmarEntregaRequestDTO dto = new ConfirmarEntregaRequestDTO(0.0, "Sin obs");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> ordenCargaService.reportarEntrega(1, dto)
+        );
+
+        assertEquals("Los litros entregados son obligatorios.", exception.getMessage());
+        verify(ordenCargaRepository, never()).save(any());
+    }
+
+    @Test
+    void reportarEntrega_DebeActualizarDatosCorrectamente() {
+        var estado = new EstadoOrdenCarga();
+        estado.setNombre("Pendiente de confirmacion de entrega");
+        var orden = new OrdenCarga();
+        orden.setEstadoOrdenCarga(estado);
+
+        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+
+        ConfirmarEntregaRequestDTO dto = new ConfirmarEntregaRequestDTO(5000.0, "Sin obs");
+
+        ordenCargaService.reportarEntrega(1, dto);
+
+        assertEquals(5000.0, orden.getLitrosEntregados());
+        assertEquals("Sin obs", orden.getObservaciones());
+        assertNotNull(orden.getFechaEntregaReal());
+        verify(ordenCargaRepository).save(orden);
+    }
 
 }
