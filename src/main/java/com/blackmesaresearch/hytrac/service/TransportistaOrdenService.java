@@ -56,7 +56,12 @@ public class TransportistaOrdenService {
 
                 orden.getFechaEntregaEstimada(),
 
-                orden.getConfirmado());
+                orden.getConfirmado(),
+                orden.getRuta() != null ? orden.getRuta().getId() : null
+                
+                
+        );
+                
     }
 
     // =========================
@@ -128,7 +133,9 @@ public class TransportistaOrdenService {
 
                 orden.getFechaEntregaEstimada(),
 
-                orden.getConfirmado());
+                orden.getConfirmado(),
+                orden.getRuta() != null ? orden.getRuta().getId() : null
+        );
     }
     // =========================
     // NOTIFICAR ENTREGA
