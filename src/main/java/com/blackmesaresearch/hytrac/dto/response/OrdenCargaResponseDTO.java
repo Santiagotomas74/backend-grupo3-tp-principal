@@ -16,6 +16,7 @@ public record OrdenCargaResponseDTO(
         String estacionDestino,
 
         Double litrosCargados,
+        Double litrosEntregados,
         Integer ruta,
 
         LocalDateTime fechaCreacion,

@@ -215,6 +215,7 @@ public class OrdenCargaService {
                                 orden.getEstacionDestino().getNombre(),
 
                                 orden.getLitrosCargados(),
+                                orden.getLitrosEntregados(),
 
                                 orden.getRuta() != null
                                                 ? orden.getRuta().getId()
@@ -466,6 +467,7 @@ public class OrdenCargaService {
                                 orden.getPlantaDespacho().getNombre(),
                                 orden.getEstacionDestino().getNombre(),
                                 orden.getLitrosCargados(),
+                                orden.getLitrosEntregados(),
                                orden.getRuta() != null
     ? orden.getRuta().getId()
     : null,
