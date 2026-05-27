@@ -5,3 +5,5 @@ ORDEN_EDITAR,Editar ordenes
 USUARIO_ADMIN,Administrar usuarios
 ORDEN_CONFIRMAR_ENTREGA,Confirmar que la entrega llego bien
 INCIDENCIA_CREAR,Reportar una incidencia
+ORDEN_CONFIRMAR_ENVIO,Aprobar orden de compra
+ORDEN_CONFIRMAR_VIAJE,Aprobar el inicio del viaje
