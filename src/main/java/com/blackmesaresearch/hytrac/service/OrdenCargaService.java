@@ -285,6 +285,7 @@ public class OrdenCargaService {
                                 .stream()
                                 .map(orden -> new OrdenSupervisorResponseDTO(
                                                 orden.getId(),
+                                                orden.getTrackingId(),
                                                 orden.getNumeroRemito(),
                                                 orden.getCot(),
                                                 orden.getEstadoOrdenCarga().getNombre(),
@@ -299,8 +300,10 @@ public class OrdenCargaService {
                                                                                 .getApellido(),
                                                 orden.getCombustible().getNombre(),
                                                 orden.getLitrosCargados(),
+                                                orden.getLitrosEntregados(),
                                                 orden.getPlantaDespacho().getNombre(),
                                                 orden.getEstacionDestino().getNombre(),
+                                                orden.getObservaciones(),
                                                 orden.getFechaCreacion(),
                                                 orden.getFechaEntregaEstimada(),
                                                 orden.getConfirmado()))
@@ -619,7 +622,7 @@ public class OrdenCargaService {
                   // FLUJO 2: EL ADMIN(Mas adelante supervisor/cambiar) ACEPTA O RECHAZA
                   // Modificar/preguntar a gonza
                   // =========================================================================
-               if (rol.equalsIgnoreCase("ADMIN")) {
+               if (rol.equalsIgnoreCase("SUPERVISOR")) {
 
                         // Buscar la incidencia de cancelación abierta previamente por el transportista
                         com.blackmesaresearch.hytrac.model.core.Incidencia incidenciaPendiente = incidenciaRepository

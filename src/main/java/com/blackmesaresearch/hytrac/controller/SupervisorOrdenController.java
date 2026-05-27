@@ -137,7 +137,7 @@ public class SupervisorOrdenController {
     // APROBAR la entrega
     // =========================
 
-@PutMapping("/ordenes/{id}/confirmar-entrega")
+@PutMapping("/{id}/confirmar-entrega")
 public ResponseEntity<?> confirmarEntrega(
         @PathVariable Integer id) {
 

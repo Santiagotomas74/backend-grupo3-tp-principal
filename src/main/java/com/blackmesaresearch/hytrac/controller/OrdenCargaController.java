@@ -18,6 +18,7 @@ import com.blackmesaresearch.hytrac.dto.request.CancelarOrdenRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
+import com.blackmesaresearch.hytrac.service.AuditoriaOrdenService;
 import com.blackmesaresearch.hytrac.service.OrdenCargaService;
 
 @RestController
@@ -27,7 +28,8 @@ public class OrdenCargaController {
 
     @Autowired
     private OrdenCargaService ordenCargaService;
-
+@Autowired
+private AuditoriaOrdenService auditoriaOrdenService;
     @GetMapping("/get")
     public ResponseEntity<List<OrdenCargaResponseDTO>> obtenerOrdenes() {
         return ResponseEntity.ok(ordenCargaService.obtenerTodas());
@@ -101,5 +103,26 @@ public class OrdenCargaController {
     }
 
 
+// =========================
+// AUDITORIA DE UNA ORDEN
+// =========================
 
+@GetMapping("/{numeroRemito}/auditoria")
+public ResponseEntity<?> obtenerAuditoriaOrden(
+        @PathVariable String numeroRemito) {
+
+    try {
+
+        return ResponseEntity.ok(
+                auditoriaOrdenService
+                        .obtenerPorNumeroRemito(numeroRemito));
+
+    } catch (IllegalArgumentException e) {
+
+        return ResponseEntity.badRequest().body(
+                Map.of(
+                        "success", false,
+                        "message", e.getMessage()));
+    }
+}
 }
