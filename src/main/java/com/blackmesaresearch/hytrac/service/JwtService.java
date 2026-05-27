@@ -35,6 +35,7 @@ public class JwtService {
                 .claim("legajo", usuario.getLegajo())
                 .claim("apellido", usuario.getApellido())
                 .claim("rol", usuario.getRol().getNombre())
+                .claim("lugarOperativo", usuario.getLugarOperativo() != null ? usuario.getLugarOperativo().getNombre() : null)
 
                 .setIssuedAt(new Date())
 
