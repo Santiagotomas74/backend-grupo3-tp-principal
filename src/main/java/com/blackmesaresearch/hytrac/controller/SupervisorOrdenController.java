@@ -133,4 +133,34 @@ public class SupervisorOrdenController {
         }
     }
 
+      // =========================
+    // APROBAR la entrega
+    // =========================
+
+@PutMapping("/ordenes/{id}/confirmar-entrega")
+public ResponseEntity<?> confirmarEntrega(
+        @PathVariable Integer id) {
+
+    try {
+
+        ordenCargaService.confirmarEntrega(id);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "success", true,
+                        "message",
+                        "Entrega confirmada correctamente."
+                )
+        );
+
+    } catch (IllegalArgumentException e) {
+
+        return ResponseEntity.badRequest().body(
+                Map.of(
+                        "success", false,
+                        "message", e.getMessage()
+                )
+        );
+    }
+}
 }

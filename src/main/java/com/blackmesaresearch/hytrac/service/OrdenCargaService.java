@@ -731,4 +731,56 @@ public class OrdenCargaService {
 
                 ordenCargaRepository.save(orden);
         }
+
+        public void confirmarEntrega(Integer ordenId) {
+
+    // =========================
+    // OBTENER ORDEN
+    // =========================
+
+    OrdenCarga orden = ordenCargaRepository
+            .findById(ordenId)
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Orden no encontrada."
+                    )
+            );
+
+    // =========================
+    // VALIDAR ESTADO ACTUAL
+    // =========================
+
+    if (!orden.getEstadoOrdenCarga()
+            .getNombre()
+            .equalsIgnoreCase(
+                    "Pendiente de confirmacion de entrega")) {
+
+        throw new IllegalArgumentException(
+                "La orden no está pendiente de confirmación de entrega."
+        );
+    }
+
+    // =========================
+    // OBTENER ESTADO ENTREGADA
+    // =========================
+
+    EstadoOrdenCarga estadoEntregada =
+            estadoOrdenCargaRepository
+                    .findByNombre("Entregada")
+                    .orElseThrow(() ->
+                            new IllegalArgumentException(
+                                    "Estado 'Entregada' no encontrado."
+                            )
+                    );
+
+    // =========================
+    // ACTUALIZAR ESTADO
+    // =========================
+
+    orden.setEstadoOrdenCarga(
+            estadoEntregada
+    );
+
+    ordenCargaRepository.save(orden);
+}
 }
