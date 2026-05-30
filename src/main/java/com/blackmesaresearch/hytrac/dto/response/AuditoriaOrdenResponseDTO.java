@@ -4,19 +4,19 @@ import java.time.LocalDateTime;
 
 public record AuditoriaOrdenResponseDTO(
 
-        String ordenNumeroRemito,
+                String ordenNumeroRemito,
 
-        String estadoAnteriorNombre,
+                String estadoAnteriorNombre,
 
-        String estadoNuevoNombre,
+                String estadoNuevoNombre,
 
-        LocalDateTime fechaCambio,
+                LocalDateTime fechaCambio,
 
-        String solicitanteLegajo,
+                String solicitanteLegajo,
 
-        String confirmadorLegajo,
+                String confirmadorLegajo,
 
-        String motivo
+                String motivo
 
 ) {
 }

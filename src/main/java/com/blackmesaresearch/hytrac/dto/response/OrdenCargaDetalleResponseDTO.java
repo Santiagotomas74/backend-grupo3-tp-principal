@@ -4,46 +4,46 @@ import java.time.LocalDateTime;
 
 public record OrdenCargaDetalleResponseDTO(
 
-                Integer id,
-                String trackingId,
-                String numeroRemito,
-                String cot,
+        Integer id,
+        String trackingId,
+        String numeroRemito,
+        String cot,
 
-                String estado,
+        String estado,
 
-                String camionPatente,
-                String acopladoPatente,
+        String camionPatente,
+        String acopladoPatente,
 
-                // NUEVOS DATOS
-                Double pesoMaximoCamion,
-                Double capacidadTotalAcoplado,
-                Integer ruta,
+        // NUEVOS DATOS
+        Double pesoMaximoCamion,
+        Double capacidadTotalAcoplado,
+        Integer ruta,
 
-                String transportista,
-                String combustible,
+        String transportista,
+        String combustible,
 
-                String plantaDespacho,
-                String estacionDestino,
+        String plantaDespacho,
+        String estacionDestino,
 
-                Double litrosCargados,
-                Double litrosEntregados,
+        Double litrosCargados,
+        Double litrosEntregados,
 
-                LocalDateTime fechaCreacion,
-                LocalDateTime fechaSalidaPlanta,
-                LocalDateTime fechaEntregaEstimada,
-                LocalDateTime fechaEntregaReal,
+        LocalDateTime fechaCreacion,
+        LocalDateTime fechaSalidaPlanta,
+        LocalDateTime fechaEntregaEstimada,
+        LocalDateTime fechaEntregaReal,
 
-                String observaciones,
-                Boolean fieAdjunta,
-                Boolean confirmado,
+        String observaciones,
+        Boolean fieAdjunta,
+        Boolean confirmado,
 
-                // =========================
-                // DATOS COMBUSTIBLE
-                // =========================
+        // =========================
+        // DATOS COMBUSTIBLE
+        // =========================
 
-                String combustibleNombre,
-                String numeroOnu,
-                String claseRiesgo
+        String combustibleNombre,
+        String numeroOnu,
+        String claseRiesgo
 
 ) {
 }

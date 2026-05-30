@@ -2,13 +2,13 @@ package com.blackmesaresearch.hytrac.dto.request;
 
 public record ReportarIncidenciaRequestDTO(
 
-        String numeroRemito,
+                String numeroRemito,
 
-        String legajoTransportista,
+                String legajoTransportista,
 
-        String tipoIncidencia,
+                String tipoIncidencia,
 
-        String descripcion
+                String descripcion
 
 ) {
 }

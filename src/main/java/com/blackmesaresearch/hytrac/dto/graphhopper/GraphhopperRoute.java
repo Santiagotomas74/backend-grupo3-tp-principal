@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record GraphhopperRoute(
-        Double distance,
-        Long time,
-        GraphhopperPoints points) {
+                Double distance,
+                Long time,
+                GraphhopperPoints points) {
 }

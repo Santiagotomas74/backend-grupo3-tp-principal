@@ -2,8 +2,9 @@ package com.blackmesaresearch.hytrac.dto.request;
 
 public record ConfirmarEntregaRequestDTO(
 
-    Double litrosEntregados,
+        Double litrosEntregados,
 
-    String observaciones
+        String observaciones
 
-) {}
+) {
+}

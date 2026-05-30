@@ -18,149 +18,146 @@ import java.util.Map;
 @CrossOrigin("*")
 public class SupervisorOrdenController {
 
-    private final OrdenCargaService ordenCargaService;
+        private final OrdenCargaService ordenCargaService;
 
-    public SupervisorOrdenController(
-            OrdenCargaService ordenCargaService) {
-        this.ordenCargaService = ordenCargaService;
-    }
-
-    // =========================
-    // TODAS LAS ORDENES
-    // =========================
-
-    @GetMapping
-    public ResponseEntity<List<OrdenSupervisorResponseDTO>> obtenerTodas() {
-
-        return ResponseEntity.ok(
-                ordenCargaService.obtenerTodasSupervisor());
-    }
-
-    // =========================
-    // DETALLE POR ID
-    // =========================
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerPorId(
-            @PathVariable Integer id) {
-
-        try {
-
-            return ResponseEntity.ok(
-                    ordenCargaService.obtenerOrdenSupervisor(id));
-
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "success", false,
-                            "message", e.getMessage()));
+        public SupervisorOrdenController(
+                        OrdenCargaService ordenCargaService) {
+                this.ordenCargaService = ordenCargaService;
         }
-    }
 
-    // =========================
-    // CONFIRMAR ORDEN
-    // =========================
+        // =========================
+        // TODAS LAS ORDENES
+        // =========================
 
-    @PutMapping("/{id}/confirmar")
-    public ResponseEntity<?> confirmarOrden(
-            @PathVariable Integer id) {
+        @GetMapping
+        public ResponseEntity<List<OrdenSupervisorResponseDTO>> obtenerTodas() {
 
-        try {
-
-            ordenCargaService.confirmarOrden(id);
-
-            return ResponseEntity.ok(
-                    Map.of(
-                            "success", true,
-                            "message", "Orden confirmada correctamente."));
-
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "success", false,
-                            "message", e.getMessage()));
+                return ResponseEntity.ok(
+                                ordenCargaService.obtenerTodasSupervisor());
         }
-    }
 
-    // =========================
-    // APROBAR INICIO DE VIAJE
-    // =========================
+        // =========================
+        // DETALLE POR ID
+        // =========================
 
-    @PutMapping("/{id}/aprobar-inicio")
-    public ResponseEntity<?> aprobarInicioViaje(
-            @PathVariable Integer id) {
+        @GetMapping("/{id}")
+        public ResponseEntity<?> obtenerPorId(
+                        @PathVariable Integer id) {
 
-        try {
+                try {
 
-            ordenCargaService.aprobarInicioViaje(id);
+                        return ResponseEntity.ok(
+                                        ordenCargaService.obtenerOrdenSupervisor(id));
 
-            return ResponseEntity.ok(
-                    Map.of(
-                            "success", true,
-                            "message",
-                            "La orden pasó a estado En Curso."));
+                } catch (IllegalArgumentException e) {
 
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "success", false,
-                            "message", e.getMessage()));
+                        return ResponseEntity.badRequest().body(
+                                        Map.of(
+                                                        "success", false,
+                                                        "message", e.getMessage()));
+                }
         }
-    }
 
-    @PutMapping("/remito/{numeroRemito}/gestion-incidencia")
-    public ResponseEntity<?> cancelarOrden(
-            @PathVariable String numeroRemito,
-            @RequestBody CancelarOrdenRequestDTO dto) {
-        try {
-            // Enviamos el String (numeroRemito) al service modificado
-            OrdenCargaResponseDTO response = ordenCargaService.cancelarOrden(numeroRemito, dto);
-            return ResponseEntity.ok(response);
+        // =========================
+        // CONFIRMAR ORDEN
+        // =========================
 
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "success", false,
-                            "message", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(
-                    Map.of(
-                            "success", false,
-                            "message", "Error interno al intentar procesar la cancelación de la orden"));
+        @PutMapping("/{id}/confirmar")
+        public ResponseEntity<?> confirmarOrden(
+                        @PathVariable Integer id) {
+
+                try {
+
+                        ordenCargaService.confirmarOrden(id);
+
+                        return ResponseEntity.ok(
+                                        Map.of(
+                                                        "success", true,
+                                                        "message", "Orden confirmada correctamente."));
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity.badRequest().body(
+                                        Map.of(
+                                                        "success", false,
+                                                        "message", e.getMessage()));
+                }
         }
-    }
 
-      // =========================
-    // APROBAR la entrega
-    // =========================
+        // =========================
+        // APROBAR INICIO DE VIAJE
+        // =========================
 
-@PutMapping("/{id}/confirmar-entrega")
-public ResponseEntity<?> confirmarEntrega(
-        @PathVariable Integer id) {
+        @PutMapping("/{id}/aprobar-inicio")
+        public ResponseEntity<?> aprobarInicioViaje(
+                        @PathVariable Integer id) {
 
-    try {
+                try {
 
-        ordenCargaService.confirmarEntrega(id);
+                        ordenCargaService.aprobarInicioViaje(id);
 
-        return ResponseEntity.ok(
-                Map.of(
-                        "success", true,
-                        "message",
-                        "Entrega confirmada correctamente."
-                )
-        );
+                        return ResponseEntity.ok(
+                                        Map.of(
+                                                        "success", true,
+                                                        "message",
+                                                        "La orden pasó a estado En Curso."));
 
-    } catch (IllegalArgumentException e) {
+                } catch (IllegalArgumentException e) {
 
-        return ResponseEntity.badRequest().body(
-                Map.of(
-                        "success", false,
-                        "message", e.getMessage()
-                )
-        );
-    }
-}
+                        return ResponseEntity.badRequest().body(
+                                        Map.of(
+                                                        "success", false,
+                                                        "message", e.getMessage()));
+                }
+        }
+
+        @PutMapping("/remito/{numeroRemito}/gestion-incidencia")
+        public ResponseEntity<?> cancelarOrden(
+                        @PathVariable String numeroRemito,
+                        @RequestBody CancelarOrdenRequestDTO dto) {
+                try {
+                        // Enviamos el String (numeroRemito) al service modificado
+                        OrdenCargaResponseDTO response = ordenCargaService.cancelarOrden(numeroRemito, dto);
+                        return ResponseEntity.ok(response);
+
+                } catch (IllegalArgumentException e) {
+                        return ResponseEntity.badRequest().body(
+                                        Map.of(
+                                                        "success", false,
+                                                        "message", e.getMessage()));
+                } catch (Exception e) {
+                        return ResponseEntity.status(500).body(
+                                        Map.of(
+                                                        "success", false,
+                                                        "message",
+                                                        "Error interno al intentar procesar la cancelación de la orden"));
+                }
+        }
+
+        // =========================
+        // APROBAR la entrega
+        // =========================
+
+        @PutMapping("/{id}/confirmar-entrega")
+        public ResponseEntity<?> confirmarEntrega(
+                        @PathVariable Integer id) {
+
+                try {
+
+                        ordenCargaService.confirmarEntrega(id);
+
+                        return ResponseEntity.ok(
+                                        Map.of(
+                                                        "success", true,
+                                                        "message",
+                                                        "Entrega confirmada correctamente."));
+
+                } catch (IllegalArgumentException e) {
+
+                        return ResponseEntity.badRequest().body(
+                                        Map.of(
+                                                        "success", false,
+                                                        "message", e.getMessage()));
+                }
+        }
 }

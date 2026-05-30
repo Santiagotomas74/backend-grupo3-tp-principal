@@ -5,6 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record GraphhopperPoints(
-        String type,
-        List<List<Double>> coordinates) {
+                String type,
+                List<List<Double>> coordinates) {
 }

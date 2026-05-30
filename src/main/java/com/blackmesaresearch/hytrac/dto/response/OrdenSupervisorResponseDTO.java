@@ -4,32 +4,32 @@ import java.time.LocalDateTime;
 
 public record OrdenSupervisorResponseDTO(
 
-        Integer id,
-        String trackingId,
+                Integer id,
+                String trackingId,
 
-        String numeroRemito,
-        String cot,
+                String numeroRemito,
+                String cot,
 
-        String estado,
+                String estado,
 
-        String camionPatente,
-        String acopladoPatente,
+                String camionPatente,
+                String acopladoPatente,
 
-        String transportista,
+                String transportista,
 
-        String combustible,
+                String combustible,
 
-        Double litrosCargados,
-        Double litrosEntregados,
+                Double litrosCargados,
+                Double litrosEntregados,
 
-        String plantaDespacho,
-        String estacionDestino,
-        String observaciones,
+                String plantaDespacho,
+                String estacionDestino,
+                String observaciones,
 
-        LocalDateTime fechaCreacion,
-        LocalDateTime fechaEntregaEstimada,
+                LocalDateTime fechaCreacion,
+                LocalDateTime fechaEntregaEstimada,
 
-        Boolean confirmado
+                Boolean confirmado
 
 ) {
 }

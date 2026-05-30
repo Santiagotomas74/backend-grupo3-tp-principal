@@ -6,5 +6,5 @@ import com.fasterxml.jackson.annotation.JsonProperty; // Added import
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record GraphhopperResponse(
-        @JsonProperty("paths") List<GraphhopperRoute> routes) {
+                @JsonProperty("paths") List<GraphhopperRoute> routes) {
 }

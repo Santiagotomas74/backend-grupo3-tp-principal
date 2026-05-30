@@ -4,24 +4,24 @@ import java.time.LocalDateTime;
 
 public record IncidenciaResponseDTO(
 
-        Integer id,
+                Integer id,
 
-        String ordenNumeroRemito,
+                String ordenNumeroRemito,
 
-        String usuarioRegistroLegajo,
-        String usuarioGestionLegajo,
+                String usuarioRegistroLegajo,
+                String usuarioGestionLegajo,
 
-        String tipoIncidencia,
+                String tipoIncidencia,
 
-        String descripcion,
+                String descripcion,
 
-        LocalDateTime fechaIncidente,
+                LocalDateTime fechaIncidente,
 
-        String leyAplicada,
+                String leyAplicada,
 
-        String accionesTomadas,
+                String accionesTomadas,
 
-        Boolean resuelto
+                Boolean resuelto
 
 ) {
 }

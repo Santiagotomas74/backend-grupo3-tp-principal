@@ -119,7 +119,7 @@ public class OrdenCargaService {
                                 .orElseThrow(() -> new IllegalArgumentException("Estado no encontrado."));
 
                 var ruta = rutaRepository.findById(dto.rutaId())
-                                .orElse(null); // La ruta es opcional, si no se encuentra se deja null  
+                                .orElse(null); // La ruta es opcional, si no se encuentra se deja null
 
                 // =========================
                 // VALIDACIONES DE NEGOCIO
@@ -429,8 +429,8 @@ public class OrdenCargaService {
                 // VALIDACION DE SEGURIDAD ANTES DE SALIR
                 // ==========================================================
                 if (orden.getRuta() == null) {
-                throw new IllegalArgumentException(
-                        "No se puede iniciar el viaje porque la orden no tiene una ruta asignada. Por favor, edite la orden y confirme el recorrido.");
+                        throw new IllegalArgumentException(
+                                        "No se puede iniciar el viaje porque la orden no tiene una ruta asignada. Por favor, edite la orden y confirme el recorrido.");
                 }
 
                 // =========================
@@ -468,9 +468,9 @@ public class OrdenCargaService {
                                 orden.getEstacionDestino().getNombre(),
                                 orden.getLitrosCargados(),
                                 orden.getLitrosEntregados(),
-                               orden.getRuta() != null
-    ? orden.getRuta().getId()
-    : null,
+                                orden.getRuta() != null
+                                                ? orden.getRuta().getId()
+                                                : null,
                                 orden.getFechaCreacion(),
                                 orden.getFechaEntregaEstimada(),
                                 orden.getCamion().getPatente(),
@@ -562,7 +562,7 @@ public class OrdenCargaService {
                                 .orElseThrow(() -> new IllegalArgumentException("Estado no encontrado."));
 
                 var ruta = rutaRepository.findById(dto.rutaId())
-                        .orElse(null);
+                                .orElse(null);
                 // Reglas de Negocio Cruzadas
                 if (!camion.getEmpresa().getId().equals(acoplado.getEmpresa().getId())) {
                         throw new IllegalArgumentException("El camión y el acoplado pertenecen a empresas distintas.");
@@ -591,7 +591,7 @@ public class OrdenCargaService {
                 orden.setObservaciones(dto.observaciones());
                 orden.setFieAdjunta(dto.fieAdjunta());
                 orden.setConfirmado(dto.confirmado());
-                
+
                 orden.setRuta(ruta);
                 // Guardar la orden modificada
                 OrdenCarga modificada = ordenCargaRepository.save(orden);
@@ -621,10 +621,10 @@ public class OrdenCargaService {
                 String rol = solicitante.getRol().getNombre();
 
                 // =========================================================================
-                  // FLUJO 2: EL ADMIN(Mas adelante supervisor/cambiar) ACEPTA O RECHAZA
-                  // Modificar/preguntar a gonza
-                  // =========================================================================
-               if (rol.equalsIgnoreCase("SUPERVISOR")) {
+                // FLUJO 2: EL ADMIN(Mas adelante supervisor/cambiar) ACEPTA O RECHAZA
+                // Modificar/preguntar a gonza
+                // =========================================================================
+                if (rol.equalsIgnoreCase("SUPERVISOR")) {
 
                         // Buscar la incidencia de cancelación abierta previamente por el transportista
                         com.blackmesaresearch.hytrac.model.core.Incidencia incidenciaPendiente = incidenciaRepository
@@ -739,53 +739,44 @@ public class OrdenCargaService {
 
         public void confirmarEntrega(Integer ordenId) {
 
-    // =========================
-    // OBTENER ORDEN
-    // =========================
+                // =========================
+                // OBTENER ORDEN
+                // =========================
 
-    OrdenCarga orden = ordenCargaRepository
-            .findById(ordenId)
-            .orElseThrow(() ->
-                    new IllegalArgumentException(
-                            "Orden no encontrada."
-                    )
-            );
+                OrdenCarga orden = ordenCargaRepository
+                                .findById(ordenId)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Orden no encontrada."));
 
-    // =========================
-    // VALIDAR ESTADO ACTUAL
-    // =========================
+                // =========================
+                // VALIDAR ESTADO ACTUAL
+                // =========================
 
-    if (!orden.getEstadoOrdenCarga()
-            .getNombre()
-            .equalsIgnoreCase(
-                    "Pendiente de confirmacion de entrega")) {
+                if (!orden.getEstadoOrdenCarga()
+                                .getNombre()
+                                .equalsIgnoreCase(
+                                                "Pendiente de confirmacion de entrega")) {
 
-        throw new IllegalArgumentException(
-                "La orden no está pendiente de confirmación de entrega."
-        );
-    }
+                        throw new IllegalArgumentException(
+                                        "La orden no está pendiente de confirmación de entrega.");
+                }
 
-    // =========================
-    // OBTENER ESTADO ENTREGADA
-    // =========================
+                // =========================
+                // OBTENER ESTADO ENTREGADA
+                // =========================
 
-    EstadoOrdenCarga estadoEntregada =
-            estadoOrdenCargaRepository
-                    .findByNombre("Entregada")
-                    .orElseThrow(() ->
-                            new IllegalArgumentException(
-                                    "Estado 'Entregada' no encontrado."
-                            )
-                    );
+                EstadoOrdenCarga estadoEntregada = estadoOrdenCargaRepository
+                                .findByNombre("Entregada")
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Estado 'Entregada' no encontrado."));
 
-    // =========================
-    // ACTUALIZAR ESTADO
-    // =========================
+                // =========================
+                // ACTUALIZAR ESTADO
+                // =========================
 
-    orden.setEstadoOrdenCarga(
-            estadoEntregada
-    );
+                orden.setEstadoOrdenCarga(
+                                estadoEntregada);
 
-    ordenCargaRepository.save(orden);
-}
+                ordenCargaRepository.save(orden);
+        }
 }

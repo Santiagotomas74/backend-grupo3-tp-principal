@@ -10,172 +10,170 @@ import com.blackmesaresearch.hytrac.repository.OrdenCargaRepository;
 @Service
 public class TransportistaOrdenService {
 
-    private final OrdenCargaRepository ordenCargaRepository;
-    private final EstadoOrdenCargaRepository estadoRepository;
+        private final OrdenCargaRepository ordenCargaRepository;
+        private final EstadoOrdenCargaRepository estadoRepository;
 
-    public TransportistaOrdenService(
-            OrdenCargaRepository ordenCargaRepository,
-            EstadoOrdenCargaRepository estadoRepository) {
-        this.ordenCargaRepository = ordenCargaRepository;
-        this.estadoRepository = estadoRepository;
-    }
-
-    // =========================
-    // OBTENER ORDEN PENDIENTE
-    // =========================
-
-    public OrdenTransportistaResponseDTO obtenerOrdenPendiente(String legajo) {
-
-        OrdenCarga orden = ordenCargaRepository
-                .findByTransportista_Usuario_LegajoAndConfirmadoTrueAndEstadoOrdenCarga_Nombre(
-                        legajo,
-                        "Pendiente")
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "No hay órdenes pendientes."));
-
-        return new OrdenTransportistaResponseDTO(
-
-                orden.getId(),
-
-                orden.getNumeroRemito(),
-                orden.getCot(),
-
-                orden.getEstadoOrdenCarga().getNombre(),
-
-                orden.getCamion().getPatente(),
-                orden.getAcoplado().getPatente(),
-
-                orden.getCombustible().getNombre(),
-
-                orden.getLitrosCargados(),
-
-                orden.getPlantaDespacho().getNombre(),
-                orden.getEstacionDestino().getNombre(),
-
-                orden.getFechaEntregaEstimada(),
-
-                orden.getConfirmado(),
-                orden.getRuta() != null ? orden.getRuta().getId() : null
-                
-                
-        );
-                
-    }
-
-    // =========================
-    // INICIAR VIAJE
-    // =========================
-
-    public void iniciarViaje(Integer ordenId) {
-
-        OrdenCarga orden = ordenCargaRepository.findById(ordenId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Orden no encontrada."));
-
-        if (!orden.getEstadoOrdenCarga()
-                .getNombre()
-                .equalsIgnoreCase("Pendiente")) {
-
-            throw new IllegalArgumentException(
-                    "La orden no está en estado pendiente.");
-        }
-
-        var nuevoEstado = estadoRepository
-                .findByNombre("Pendiente de inicio de viaje")
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Estado no encontrado."));
-
-        orden.setEstadoOrdenCarga(nuevoEstado);
-
-        orden.setFechaSalidaPlanta(
-                java.time.LocalDateTime.now());
-
-        ordenCargaRepository.save(orden);
-    }
-
-    // =========================
-    // OBTENER ORDEN EN CURSO
-    // =========================
-
-    public OrdenTransportistaResponseDTO obtenerOrdenEnCurso(String legajo) {
-
-        OrdenCarga orden = ordenCargaRepository
-                .findByTransportista_Usuario_LegajoAndConfirmadoTrue(
-                        legajo)
-                .stream()
-                .filter(o -> o.getEstadoOrdenCarga()
-                        .getNombre()
-                        .equalsIgnoreCase("En Curso"))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "No hay órdenes en curso."));
-
-        return new OrdenTransportistaResponseDTO(
-
-                orden.getId(),
-
-                orden.getNumeroRemito(),
-                orden.getCot(),
-
-                orden.getEstadoOrdenCarga().getNombre(),
-
-                orden.getCamion().getPatente(),
-                orden.getAcoplado().getPatente(),
-
-                orden.getCombustible().getNombre(),
-
-                orden.getLitrosCargados(),
-
-                orden.getPlantaDespacho().getNombre(),
-                orden.getEstacionDestino().getNombre(),
-
-                orden.getFechaEntregaEstimada(),
-
-                orden.getConfirmado(),
-                orden.getRuta() != null ? orden.getRuta().getId() : null
-        );
-    }
-    // =========================
-    // NOTIFICAR ENTREGA
-    // =========================
-
-    public void notificarEntrega(Integer ordenId) {
-
-        OrdenCarga orden = ordenCargaRepository.findById(ordenId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Orden no encontrada."));
-
-        // =========================
-        // VALIDAR ESTADO ACTUAL
-        // =========================
-
-        if (!orden.getEstadoOrdenCarga()
-                .getNombre()
-                .equalsIgnoreCase("En Curso")) {
-
-            throw new IllegalArgumentException(
-                    "La orden no está en curso.");
+        public TransportistaOrdenService(
+                        OrdenCargaRepository ordenCargaRepository,
+                        EstadoOrdenCargaRepository estadoRepository) {
+                this.ordenCargaRepository = ordenCargaRepository;
+                this.estadoRepository = estadoRepository;
         }
 
         // =========================
-        // NUEVO ESTADO
+        // OBTENER ORDEN PENDIENTE
         // =========================
 
-        var nuevoEstado = estadoRepository
-                .findByNombre(
-                        "Pendiente de confirmacion de entrega")
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Estado no encontrado."));
+        public OrdenTransportistaResponseDTO obtenerOrdenPendiente(String legajo) {
+
+                OrdenCarga orden = ordenCargaRepository
+                                .findByTransportista_Usuario_LegajoAndConfirmadoTrueAndEstadoOrdenCarga_Nombre(
+                                                legajo,
+                                                "Pendiente")
+                                .stream()
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "No hay órdenes pendientes."));
+
+                return new OrdenTransportistaResponseDTO(
+
+                                orden.getId(),
+
+                                orden.getNumeroRemito(),
+                                orden.getCot(),
+
+                                orden.getEstadoOrdenCarga().getNombre(),
+
+                                orden.getCamion().getPatente(),
+                                orden.getAcoplado().getPatente(),
+
+                                orden.getCombustible().getNombre(),
+
+                                orden.getLitrosCargados(),
+
+                                orden.getPlantaDespacho().getNombre(),
+                                orden.getEstacionDestino().getNombre(),
+
+                                orden.getFechaEntregaEstimada(),
+
+                                orden.getConfirmado(),
+                                orden.getRuta() != null ? orden.getRuta().getId() : null
+
+                );
+
+        }
 
         // =========================
-        // ACTUALIZAR
+        // INICIAR VIAJE
         // =========================
 
-        orden.setEstadoOrdenCarga(nuevoEstado);
+        public void iniciarViaje(Integer ordenId) {
 
-        ordenCargaRepository.save(orden);
-    }
+                OrdenCarga orden = ordenCargaRepository.findById(ordenId)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Orden no encontrada."));
+
+                if (!orden.getEstadoOrdenCarga()
+                                .getNombre()
+                                .equalsIgnoreCase("Pendiente")) {
+
+                        throw new IllegalArgumentException(
+                                        "La orden no está en estado pendiente.");
+                }
+
+                var nuevoEstado = estadoRepository
+                                .findByNombre("Pendiente de inicio de viaje")
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Estado no encontrado."));
+
+                orden.setEstadoOrdenCarga(nuevoEstado);
+
+                orden.setFechaSalidaPlanta(
+                                java.time.LocalDateTime.now());
+
+                ordenCargaRepository.save(orden);
+        }
+
+        // =========================
+        // OBTENER ORDEN EN CURSO
+        // =========================
+
+        public OrdenTransportistaResponseDTO obtenerOrdenEnCurso(String legajo) {
+
+                OrdenCarga orden = ordenCargaRepository
+                                .findByTransportista_Usuario_LegajoAndConfirmadoTrue(
+                                                legajo)
+                                .stream()
+                                .filter(o -> o.getEstadoOrdenCarga()
+                                                .getNombre()
+                                                .equalsIgnoreCase("En Curso"))
+                                .findFirst()
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "No hay órdenes en curso."));
+
+                return new OrdenTransportistaResponseDTO(
+
+                                orden.getId(),
+
+                                orden.getNumeroRemito(),
+                                orden.getCot(),
+
+                                orden.getEstadoOrdenCarga().getNombre(),
+
+                                orden.getCamion().getPatente(),
+                                orden.getAcoplado().getPatente(),
+
+                                orden.getCombustible().getNombre(),
+
+                                orden.getLitrosCargados(),
+
+                                orden.getPlantaDespacho().getNombre(),
+                                orden.getEstacionDestino().getNombre(),
+
+                                orden.getFechaEntregaEstimada(),
+
+                                orden.getConfirmado(),
+                                orden.getRuta() != null ? orden.getRuta().getId() : null);
+        }
+        // =========================
+        // NOTIFICAR ENTREGA
+        // =========================
+
+        public void notificarEntrega(Integer ordenId) {
+
+                OrdenCarga orden = ordenCargaRepository.findById(ordenId)
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Orden no encontrada."));
+
+                // =========================
+                // VALIDAR ESTADO ACTUAL
+                // =========================
+
+                if (!orden.getEstadoOrdenCarga()
+                                .getNombre()
+                                .equalsIgnoreCase("En Curso")) {
+
+                        throw new IllegalArgumentException(
+                                        "La orden no está en curso.");
+                }
+
+                // =========================
+                // NUEVO ESTADO
+                // =========================
+
+                var nuevoEstado = estadoRepository
+                                .findByNombre(
+                                                "Pendiente de confirmacion de entrega")
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Estado no encontrado."));
+
+                // =========================
+                // ACTUALIZAR
+                // =========================
+
+                orden.setEstadoOrdenCarga(nuevoEstado);
+
+                ordenCargaRepository.save(orden);
+        }
 
 }

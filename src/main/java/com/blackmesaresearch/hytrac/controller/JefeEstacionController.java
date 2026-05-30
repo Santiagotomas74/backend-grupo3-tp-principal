@@ -16,8 +16,7 @@ public class JefeEstacionController {
     private final OrdenCargaService ordenCargaService;
 
     public JefeEstacionController(
-        OrdenCargaService ordenCargaService
-    ) {
+            OrdenCargaService ordenCargaService) {
         this.ordenCargaService = ordenCargaService;
     }
 
@@ -27,33 +26,27 @@ public class JefeEstacionController {
 
     @PutMapping("/orden/{id}/reportar-entrega")
     public ResponseEntity<?> reportarEntrega(
-        @PathVariable Integer id,
-        @RequestBody ConfirmarEntregaRequestDTO dto
-    ) {
+            @PathVariable Integer id,
+            @RequestBody ConfirmarEntregaRequestDTO dto) {
 
         try {
 
             ordenCargaService.reportarEntrega(
-                id,
-                dto
-            );
+                    id,
+                    dto);
 
             return ResponseEntity.ok(
-                Map.of(
-                    "success", true,
-                    "message",
-                    "Entrega reportada correctamente."
-                )
-            );
+                    Map.of(
+                            "success", true,
+                            "message",
+                            "Entrega reportada correctamente."));
 
         } catch (IllegalArgumentException e) {
 
             return ResponseEntity.badRequest().body(
-                Map.of(
-                    "success", false,
-                    "message", e.getMessage()
-                )
-            );
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
         }
     }
 }

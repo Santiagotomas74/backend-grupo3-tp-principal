@@ -16,128 +16,128 @@ import com.blackmesaresearch.hytrac.repository.UsuarioRepository;
 @Service
 public class IncidenciaService {
 
-    private final IncidenciaRepository incidenciaRepository;
+        private final IncidenciaRepository incidenciaRepository;
 
-    private final OrdenCargaRepository ordenCargaRepository;
+        private final OrdenCargaRepository ordenCargaRepository;
 
-    private final UsuarioRepository usuarioRepository;
+        private final UsuarioRepository usuarioRepository;
 
-    private final TipoIncidenciaRepository tipoIncidenciaRepository;
+        private final TipoIncidenciaRepository tipoIncidenciaRepository;
 
-    public IncidenciaService(
+        public IncidenciaService(
 
-            IncidenciaRepository incidenciaRepository,
+                        IncidenciaRepository incidenciaRepository,
 
-            OrdenCargaRepository ordenCargaRepository,
+                        OrdenCargaRepository ordenCargaRepository,
 
-            UsuarioRepository usuarioRepository,
+                        UsuarioRepository usuarioRepository,
 
-            TipoIncidenciaRepository tipoIncidenciaRepository
+                        TipoIncidenciaRepository tipoIncidenciaRepository
 
-    ) {
+        ) {
 
-        this.incidenciaRepository = incidenciaRepository;
+                this.incidenciaRepository = incidenciaRepository;
 
-        this.ordenCargaRepository = ordenCargaRepository;
+                this.ordenCargaRepository = ordenCargaRepository;
 
-        this.usuarioRepository = usuarioRepository;
+                this.usuarioRepository = usuarioRepository;
 
-        this.tipoIncidenciaRepository = tipoIncidenciaRepository;
-    }
-
-    // =========================
-    // TODAS LAS INCIDENCIAS
-    // =========================
-
-    public List<IncidenciaResponseDTO> obtenerTodas() {
-
-        return incidenciaRepository.findAll()
-                .stream()
-                .map(incidencia -> new IncidenciaResponseDTO(
-
-                        incidencia.getId(),
-
-                        incidencia.getOrden()
-                                .getNumeroRemito(),
-
-                        incidencia.getUsuarioRegistro()
-                                .getLegajo(),
-
-                        incidencia.getUsuarioGestion() != null
-                                ? incidencia.getUsuarioGestion().getLegajo()
-                                : null,
-
-                        incidencia.getTipoIncidencia()
-                                .getNombre(),
-
-                        incidencia.getDescripcion(),
-
-                        incidencia.getFechaIncidente(),
-
-                        incidencia.getLeyAplicada(),
-
-                        incidencia.getAccionesTomadas(),
-
-                        incidencia.getResuelto()
-
-                ))
-                .toList();
-    }
-
-    // =========================
-    // REPORTAR INCIDENCIA
-    // =========================
-
-    public void reportarIncidencia(
-            ReportarIncidenciaRequestDTO dto) {
+                this.tipoIncidenciaRepository = tipoIncidenciaRepository;
+        }
 
         // =========================
-        // OBTENER ORDEN
+        // TODAS LAS INCIDENCIAS
         // =========================
 
-        var orden = ordenCargaRepository
-                .findByNumeroRemito(dto.numeroRemito())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Orden no encontrada."));
+        public List<IncidenciaResponseDTO> obtenerTodas() {
+
+                return incidenciaRepository.findAll()
+                                .stream()
+                                .map(incidencia -> new IncidenciaResponseDTO(
+
+                                                incidencia.getId(),
+
+                                                incidencia.getOrden()
+                                                                .getNumeroRemito(),
+
+                                                incidencia.getUsuarioRegistro()
+                                                                .getLegajo(),
+
+                                                incidencia.getUsuarioGestion() != null
+                                                                ? incidencia.getUsuarioGestion().getLegajo()
+                                                                : null,
+
+                                                incidencia.getTipoIncidencia()
+                                                                .getNombre(),
+
+                                                incidencia.getDescripcion(),
+
+                                                incidencia.getFechaIncidente(),
+
+                                                incidencia.getLeyAplicada(),
+
+                                                incidencia.getAccionesTomadas(),
+
+                                                incidencia.getResuelto()
+
+                                ))
+                                .toList();
+        }
 
         // =========================
-        // OBTENER USUARIO
+        // REPORTAR INCIDENCIA
         // =========================
 
-        var usuario = usuarioRepository
-                .findByLegajo(dto.legajoTransportista())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Usuario no encontrado."));
+        public void reportarIncidencia(
+                        ReportarIncidenciaRequestDTO dto) {
 
-        // =========================
-        // OBTENER TIPO INCIDENCIA
-        // =========================
+                // =========================
+                // OBTENER ORDEN
+                // =========================
 
-        var tipoIncidencia = tipoIncidenciaRepository
-                .findByNombre(dto.tipoIncidencia())
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Tipo de incidencia no encontrado."));
+                var orden = ordenCargaRepository
+                                .findByNumeroRemito(dto.numeroRemito())
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Orden no encontrada."));
 
-        // =========================
-        // CREAR INCIDENCIA
-        // =========================
+                // =========================
+                // OBTENER USUARIO
+                // =========================
 
-        Incidencia incidencia = new Incidencia();
+                var usuario = usuarioRepository
+                                .findByLegajo(dto.legajoTransportista())
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Usuario no encontrado."));
 
-        incidencia.setOrden(orden);
+                // =========================
+                // OBTENER TIPO INCIDENCIA
+                // =========================
 
-        incidencia.setUsuarioRegistro(usuario);
+                var tipoIncidencia = tipoIncidenciaRepository
+                                .findByNombre(dto.tipoIncidencia())
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Tipo de incidencia no encontrado."));
 
-        incidencia.setTipoIncidencia(tipoIncidencia);
+                // =========================
+                // CREAR INCIDENCIA
+                // =========================
 
-        incidencia.setDescripcion(
-                dto.descripcion());
+                Incidencia incidencia = new Incidencia();
 
-        incidencia.setFechaIncidente(
-                LocalDateTime.now());
+                incidencia.setOrden(orden);
 
-        incidencia.setResuelto(false);
+                incidencia.setUsuarioRegistro(usuario);
 
-        incidenciaRepository.save(incidencia);
-    }
+                incidencia.setTipoIncidencia(tipoIncidencia);
+
+                incidencia.setDescripcion(
+                                dto.descripcion());
+
+                incidencia.setFechaIncidente(
+                                LocalDateTime.now());
+
+                incidencia.setResuelto(false);
+
+                incidenciaRepository.save(incidencia);
+        }
 }
