@@ -753,7 +753,7 @@ public class OrdenCargaService {
     // =========================
     // AUDITORIA
     // =========================
-/* 
+
     auditoriaOrdenService.registrarCambioEstado(
 
             ordenActualizada.getNumeroRemito(),
@@ -768,7 +768,7 @@ public class OrdenCargaService {
 
             "Cancelación aprobada por supervisor. "
                     + dto.motivo());
-*/
+
     // =========================
     // RESOLVER INCIDENCIA
     // =========================
@@ -900,7 +900,7 @@ public class OrdenCargaService {
     // =========================
     // AUDITORIA
     // =========================
-/* 
+
     auditoriaOrdenService.registrarCambioEstado(
             orden.getNumeroRemito(),
             estadoAnterior,
@@ -908,6 +908,6 @@ public class OrdenCargaService {
             orden.getOperador().getLegajo(),
             null,
             "Supervisor confirmó la entrega"
-    );*/
+    );
 }
 }
