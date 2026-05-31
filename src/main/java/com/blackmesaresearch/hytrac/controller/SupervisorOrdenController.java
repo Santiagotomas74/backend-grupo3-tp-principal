@@ -4,7 +4,9 @@ package com.blackmesaresearch.hytrac.controller;
 import org.springframework.web.bind.annotation.*;
 
 import com.blackmesaresearch.hytrac.service.OrdenCargaService;
+import com.blackmesaresearch.hytrac.dto.request.AprobarInicioViajeRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.CancelarOrdenRequestDTO;
+import com.blackmesaresearch.hytrac.dto.request.ConfirmarEntregaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorResponseDTO;
@@ -89,27 +91,30 @@ public class SupervisorOrdenController {
     // =========================
 
     @PutMapping("/{id}/aprobar-inicio")
-    public ResponseEntity<?> aprobarInicioViaje(
-            @PathVariable Integer id) {
+public ResponseEntity<?> aprobarInicioViaje(
+        @PathVariable Integer id,
+        @RequestBody AprobarInicioViajeRequestDTO dto) {
 
-        try {
+    try {
 
-            ordenCargaService.aprobarInicioViaje(id);
+        ordenCargaService.aprobarInicioViaje(
+                id,
+                dto.legajoSupervisor());
 
-            return ResponseEntity.ok(
-                    Map.of(
-                            "success", true,
-                            "message",
-                            "La orden pasó a estado En Curso."));
+        return ResponseEntity.ok(
+                Map.of(
+                        "success", true,
+                        "message",
+                        "La orden pasó a estado En Curso."));
 
-        } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
 
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "success", false,
-                            "message", e.getMessage()));
-        }
+        return ResponseEntity.badRequest().body(
+                Map.of(
+                        "success", false,
+                        "message", e.getMessage()));
     }
+}
 
     @PutMapping("/remito/{numeroRemito}/gestion-incidencia")
     public ResponseEntity<?> cancelarOrden(
@@ -139,11 +144,14 @@ public class SupervisorOrdenController {
 
 @PutMapping("/{id}/confirmar-entrega")
 public ResponseEntity<?> confirmarEntrega(
-        @PathVariable Integer id) {
+        @PathVariable Integer id,
+        @RequestBody ConfirmarEntregaRequestDTO dto) {
 
     try {
 
-        ordenCargaService.confirmarEntrega(id);
+        ordenCargaService.confirmarEntrega(
+                id,
+                dto.legajoSupervisor());
 
         return ResponseEntity.ok(
                 Map.of(

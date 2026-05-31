@@ -415,7 +415,9 @@ public class OrdenCargaService {
     ordenCargaRepository.save(orden);
 }
 
-       public void aprobarInicioViaje(Integer id) {
+      public void aprobarInicioViaje(
+        Integer id,
+        String legajoSupervisor) {
 
     OrdenCarga orden = ordenCargaRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException(
@@ -473,13 +475,13 @@ public class OrdenCargaService {
     // AUDITORIA
     // =========================
 
-    auditoriaOrdenService.registrarCambioEstado(
-            orden.getNumeroRemito(),
-            estadoAnterior,
-            nuevoEstado.getNombre(),
-            orden.getOperador().getLegajo(),
-            null,
-            "Supervisor aprobó el inicio del viaje");
+   auditoriaOrdenService.registrarCambioEstado(
+        orden.getNumeroRemito(),
+        estadoAnterior,
+        nuevoEstado.getNombre(),
+        null,
+        legajoSupervisor,
+        "Supervisor aprobó el inicio del viaje");
 }
 
         public OrdenCargaResponseDTO obtenerPorRemito(
@@ -839,7 +841,10 @@ public class OrdenCargaService {
                 ordenCargaRepository.save(orden);
         }
 
-    public void confirmarEntrega(Integer ordenId) {
+
+public void confirmarEntrega(
+        Integer ordenId,
+        String legajoSupervisor) {
 
     // =========================
     // OBTENER ORDEN
@@ -901,13 +906,13 @@ public class OrdenCargaService {
     // AUDITORIA
     // =========================
 
-    auditoriaOrdenService.registrarCambioEstado(
-            orden.getNumeroRemito(),
-            estadoAnterior,
-            estadoEntregada.getNombre(),
-            orden.getOperador().getLegajo(),
-            null,
-            "Supervisor confirmó la entrega"
-    );
+ auditoriaOrdenService.registrarCambioEstado(
+        orden.getNumeroRemito(),
+        estadoAnterior,
+        estadoEntregada.getNombre(),
+        null,
+        legajoSupervisor,
+        "Supervisor confirmó la entrega"
+);
 }
 }
