@@ -41,6 +41,7 @@ import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
 import com.blackmesaresearch.hytrac.model.core.Transportista;
 import com.blackmesaresearch.hytrac.model.core.Usuario;
 import com.blackmesaresearch.hytrac.model.core.Vehiculo;
+import com.blackmesaresearch.hytrac.model.lookup.EstadoAcoplado;
 import com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga;
 import com.blackmesaresearch.hytrac.model.lookup.TipoDocumento;
 import com.blackmesaresearch.hytrac.model.lookup.TipoIncidencia;
@@ -81,6 +82,7 @@ public class DataSeeder implements CommandLineRunner {
     private final TipoDocumentoRepository tipoDocumentoRepo;
     private final TipoIncidenciaRepository tipoIncidenciaRepo;
     private final CsvMapper csvMapper;
+    private EstadoAcopladoRepository estadoAcopladoRepo;
 
     public DataSeeder(
             ProvinciaRepository provinciaRepo,
@@ -97,6 +99,7 @@ public class DataSeeder implements CommandLineRunner {
             AcopladoRepository acopladoRepo,
             TipoVinculoRepository tipoVinculoRepo,
             EstadoVehiculoRepository estadoVehiculoRepo,
+            EstadoAcopladoRepository estadoAcopladoRepo,
             OrdenCargaRepository ordenCargaRepo,
             EstadoOrdenCargaRepository estadoOrdenCargaRepo,
             DocumentacionRepository documentacionRepo,
@@ -118,6 +121,7 @@ public class DataSeeder implements CommandLineRunner {
         this.acopladoRepo = acopladoRepo;
         this.tipoVinculoRepo = tipoVinculoRepo;
         this.estadoVehiculoRepo = estadoVehiculoRepo;
+        this.estadoAcopladoRepo = estadoAcopladoRepo;
         this.ordenCargaRepo = ordenCargaRepo;
         this.estadoOrdenCargaRepo = estadoOrdenCargaRepo;
         this.documentacionRepo = documentacionRepo;
@@ -511,8 +515,8 @@ public class DataSeeder implements CommandLineRunner {
             }
         });
 
-        Map<String, EstadoVehiculo> estadoMap = estadoVehiculoRepo.findAll().stream()
-                .collect(Collectors.toMap(EstadoVehiculo::getNombre, e -> e));
+        Map<String, EstadoAcoplado> estadoMap = estadoAcopladoRepo.findAll().stream()
+                .collect(Collectors.toMap(EstadoAcoplado::getNombre, e -> e));
 
         MappingIterator<AcopladoCsv> it = csvMapper.readerFor(AcopladoCsv.class)
                 .with(schema).readValues(is);
@@ -520,7 +524,7 @@ public class DataSeeder implements CommandLineRunner {
         while (it.hasNext()) {
             AcopladoCsv row = it.next();
             EmpresaTercerizada empresa = empresaMap.get(row.getEmpresa_nombre());
-            EstadoVehiculo estado = estadoMap.get(row.getEstado_nombre());
+            EstadoAcoplado estado = estadoMap.get(row.getEstado_nombre());
 
             if (empresa == null || estado == null) {
                 log.warn("Skipping acoplado because empresa or estado not found: {} / {}",

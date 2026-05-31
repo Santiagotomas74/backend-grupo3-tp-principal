@@ -1,9 +1,11 @@
 package com.blackmesaresearch.hytrac.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.blackmesaresearch.hytrac.dto.request.CancelarOrdenRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.ConfirmarEntregaRequestDTO;
@@ -15,11 +17,15 @@ import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorResponseDTO;
 import com.blackmesaresearch.hytrac.model.core.AuditoriaEstado;
 import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
 import com.blackmesaresearch.hytrac.model.core.Usuario;
+import com.blackmesaresearch.hytrac.model.lookup.EstadoAcoplado;
 import com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga;
+import com.blackmesaresearch.hytrac.model.lookup.EstadoVehiculo;
 import com.blackmesaresearch.hytrac.repository.AcopladoRepository;
 import com.blackmesaresearch.hytrac.repository.AuditoriaEstadoRepository;
 import com.blackmesaresearch.hytrac.repository.CombustibleRepository;
+import com.blackmesaresearch.hytrac.repository.EstadoAcopladoRepository;
 import com.blackmesaresearch.hytrac.repository.EstadoOrdenCargaRepository;
+import com.blackmesaresearch.hytrac.repository.EstadoVehiculoRepository;
 import com.blackmesaresearch.hytrac.repository.LugarOperativoRepository;
 import com.blackmesaresearch.hytrac.repository.OrdenCargaRepository;
 import com.blackmesaresearch.hytrac.repository.RutaRepository;
@@ -28,6 +34,7 @@ import com.blackmesaresearch.hytrac.repository.UsuarioRepository;
 import com.blackmesaresearch.hytrac.repository.VehiculoRepository;
 
 @Service
+@Transactional(readOnly = true)
 public class OrdenCargaService {
 
         @Autowired
@@ -55,6 +62,10 @@ public class OrdenCargaService {
         private static final List<String> MOTIVOS_CANCELACION = List.of("DEMORA", "ACCIDENTE", "DOCUMENTACION");
         @Autowired
         private RutaRepository rutaRepository;
+        @Autowired
+        private EstadoVehiculoRepository estadoVehiculoRepository;
+        @Autowired
+        private EstadoAcopladoRepository estadoAcopladoRepository;
 
         public List<OrdenCargaResponseDTO> obtenerTodas() {
                 return ordenCargaRepository.findAll()
@@ -63,6 +74,7 @@ public class OrdenCargaService {
                                 .toList();
         }
 
+        @Transactional
         public OrdenCargaResponseDTO guardarNuevaOrdenCarga(OrdenCargaRequestDTO dto) {
 
                 // =========================
@@ -151,6 +163,33 @@ public class OrdenCargaService {
                         throw new IllegalArgumentException(
                                         "El acoplado no está disponible.");
                 }
+
+                // disponibilidad transportista
+                if (!transportista.isDisponible()) {
+
+                        throw new IllegalArgumentException(
+                                        "El transportista no está disponible.");
+                }
+
+                // This targets your exact lookups table for vehicle states ("Ocupado", "En
+                // Viaje", etc.)
+                var estadoVehiculoNoDisponible = estadoVehiculoRepository.findByNombre("No Disponible") // Adjust string
+                                                                                                        // to your
+                                                                                                        // actual DB
+                                                                                                        // record name
+                                .orElseThrow(() -> new IllegalStateException(
+                                                "Estado de vehículo 'No Disponible' no existe en la base de datos."));
+
+                var estadoAcopladoNoDisponible = estadoAcopladoRepository.findByNombre("No Disponible") // Adjust string
+                                                                                                        // to your
+                                                                                                        // actual DB
+                                                                                                        // record name
+                                .orElseThrow(() -> new IllegalStateException(
+                                                "Estado de acoplado 'No Disponible' no existe en la base de datos."));
+
+                camion.setEstado(estadoVehiculoNoDisponible);
+                acoplado.setEstado(estadoAcopladoNoDisponible);
+                transportista.setDisponible(false);
 
                 // =========================
                 // CREAR ORDEN
@@ -398,6 +437,7 @@ public class OrdenCargaService {
                                                 + orden.getOperador().getApellido());
         }
 
+        @Transactional
         public void confirmarOrden(Integer id) {
 
                 OrdenCarga orden = ordenCargaRepository.findById(id)
@@ -409,6 +449,7 @@ public class OrdenCargaService {
                 ordenCargaRepository.save(orden);
         }
 
+        @Transactional
         public void aprobarInicioViaje(Integer id) {
 
                 OrdenCarga orden = ordenCargaRepository.findById(id)
@@ -488,6 +529,7 @@ public class OrdenCargaService {
                                 orden.getConfirmado());
         }
 
+        @Transactional
         public OrdenCargaResponseDTO editarOrdenCarga(Integer id, OrdenCargaRequestDTO dto) {
 
                 OrdenCarga orden = ordenCargaRepository.findById(id)
@@ -599,184 +641,186 @@ public class OrdenCargaService {
                 return toResponseDTO(modificada);
         }
 
+        @Transactional
         public OrdenCargaResponseDTO cancelarOrden(String numeroRemito, CancelarOrdenRequestDTO dto) {
 
-                // Buscar la orden por número de remito
+                // ==========================================================
+                // 1. FETCH THE TARGET ORDER
+                // ==========================================================
                 OrdenCarga orden = ordenCargaRepository.findByNumeroRemito(numeroRemito)
                                 .orElseThrow(() -> new IllegalArgumentException(
                                                 "Orden no encontrada con el remito: " + numeroRemito));
 
-                // Validar que la orden no este en un estado final irreversible
+                // ==========================================================
+                // 2. VALIDATE CURRENT STATE
+                // ==========================================================
                 String estadoActual = orden.getEstadoOrdenCarga().getNombre();
                 if (estadoActual.equalsIgnoreCase("Entregada") || estadoActual.equalsIgnoreCase("Cancelada")) {
                         throw new IllegalArgumentException(
-                                        "No se puede gestionar la cancelación de una orden que ya se encuentra en estado '"
-                                                        + estadoActual + "'.");
+                                        "No se puede cancelar una orden que ya se encuentra en estado '" + estadoActual
+                                                        + "'.");
                 }
 
-                // Buscar el usuario que realiza la acción
-                Usuario solicitante = usuarioRepository.findByLegajo(dto.legajo())
-                                .orElseThrow(() -> new IllegalArgumentException("Usuario solicitante no encontrado."));
+                // ==========================================================
+                // 3. FETCH THE "DISPONIBLE" LOOKUP STATES
+                // ==========================================================
+                var estadoVehiculoDisponible = estadoVehiculoRepository.findByNombre("Disponible")
+                                .orElseThrow(() -> new IllegalStateException(
+                                                "Estado de vehículo 'Disponible' no existe en la base de datos."));
 
-                String rol = solicitante.getRol().getNombre();
+                var estadoAcopladoDisponible = estadoAcopladoRepository.findByNombre("Disponible")
+                                .orElseThrow(() -> new IllegalStateException(
+                                                "Estado de acoplado 'Disponible' no existe en la base de datos."));
 
-                // =========================================================================
-                // FLUJO 2: EL ADMIN(Mas adelante supervisor/cambiar) ACEPTA O RECHAZA
-                // Modificar/preguntar a gonza
-                // =========================================================================
-                if (rol.equalsIgnoreCase("SUPERVISOR")) {
+                // ==========================================================
+                // 4. EXTRACT ASSETS FROM THE ORDER AND MAKE THEM AVAILABLE
+                // ==========================================================
+                var camion = orden.getCamion();
+                var acoplado = orden.getAcoplado();
+                var transportista = orden.getTransportista();
 
-                        // Buscar la incidencia de cancelación abierta previamente por el transportista
-                        com.blackmesaresearch.hytrac.model.core.Incidencia incidenciaPendiente = incidenciaRepository
-                                        .findAll().stream()
-                                        .filter(i -> i.getOrden().getNumeroRemito().equals(orden.getNumeroRemito())
-                                                        && !i.getResuelto())
-                                        .findFirst()
-                                        .orElseThrow(() -> new IllegalArgumentException(
-                                                        "No hay ninguna solicitud de cancelación pendiente de transportista para esta orden."));
-                        // CASO A: El supervisor RECHAZA la cancelación del chofer
-                        if (dto.motivo() != null && (dto.motivo().equalsIgnoreCase("RECHAZADO"))) {
-
-                                // Se resuelve la incidencia (La incidencia resolvió)
-                                incidenciaPendiente.setResuelto(true);
-                                incidenciaPendiente.setUsuarioGestion(solicitante);
-                                incidenciaPendiente.setFechaResolucion(java.time.LocalDateTime.now());
-                                incidenciaPendiente.setAccionesTomadas(
-                                                "Solicitud de cancelación RECHAZADA por el supervisor. El viaje debe continuar.");
-                                incidenciaRepository.save(incidenciaPendiente);
-
-                                // Volvemos a dejar la orden disponible/confirmada para operar con normalidad
-                                OrdenCarga ordenGuardada = ordenCargaRepository.save(orden);
-
-                                return toResponseDTO(ordenGuardada);
-                        } // CASO B: El supervisor CONFIRMA la cancelación
-                        else {
-                                // Buscar el estado "Cancelada"
-                                EstadoOrdenCarga estadoCancelada = estadoOrdenCargaRepository.findByNombre("Cancelada")
-                                                .orElseThrow(() -> new IllegalArgumentException(
-                                                                "Estado 'Cancelada' no encontrado en el sistema."));
-
-                                EstadoOrdenCarga estadoAnterior = orden.getEstadoOrdenCarga();
-
-                                // Actualizar la orden a estado Cancelada definitivamente
-                                orden.setEstadoOrdenCarga(estadoCancelada);
-                                OrdenCarga ordenActualizada = ordenCargaRepository.save(orden);
-
-                                // Registrar en el historial de auditoría de estados de la orden
-                                AuditoriaEstado auditoria = new AuditoriaEstado();
-                                auditoria.setOrden(ordenActualizada);
-                                auditoria.setEstadoAnterior(estadoAnterior);
-                                auditoria.setEstadoNuevo(estadoCancelada);
-                                auditoria.setFechaCambio(java.time.LocalDateTime.now());
-                                auditoria.setSolicitante(solicitante);
-                                auditoria.setMotivo("Cancelación aprobada por supervisor. Notas: " + dto.motivo());
-                                auditoriaEstadoRepository.save(auditoria);
-
-                                // Se resuelve la incidencia (La incidencia resolvio)
-                                incidenciaPendiente.setResuelto(true);
-                                incidenciaPendiente.setUsuarioGestion(solicitante);
-                                incidenciaPendiente.setFechaResolucion(java.time.LocalDateTime.now());
-                                incidenciaPendiente.setAccionesTomadas(
-                                                "Cancelación CONFIRMADA por supervisor. Orden dada de baja del sistema.");
-                                incidenciaRepository.save(incidenciaPendiente);
-
-                                return toResponseDTO(ordenActualizada);
-                        }
-                } // OTRO ROL NO INGRESA A ESTE FLUJO
-                else {
-                        throw new IllegalArgumentException(
-                                        "Su rol no está autorizado para realizar o gestionar solicitudes de cancelación.");
+                if (camion != null) {
+                        camion.setEstado(estadoVehiculoDisponible);
+                        vehiculoRepository.save(camion);
                 }
+
+                if (acoplado != null) {
+                        acoplado.setEstado(estadoAcopladoDisponible);
+                        acopladoRepository.save(acoplado);
+                }
+
+                if (transportista != null) {
+                        transportista.setDisponible(true);
+                        transportistaRepository.save(transportista);
+                }
+
+                // ==========================================================
+                // 5. UPDATE THE ORDER STATE TO CANCELLED
+                // ==========================================================
+                EstadoOrdenCarga estadoCancelado = estadoOrdenCargaRepository.findByNombre("Cancelada")
+                                .orElseThrow(() -> new IllegalArgumentException("Estado 'Cancelada' no encontrado."));
+
+                orden.setEstadoOrdenCarga(estadoCancelado);
+
+                // Optionally map audit details or reasons from the CancelarOrdenRequestDTO here
+                if (dto.motivo() != null) {
+                        orden.setObservaciones(orden.getObservaciones() + " | Motivo Cancelación: " + dto.motivo());
+                }
+
+                OrdenCarga cancelada = ordenCargaRepository.save(orden);
+
+                return toResponseDTO(cancelada);
         }
 
-        public void reportarEntrega(
-                        Integer ordenId,
-                        ConfirmarEntregaRequestDTO dto) {
+        @Transactional
+        public OrdenCargaResponseDTO reportarEntrega(Integer id, ConfirmarEntregaRequestDTO dto) {
 
-                OrdenCarga orden = ordenCargaRepository.findById(ordenId)
+                // 1. Fetch Order
+                OrdenCarga orden = ordenCargaRepository.findById(id)
                                 .orElseThrow(() -> new IllegalArgumentException(
-                                                "Orden no encontrada."));
+                                                "Orden no encontrada con el ID: " + id));
 
-                // =========================
-                // VALIDAR ESTADO
-                // =========================
-
-                if (!orden.getEstadoOrdenCarga()
-                                .getNombre()
-                                .equalsIgnoreCase(
-                                                "Pendiente de confirmacion de entrega")) {
-
+                // 2. Validate State (Must be actively traveling)
+                String estadoActual = orden.getEstadoOrdenCarga().getNombre();
+                if (!estadoActual.equalsIgnoreCase("En Curso")) {
                         throw new IllegalArgumentException(
-                                        "La orden no está pendiente de confirmación de entrega.");
+                                        "Solo se puede reportar la entrega de órdenes que están 'En Curso'. Estado actual: "
+                                                        + estadoActual);
                 }
 
-                // =========================
-                // VALIDAR LITROS
-                // =========================
+                // 3. Fetch Staging State
+                EstadoOrdenCarga estadoPendiente = estadoOrdenCargaRepository.findByNombre("Pendiente de Confirmación")
+                                .orElseThrow(() -> new IllegalArgumentException(
+                                                "Estado 'Pendiente de Confirmación' no encontrado."));
 
-                if (dto.litrosEntregados() == null
-                                || dto.litrosEntregados() <= 0) {
+                // 4. Update Driver Numbers (Do NOT modify truck/trailer states yet!)
+                orden.setEstadoOrdenCarga(estadoPendiente);
 
-                        throw new IllegalArgumentException(
-                                        "Los litros entregados son obligatorios.");
+                if (dto.litrosEntregados() != null) {
+                        orden.setLitrosEntregados(dto.litrosEntregados());
+                }
+                // Set the delivery timestamp automatically to the current system time
+                orden.setFechaEntregaReal(LocalDateTime.now());
+
+                if (dto.observaciones() != null) {
+                        orden.setObservaciones(orden.getObservaciones() + " | Reporte Chofer: " + dto.observaciones());
                 }
 
-                // =========================
-                // ACTUALIZAR DATOS
-                // =========================
-
-                orden.setLitrosEntregados(
-                                dto.litrosEntregados());
-
-                orden.setObservaciones(
-                                dto.observaciones());
-
-                orden.setFechaEntregaReal(
-                                java.time.LocalDateTime.now());
-
-                ordenCargaRepository.save(orden);
+                OrdenCarga reportada = ordenCargaRepository.save(orden);
+                return toResponseDTO(reportada);
         }
 
-        public void confirmarEntrega(Integer ordenId) {
+        @Transactional
+        public OrdenCargaResponseDTO confirmarEntrega(Integer id, ConfirmarEntregaRequestDTO dto) {
 
-                // =========================
-                // OBTENER ORDEN
-                // =========================
-
-                OrdenCarga orden = ordenCargaRepository
-                                .findById(ordenId)
+                // ==========================================================
+                // 1. FETCH THE TARGET ORDER
+                // ==========================================================
+                OrdenCarga orden = ordenCargaRepository.findById(id)
                                 .orElseThrow(() -> new IllegalArgumentException(
-                                                "Orden no encontrada."));
+                                                "Orden no encontrada con el ID: " + id));
 
-                // =========================
-                // VALIDAR ESTADO ACTUAL
-                // =========================
-
-                if (!orden.getEstadoOrdenCarga()
-                                .getNombre()
-                                .equalsIgnoreCase(
-                                                "Pendiente de confirmacion de entrega")) {
-
+                // ==========================================================
+                // 2. VALIDATE CURRENT STATE
+                // ==========================================================
+                String estadoActual = orden.getEstadoOrdenCarga().getNombre();
+                if (!estadoActual.equalsIgnoreCase("En Curso")) {
                         throw new IllegalArgumentException(
-                                        "La orden no está pendiente de confirmación de entrega.");
+                                        "Solo se puede confirmar la entrega de órdenes que están 'En Curso'. Estado actual: "
+                                                        + estadoActual);
                 }
 
-                // =========================
-                // OBTENER ESTADO ENTREGADA
-                // =========================
+                // ==========================================================
+                // 3. FETCH THE "DISPONIBLE" LOOKUP STATES
+                // ==========================================================
+                var estadoVehiculoDisponible = estadoVehiculoRepository.findByNombre("Disponible")
+                                .orElseThrow(() -> new IllegalStateException(
+                                                "Estado de vehículo 'Disponible' no existe en la base de datos."));
 
-                EstadoOrdenCarga estadoEntregada = estadoOrdenCargaRepository
-                                .findByNombre("Entregada")
-                                .orElseThrow(() -> new IllegalArgumentException(
-                                                "Estado 'Entregada' no encontrado."));
+                var estadoAcopladoDisponible = estadoAcopladoRepository.findByNombre("Disponible")
+                                .orElseThrow(() -> new IllegalStateException(
+                                                "Estado de acoplado 'Disponible' no existe en la base de datos."));
 
-                // =========================
-                // ACTUALIZAR ESTADO
-                // =========================
+                // ==========================================================
+                // 4. FREE UP THE ASSETS
+                // ==========================================================
+                var camion = orden.getCamion();
+                var acoplado = orden.getAcoplado();
+                var transportista = orden.getTransportista();
 
-                orden.setEstadoOrdenCarga(
-                                estadoEntregada);
+                if (camion != null) {
+                        camion.setEstado(estadoVehiculoDisponible);
+                        vehiculoRepository.save(camion);
+                }
 
-                ordenCargaRepository.save(orden);
+                if (acoplado != null) {
+                        acoplado.setEstado(estadoAcopladoDisponible);
+                        acopladoRepository.save(acoplado);
+                }
+
+                if (transportista != null) {
+                        transportista.setDisponible(true);
+                        transportistaRepository.save(transportista);
+                }
+
+                // ==========================================================
+                // 5. UPDATE ORDER DELIVERY DETAILS AND STATE
+                // ==========================================================
+                EstadoOrdenCarga estadoEntregada = estadoOrdenCargaRepository.findByNombre("Entregada")
+                                .orElseThrow(() -> new IllegalArgumentException("Estado 'Entregada' no encontrado."));
+
+                orden.setEstadoOrdenCarga(estadoEntregada);
+
+                // Map payload details from your ConfirmarEntregaRequestDTO
+                if (dto.litrosEntregados() != null) {
+                        orden.setLitrosEntregados(dto.litrosEntregados());
+                }
+
+                // Set the delivery timestamp automatically to the current system time
+                orden.setFechaEntregaReal(LocalDateTime.now());
+
+                OrdenCarga entregada = ordenCargaRepository.save(orden);
+
+                return toResponseDTO(entregada);
         }
 }

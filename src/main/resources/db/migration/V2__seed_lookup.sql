@@ -14,9 +14,15 @@ INSERT INTO Tipo_Lugar_Operativo (id, nombre) VALUES
 -- ESTADOS VEHICULO
 -- =========================
 
+-- Son literalmente iguales, pero por cuestiones de integridad referencial y claridad, se mantienen separados. En el futuro podrían unificarse si se considera que no aportan valor como entidades distintas. Atte: Copilot
 INSERT INTO Estado_Vehiculo (id, nombre) VALUES
 (1, 'Disponible'),
-(2, 'En Viaje'),
+(2, 'No Disponible'),
+(3, 'Mantenimiento');
+
+INSERT INTO Estado_Acoplado (id, nombre) VALUES
+(1, 'Disponible'),
+(2, 'No Disponible'),
 (3, 'Mantenimiento');
 
 -- =========================
@@ -25,7 +31,8 @@ INSERT INTO Estado_Vehiculo (id, nombre) VALUES
 
 INSERT INTO Tipo_Vinculo (id, nombre) VALUES
 (1, 'Empleado'),
-(2, 'Tercerizado');
+(2, 'Tercerizado'),
+(3, 'Monotributista');
 
 -- =========================
 -- ESTADOS ORDEN

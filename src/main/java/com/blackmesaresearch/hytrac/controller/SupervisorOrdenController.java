@@ -144,7 +144,7 @@ public class SupervisorOrdenController {
 
                 try {
 
-                        ordenCargaService.confirmarEntrega(id);
+                        ordenCargaService.confirmarEntrega(id, null);
 
                         return ResponseEntity.ok(
                                         Map.of(

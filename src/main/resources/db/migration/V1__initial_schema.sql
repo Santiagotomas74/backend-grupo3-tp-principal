@@ -24,6 +24,11 @@ CREATE TABLE Estado_Vehiculo (
     nombre VARCHAR(255) UNIQUE
 );
 
+CREATE TABLE Estado_Acoplado (
+    id INTEGER PRIMARY KEY,
+    nombre VARCHAR(255) UNIQUE
+);
+
 CREATE TABLE Tipo_Vinculo (
     id INTEGER PRIMARY KEY,
     nombre VARCHAR(255) UNIQUE
@@ -138,6 +143,7 @@ CREATE TABLE Transportista (
     cuit VARCHAR(50) NOT NULL UNIQUE,
     empresa_id INTEGER,
     activo BOOLEAN DEFAULT 1,
+    disponible BOOLEAN DEFAULT 1,
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES Usuario(id),

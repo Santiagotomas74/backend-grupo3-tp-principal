@@ -10,7 +10,8 @@ public record TransportistaResponseDTO(
         String cuit,
         String legajo,
 
-        String tipoVinculo
+        String tipoVinculo,
+        Boolean disponible
 
 ) {
 }

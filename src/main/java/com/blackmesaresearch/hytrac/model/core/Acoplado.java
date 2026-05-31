@@ -5,7 +5,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import com.blackmesaresearch.hytrac.model.lookup.EstadoVehiculo;
+import com.blackmesaresearch.hytrac.model.lookup.EstadoAcoplado;
 
 import java.time.LocalDateTime;
 
@@ -33,7 +33,7 @@ public class Acoplado {
 
     @ManyToOne
     @JoinColumn(name = "estado_id")
-    private EstadoVehiculo estado;
+    private EstadoAcoplado estado;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

@@ -28,7 +28,8 @@ public class TransportistaService {
                         t.getUsuario().getApellido(),
                         t.getCuit(),
                         t.getUsuario().getLegajo(),
-                        t.getTipoVinculo().getNombre()))
+                        t.getTipoVinculo().getNombre(),
+                        t.isDisponible()))
                 .toList();
     }
 }
