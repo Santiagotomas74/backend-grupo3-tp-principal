@@ -472,14 +472,14 @@ public class OrdenCargaService {
     // =========================
     // AUDITORIA
     // =========================
-/* 
+
     auditoriaOrdenService.registrarCambioEstado(
             orden.getNumeroRemito(),
             estadoAnterior,
             nuevoEstado.getNombre(),
             orden.getOperador().getLegajo(),
             null,
-            "Supervisor aprobó el inicio del viaje");*/
+            "Supervisor aprobó el inicio del viaje");
 }
 
         public OrdenCargaResponseDTO obtenerPorRemito(
