@@ -6,19 +6,33 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.blackmesaresearch.hytrac.dto.response.AuditoriaOrdenResponseDTO;
-import com.blackmesaresearch.hytrac.model.core.AuditoriaOrden;
-import com.blackmesaresearch.hytrac.repository.AuditoriaOrdenRepository;
+import com.blackmesaresearch.hytrac.model.core.AuditoriaEstado;
+import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
+import com.blackmesaresearch.hytrac.model.core.Usuario;
+import com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga;
+import com.blackmesaresearch.hytrac.repository.AuditoriaEstadoRepository;
+import com.blackmesaresearch.hytrac.repository.OrdenCargaRepository;
+import com.blackmesaresearch.hytrac.repository.UsuarioRepository;
+import com.blackmesaresearch.hytrac.repository.EstadoOrdenCargaRepository;
 
 @Service
 public class AuditoriaOrdenService {
 
-    private final AuditoriaOrdenRepository auditoriaOrdenRepository;
+    private final AuditoriaEstadoRepository auditoriaEstadoRepository;
+    private final OrdenCargaRepository ordenCargaRepository;
+    private final EstadoOrdenCargaRepository estadoOrdenCargaRepository;
+    private final UsuarioRepository usuarioRepository;
 
     public AuditoriaOrdenService(
-            AuditoriaOrdenRepository auditoriaOrdenRepository) {
+            AuditoriaEstadoRepository auditoriaEstadoRepository,
+            OrdenCargaRepository ordenCargaRepository,
+            EstadoOrdenCargaRepository estadoOrdenCargaRepository,
+            UsuarioRepository usuarioRepository) {
 
-        this.auditoriaOrdenRepository =
-                auditoriaOrdenRepository;
+        this.auditoriaEstadoRepository = auditoriaEstadoRepository;
+        this.ordenCargaRepository = ordenCargaRepository;
+        this.estadoOrdenCargaRepository = estadoOrdenCargaRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     // =========================
@@ -27,48 +41,63 @@ public class AuditoriaOrdenService {
 
     public void registrarCambioEstado(
             String numeroRemito,
-            String estadoAnterior,
-            String estadoNuevo,
+            String estadoAnteriorNombre,
+            String estadoNuevoNombre,
             String solicitanteLegajo,
             String confirmadorLegajo,
             String motivo) {
 
-        AuditoriaOrden auditoria =
-                new AuditoriaOrden();
+        OrdenCarga orden = ordenCargaRepository
+                .findByNumeroRemito(numeroRemito)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Orden no encontrada."));
 
-        auditoria.setOrdenNumeroRemito(
-                numeroRemito);
+        EstadoOrdenCarga estadoAnterior = estadoOrdenCargaRepository
+                .findByNombre(estadoAnteriorNombre)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Estado anterior no encontrado."));
 
-        auditoria.setEstadoAnteriorNombre(
-                estadoAnterior);
+        EstadoOrdenCarga estadoNuevo = estadoOrdenCargaRepository
+                .findByNombre(estadoNuevoNombre)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Estado nuevo no encontrado."));
 
-        auditoria.setEstadoNuevoNombre(
-                estadoNuevo);
+        Usuario solicitante = null;
+        if (solicitanteLegajo != null) {
+            solicitante = usuarioRepository
+                    .findByLegajo(solicitanteLegajo)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Solicitante no encontrado."));
+        }
 
-        auditoria.setFechaCambio(
-                LocalDateTime.now());
+        Usuario confirmador = null;
+        if (confirmadorLegajo != null) {
+            confirmador = usuarioRepository
+                    .findByLegajo(confirmadorLegajo)
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Confirmador no encontrado."));
+        }
 
-        auditoria.setSolicitanteLegajo(
-                solicitanteLegajo);
+        AuditoriaEstado auditoria = new AuditoriaEstado();
 
-        auditoria.setConfirmadorLegajo(
-                confirmadorLegajo);
+        auditoria.setOrden(orden);
+        auditoria.setEstadoAnterior(estadoAnterior);
+        auditoria.setEstadoNuevo(estadoNuevo);
+        auditoria.setFechaCambio(LocalDateTime.now());
+        auditoria.setSolicitante(solicitante);
+        auditoria.setConfirmador(confirmador);
+        auditoria.setMotivo(motivo);
 
-        auditoria.setMotivo(
-                motivo);
-
-        auditoriaOrdenRepository.save(
-                auditoria);
+        auditoriaEstadoRepository.save(auditoria);
     }
 
     // =========================
     // OBTENER TODA LA AUDITORIA
     // =========================
 
-    public List<AuditoriaOrdenResponseDTO>
-            obtenerAuditoria() {
+    public List<AuditoriaOrdenResponseDTO> obtenerAuditoria() {
 
-        return auditoriaOrdenRepository
+        return auditoriaEstadoRepository
                 .findAll()
                 .stream()
                 .map(this::toDTO)
@@ -79,16 +108,17 @@ public class AuditoriaOrdenService {
     // OBTENER AUDITORIA POR REMITO
     // =========================
 
-    public List<AuditoriaOrdenResponseDTO>
-            obtenerPorNumeroRemito(
-                    String numeroRemito) {
+    public List<AuditoriaOrdenResponseDTO> obtenerPorNumeroRemito(
+            String numeroRemito) {
 
         List<AuditoriaOrdenResponseDTO> auditorias =
 
-                auditoriaOrdenRepository
-                        .findByOrdenNumeroRemito(
-                                numeroRemito)
+                auditoriaEstadoRepository
+                        .findAll()
                         .stream()
+                        .filter(a ->
+                                a.getOrden() != null &&
+                                a.getOrden().getNumeroRemito().equals(numeroRemito))
                         .map(this::toDTO)
                         .toList();
 
@@ -106,21 +136,25 @@ public class AuditoriaOrdenService {
     // =========================
 
     private AuditoriaOrdenResponseDTO toDTO(
-            AuditoriaOrden auditoria) {
+            AuditoriaEstado auditoria) {
 
         return new AuditoriaOrdenResponseDTO(
 
-                auditoria.getOrdenNumeroRemito(),
+                auditoria.getOrden().getNumeroRemito(),
 
-                auditoria.getEstadoAnteriorNombre(),
+                auditoria.getEstadoAnterior().getNombre(),
 
-                auditoria.getEstadoNuevoNombre(),
+                auditoria.getEstadoNuevo().getNombre(),
 
                 auditoria.getFechaCambio(),
 
-                auditoria.getSolicitanteLegajo(),
+                auditoria.getSolicitante() != null
+                        ? auditoria.getSolicitante().getLegajo()
+                        : null,
 
-                auditoria.getConfirmadorLegajo(),
+                auditoria.getConfirmador() != null
+                        ? auditoria.getConfirmador().getLegajo()
+                        : null,
 
                 auditoria.getMotivo());
     }
