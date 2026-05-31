@@ -1,10 +1,12 @@
 package com.blackmesaresearch.hytrac.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 import com.blackmesaresearch.hytrac.dto.response.AuditoriaOrdenResponseDTO;
+import com.blackmesaresearch.hytrac.model.core.AuditoriaOrden;
 import com.blackmesaresearch.hytrac.repository.AuditoriaOrdenRepository;
 
 @Service
@@ -17,6 +19,46 @@ public class AuditoriaOrdenService {
 
         this.auditoriaOrdenRepository =
                 auditoriaOrdenRepository;
+    }
+
+    // =========================
+    // REGISTRAR AUDITORIA
+    // =========================
+
+    public void registrarCambioEstado(
+            String numeroRemito,
+            String estadoAnterior,
+            String estadoNuevo,
+            String solicitanteLegajo,
+            String confirmadorLegajo,
+            String motivo) {
+
+        AuditoriaOrden auditoria =
+                new AuditoriaOrden();
+
+        auditoria.setOrdenNumeroRemito(
+                numeroRemito);
+
+        auditoria.setEstadoAnteriorNombre(
+                estadoAnterior);
+
+        auditoria.setEstadoNuevoNombre(
+                estadoNuevo);
+
+        auditoria.setFechaCambio(
+                LocalDateTime.now());
+
+        auditoria.setSolicitanteLegajo(
+                solicitanteLegajo);
+
+        auditoria.setConfirmadorLegajo(
+                confirmadorLegajo);
+
+        auditoria.setMotivo(
+                motivo);
+
+        auditoriaOrdenRepository.save(
+                auditoria);
     }
 
     // =========================
@@ -64,7 +106,7 @@ public class AuditoriaOrdenService {
     // =========================
 
     private AuditoriaOrdenResponseDTO toDTO(
-            com.blackmesaresearch.hytrac.model.core.AuditoriaOrden auditoria) {
+            AuditoriaOrden auditoria) {
 
         return new AuditoriaOrdenResponseDTO(
 
