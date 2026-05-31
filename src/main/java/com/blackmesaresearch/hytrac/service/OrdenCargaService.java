@@ -403,34 +403,16 @@ public class OrdenCargaService {
                                                 + orden.getOperador().getApellido());
         }
 
-      public void confirmarOrden(Integer id) {
+ public void confirmarOrden(Integer id) {
 
     OrdenCarga orden = ordenCargaRepository.findById(id)
             .orElseThrow(() ->
                     new IllegalArgumentException(
                             "Orden no encontrada."));
 
-    String estadoAnterior =
-            orden.getEstadoOrdenCarga().getNombre();
-
-    EstadoOrdenCarga estadoConfirmado =
-            estadoOrdenCargaRepository
-                    .findByNombre("Confirmado")
-                    .orElseThrow(() ->
-                            new IllegalArgumentException(
-                                    "Estado Confirmado no encontrado."));
-
-    orden.setEstadoOrdenCarga(estadoConfirmado);
+    orden.setConfirmado(true);
 
     ordenCargaRepository.save(orden);
-
-    auditoriaOrdenService.registrarCambioEstado(
-            orden.getNumeroRemito(),
-            estadoAnterior,
-            estadoConfirmado.getNombre(),
-            orden.getOperador().getLegajo(), // solicitante
-            null,                            // confirmador
-            "Supervisor confirmó la orden de envío");
 }
 
        public void aprobarInicioViaje(Integer id) {
