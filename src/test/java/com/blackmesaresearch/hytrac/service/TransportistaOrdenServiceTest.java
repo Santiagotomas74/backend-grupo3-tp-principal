@@ -9,9 +9,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -30,6 +34,9 @@ public class TransportistaOrdenServiceTest {
     @Mock
     private EstadoOrdenCargaRepository estadoRepository;
 
+    @Mock
+    private AuditoriaOrdenService auditoriaOrdenService;
+
     @InjectMocks
     private TransportistaOrdenService transportistaOrdenService;
 
@@ -41,10 +48,11 @@ public class TransportistaOrdenServiceTest {
     void iniciarViaje_DebeLanzarExcepcionCuandoOrdenNoExiste() {
 
         when(ordenCargaRepository.findById(99)).thenReturn(Optional.empty());
+        
 
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> transportistaOrdenService.iniciarViaje(99)
+            () -> transportistaOrdenService.iniciarViaje(99, "LEG-001")
         );
 
         assertEquals("Orden no encontrada.", exception.getMessage());
@@ -63,7 +71,7 @@ public class TransportistaOrdenServiceTest {
 
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> transportistaOrdenService.iniciarViaje(1)
+            () -> transportistaOrdenService.iniciarViaje(1, "LEG-001")
         );
 
         assertEquals(
@@ -90,11 +98,14 @@ public class TransportistaOrdenServiceTest {
         when(estadoRepository.findByNombre("Pendiente de inicio de viaje"))
             .thenReturn(Optional.of(nuevoEstado));
 
-        transportistaOrdenService.iniciarViaje(1);
+        transportistaOrdenService.iniciarViaje(1, "LEG-001");
 
         assertEquals("Pendiente de inicio de viaje", orden.getEstadoOrdenCarga().getNombre());
         assertNotNull(orden.getFechaSalidaPlanta());
         verify(ordenCargaRepository).save(orden);
+        verify(auditoriaOrdenService, times(1)).registrarCambioEstado(
+            isNull(), anyString(), anyString(), eq("LEG-001"), isNull(), anyString()
+        );
     }
 
     // Notificar Entrega //
@@ -106,7 +117,7 @@ public class TransportistaOrdenServiceTest {
 
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> transportistaOrdenService.notificarEntrega(99)
+            () -> transportistaOrdenService.notificarEntrega(99, "LEG-001")
         );
 
         assertEquals("Orden no encontrada.", exception.getMessage());
@@ -125,7 +136,7 @@ public class TransportistaOrdenServiceTest {
 
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> transportistaOrdenService.notificarEntrega(1)
+            () -> transportistaOrdenService.notificarEntrega(1, "LEG-001")
         );
 
         assertEquals(
@@ -151,13 +162,16 @@ public class TransportistaOrdenServiceTest {
         when(estadoRepository.findByNombre("Pendiente de confirmacion de entrega"))
             .thenReturn(Optional.of(nuevoEstado));
 
-        transportistaOrdenService.notificarEntrega(1);
+        transportistaOrdenService.notificarEntrega(1, "LEG-001");
 
         assertEquals(
             "Pendiente de confirmacion de entrega",
             orden.getEstadoOrdenCarga().getNombre()
         );
         verify(ordenCargaRepository).save(orden);
+        verify(auditoriaOrdenService, times(1)).registrarCambioEstado(
+            isNull(), anyString(), anyString(), eq("LEG-001"), isNull(), anyString()
+        );
     }
 
     // Obtener Orden Pendiente //

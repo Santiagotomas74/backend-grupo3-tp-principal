@@ -10,6 +10,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.never;
@@ -48,6 +51,7 @@ public class OrdenCargaServiceTest {
     @Mock private UsuarioRepository usuarioRepository;
     @Mock private AcopladoRepository acopladoRepository;
     @Mock private RutaRepository rutaRepository;
+    @Mock private AuditoriaOrdenService auditoriaOrdenService;
 
 
 
@@ -425,7 +429,7 @@ public class OrdenCargaServiceTest {
         when(ordenCargaRepository.findById(99)).thenReturn(Optional.empty());
 
         IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
-            () -> ordenCargaService.aprobarInicioViaje(99)
+            () -> ordenCargaService.aprobarInicioViaje(99, "LEG-001")
         );
 
         assertEquals("Orden no encontrada.", excepcion.getMessage());
@@ -446,7 +450,7 @@ public class OrdenCargaServiceTest {
         when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
 
         IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
-            () -> ordenCargaService.aprobarInicioViaje(1)
+            () -> ordenCargaService.aprobarInicioViaje(1, "LEG-001")
         );
 
         assertEquals("La orden no está pendiente de inicio de viaje.", excepcion.getMessage());
@@ -464,6 +468,9 @@ public class OrdenCargaServiceTest {
         var orden = new OrdenCarga();
         orden.setEstadoOrdenCarga(estadoActual);
 
+        orden.setRuta(new com.blackmesaresearch.hytrac.model.core.Ruta());
+        orden.setNumeroRemito("REM-001");
+
         when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
 
         var estadoEnCurso = new com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga();
@@ -471,12 +478,14 @@ public class OrdenCargaServiceTest {
 
         when(estadoOrdenCargaRepository.findByNombre("En Curso")).thenReturn(Optional.of(estadoEnCurso));
 
-        ordenCargaService.aprobarInicioViaje(1);
+        ordenCargaService.aprobarInicioViaje(1, "LEG-001");
 
         assertEquals("En Curso", orden.getEstadoOrdenCarga().getNombre());
 
         verify(ordenCargaRepository, times(1)).save(orden);
-
+        verify(auditoriaOrdenService, times(1)).registrarCambioEstado(
+            eq("REM-001"), anyString(), anyString(), isNull(), eq("LEG-001"), anyString()
+        );
     }
 
     // Obtener todas //
@@ -801,7 +810,7 @@ public class OrdenCargaServiceTest {
 
         when(ordenCargaRepository.findById(99)).thenReturn(Optional.empty());
 
-        ConfirmarEntregaRequestDTO dto = new ConfirmarEntregaRequestDTO(5000.0, "Sin obs");
+        ConfirmarEntregaRequestDTO dto = new ConfirmarEntregaRequestDTO("LEG-001",5000.0, "Sin obs");
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> ordenCargaService.reportarEntrega(99, dto)
@@ -821,7 +830,7 @@ public class OrdenCargaServiceTest {
 
         when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
 
-        ConfirmarEntregaRequestDTO dto = new ConfirmarEntregaRequestDTO(5000.0, "Sin obs");
+        ConfirmarEntregaRequestDTO dto = new ConfirmarEntregaRequestDTO("LEG-001", 5000.0, "Sin obs");
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> ordenCargaService.reportarEntrega(1, dto)
@@ -841,7 +850,7 @@ public class OrdenCargaServiceTest {
 
         when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
 
-        ConfirmarEntregaRequestDTO dto = new ConfirmarEntregaRequestDTO(0.0, "Sin obs");
+        ConfirmarEntregaRequestDTO dto = new ConfirmarEntregaRequestDTO("LEG-001", 0.0, "Sin obs");
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
             () -> ordenCargaService.reportarEntrega(1, dto)
@@ -860,7 +869,7 @@ public class OrdenCargaServiceTest {
 
         when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
 
-        ConfirmarEntregaRequestDTO dto = new ConfirmarEntregaRequestDTO(5000.0, "Sin obs");
+        ConfirmarEntregaRequestDTO dto = new ConfirmarEntregaRequestDTO("LEG-001", 5000.0, "Sin obs");
 
         ordenCargaService.reportarEntrega(1, dto);
 
