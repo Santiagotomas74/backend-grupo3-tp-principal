@@ -521,7 +521,11 @@ public void rechazarInicioViaje(Integer id, String legajoSupervisor, String moti
 
         String estadoActual = orden.getEstadoOrdenCarga().getNombre();
 
-        // limpiamos salida
+        EstadoOrdenCarga estadoPendiente = estadoOrdenCargaRepository.findByNombre("Pendiente")
+                .orElseThrow(() -> new IllegalArgumentException("Estado 'Pendiente' no encontrado."));
+
+        // limpiamos salida y rollback
+        orden.setEstadoOrdenCarga(estadoPendiente);
         orden.setFechaSalidaPlanta(null);
 
         ordenCargaRepository.save(orden);
@@ -529,7 +533,7 @@ public void rechazarInicioViaje(Integer id, String legajoSupervisor, String moti
         auditoriaOrdenService.registrarCambioEstado(
                 orden.getNumeroRemito(),
                 estadoActual,
-                estadoActual, // El estado no cambia, solo se marca como no iniciado
+                estadoPendiente.getNombre(), 
                 null,
                 legajoSupervisor,
                 "Supervisor rechazó el inicio del viaje. Motivo: " + motivoRechazo);
@@ -978,7 +982,11 @@ public void rechazarEntrega(Integer id, String legajoSupervisor, String motivoRe
 
         String estadoActual = orden.getEstadoOrdenCarga().getNombre();
 
-        // Queda en el mismo estado, se anula los datos cargados por el transportista
+        EstadoOrdenCarga estadoEnCurso = estadoOrdenCargaRepository.findByNombre("En Curso")
+                .orElseThrow(() -> new IllegalArgumentException("Estado 'En Curso' no encontrado."));
+
+        // se anula los datos cargados por el transportista y rollback
+        orden.setEstadoOrdenCarga(estadoEnCurso);
         orden.setFechaEntregaReal(null);
         orden.setLitrosEntregados(null);
 
@@ -987,7 +995,7 @@ public void rechazarEntrega(Integer id, String legajoSupervisor, String motivoRe
         auditoriaOrdenService.registrarCambioEstado(
                 orden.getNumeroRemito(),
                 estadoActual,
-                estadoActual, 
+                estadoEnCurso.getNombre(), 
                 null,
                 legajoSupervisor,
                 "Supervisor rechazó la entrega. Motivo: " + motivoRechazo);
