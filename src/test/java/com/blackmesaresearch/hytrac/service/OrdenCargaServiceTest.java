@@ -3,7 +3,9 @@ package com.blackmesaresearch.hytrac.service;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
@@ -877,6 +879,91 @@ public class OrdenCargaServiceTest {
         assertEquals("Sin obs", orden.getObservaciones());
         assertNotNull(orden.getFechaEntregaReal());
         verify(ordenCargaRepository).save(orden);
+    }
+
+     // Rechazar Orden
+    @Test
+    public void rechazarOrden_DebeQuedarEnPendiente() {
+        var estadoActual = new EstadoOrdenCarga();
+        estadoActual.setNombre("Pendiente");
+
+        var orden = new OrdenCarga();
+        orden.setNumeroRemito("REM-RECHAZO-1");
+        orden.setEstadoOrdenCarga(estadoActual);
+        orden.setConfirmado(true);
+
+        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+
+        ordenCargaService.rechazarOrden(1, "LEG-SUP-01", "Faltan datos");
+
+        assertEquals("Pendiente", orden.getEstadoOrdenCarga().getNombre());
+        assertFalse(orden.getConfirmado(), "La orden debe quedar desconfirmada");
+        
+        verify(ordenCargaRepository, times(1)).save(orden);
+        // Verifica que la auditoría registre el mismo estado de entrada y salida
+        verify(auditoriaOrdenService, times(1)).registrarCambioEstado(
+                eq("REM-RECHAZO-1"), eq("Pendiente"), eq("Pendiente"), isNull(), eq("LEG-SUP-01"), anyString()
+        );
+    }
+
+    // Rechazar Inicio de Viaje
+    @Test
+    public void rechazarInicioViaje_DebeVolverAPendiente() {
+        var estadoActual = new EstadoOrdenCarga();
+        estadoActual.setNombre("Pendiente de inicio de viaje");
+
+        var orden = new OrdenCarga();
+        orden.setNumeroRemito("REM-RECHAZO-2");
+        orden.setEstadoOrdenCarga(estadoActual);
+        orden.setFechaSalidaPlanta(java.time.LocalDateTime.now());
+
+        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+
+        var estadoPendiente = new EstadoOrdenCarga();
+        estadoPendiente.setNombre("Pendiente");
+        when(estadoOrdenCargaRepository.findByNombre("Pendiente")).thenReturn(Optional.of(estadoPendiente));
+
+        ordenCargaService.rechazarInicioViaje(1, "LEG-SUP-02", "Camión con problemas mecánicos");
+
+        assertEquals("Pendiente", orden.getEstadoOrdenCarga().getNombre());
+        
+        verify(ordenCargaRepository, times(1)).save(orden);
+        // Verifica que la auditoría registre el mismo estado de entrada y salida
+        verify(auditoriaOrdenService, times(1)).registrarCambioEstado(
+                eq("REM-RECHAZO-2"), eq("Pendiente de inicio de viaje"), eq("Pendiente"), isNull(), eq("LEG-SUP-02"), anyString()
+        );
+    }
+
+    // rechazar Entrega
+
+    @Test
+    public void rechazarEntrega_DebeVolverAEnCurso() {
+        var estadoActual = new EstadoOrdenCarga();
+        estadoActual.setNombre("Pendiente de confirmacion de entrega");
+
+        var orden = new OrdenCarga();
+        orden.setNumeroRemito("REM-RECHAZO-3");
+        orden.setEstadoOrdenCarga(estadoActual);
+        orden.setFechaEntregaReal(java.time.LocalDateTime.now());
+        orden.setLitrosCargados(15000.0);
+
+        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+
+        var estadoEnCurso = new EstadoOrdenCarga();
+        estadoEnCurso.setNombre("En Curso");
+        when(estadoOrdenCargaRepository.findByNombre("En Curso")).thenReturn(Optional.of(estadoEnCurso));
+
+        ordenCargaService.rechazarEntrega(1, "LEG-SUP-03", "Producto dañado");
+
+        assertEquals("En Curso", orden.getEstadoOrdenCarga().getNombre());
+        assertNull(orden.getFechaEntregaReal());
+        assertNull(orden.getLitrosEntregados());
+        
+        verify(ordenCargaRepository, times(1)).save(orden);
+        // Verifica que la auditoría registre los estados.  
+        verify(auditoriaOrdenService, times(1)).registrarCambioEstado(
+                eq("REM-RECHAZO-3"), eq("Pendiente de confirmacion de entrega"), eq("En Curso"), isNull(), eq("LEG-SUP-03"), anyString()
+        );
     }
 
 }
