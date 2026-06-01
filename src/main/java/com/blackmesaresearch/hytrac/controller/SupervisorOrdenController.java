@@ -1,19 +1,25 @@
 
 package com.blackmesaresearch.hytrac.controller;
 
-import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Map;
 
-import com.blackmesaresearch.hytrac.service.OrdenCargaService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.blackmesaresearch.hytrac.dto.request.AprobarInicioViajeRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.CancelarOrdenRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.ConfirmarEntregaRequestDTO;
+import com.blackmesaresearch.hytrac.dto.request.RechazarRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
-import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorResponseDTO;
-import org.springframework.http.ResponseEntity;
-
-import java.util.List;
-import java.util.Map;
+import com.blackmesaresearch.hytrac.service.OrdenCargaService;
 
 @RestController
 @RequestMapping("/api/supervisor/ordenes")
@@ -170,5 +176,50 @@ public ResponseEntity<?> confirmarEntrega(
                 )
         );
     }
+}
+
+        // Rechazar Orden
+        @PutMapping("/{id}/rechazar")
+        public ResponseEntity<?> rechazarOrden(@PathVariable Integer id, @RequestBody RechazarRequestDTO dto) {
+                try {
+                        ordenCargaService.rechazarOrden(id, dto.legajoSupervisor(), dto.motivoRechazo());
+                        return ResponseEntity.ok(Map.of(
+                                                        "success", true,
+                                                        "message", "Orden rechazada correctamente."));
+                } catch (IllegalArgumentException e) {
+                        return ResponseEntity.badRequest().body(Map.of(
+                                                        "success", false,
+                                                        "message", e.getMessage()));
+                }
+        }
+
+        // Rechazar Inicio de Viaje
+        @PutMapping("/{id}/rechazar-inicio")
+        public ResponseEntity<?> rechazarInicioViaje(@PathVariable Integer id, @RequestBody RechazarRequestDTO dto) {
+                try {
+                        ordenCargaService.rechazarInicioViaje(id, dto.legajoSupervisor(), dto.motivoRechazo());
+                        return ResponseEntity.ok(Map.of(
+                                                        "success", true,
+                                                        "message", "Inicio de viaje rechazado correctamente."));
+                } catch (IllegalArgumentException e) {
+                        return ResponseEntity.badRequest().body(Map.of(
+                                                        "success", false,
+                                                        "message", e.getMessage()));
+                }
+        }
+
+        // Rechazar Entrega
+        @PutMapping("/{id}/rechazar-entrega")
+        public ResponseEntity<?> rechazarEntrega(@PathVariable Integer id, @RequestBody RechazarRequestDTO dto) {
+                try {
+                        ordenCargaService.rechazarEntrega(id, dto.legajoSupervisor(), dto.motivoRechazo());
+                        return ResponseEntity.ok(Map.of(
+                                                        "success", true,
+                                                        "message", "Entrega rechazada correctamente."));
+                } catch (IllegalArgumentException e) {
+                        return ResponseEntity.badRequest().body(Map.of(
+                                                        "success", false,
+                                                        "message", e.getMessage()));
+                }
 }
 }

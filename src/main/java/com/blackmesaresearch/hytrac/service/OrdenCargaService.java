@@ -13,7 +13,6 @@ import com.blackmesaresearch.hytrac.dto.response.OrdenCargaDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorResponseDTO;
-import com.blackmesaresearch.hytrac.model.core.AuditoriaEstado;
 import com.blackmesaresearch.hytrac.model.core.Incidencia;
 import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
 import com.blackmesaresearch.hytrac.model.core.Usuario;
@@ -28,7 +27,6 @@ import com.blackmesaresearch.hytrac.repository.RutaRepository;
 import com.blackmesaresearch.hytrac.repository.TransportistaRepository;
 import com.blackmesaresearch.hytrac.repository.UsuarioRepository;
 import com.blackmesaresearch.hytrac.repository.VehiculoRepository;
-import com.blackmesaresearch.hytrac.service.AuditoriaOrdenService;
 
 @Service
 public class OrdenCargaService {
@@ -415,6 +413,32 @@ public class OrdenCargaService {
     ordenCargaRepository.save(orden);
 }
 
+// Rechazar Orden
+public void rechazarOrden(Integer id, String legajoSupervisor, String motivoRechazo) {
+        OrdenCarga orden = ordenCargaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Orden no encontrada."));
+
+        String estadoActual = orden.getEstadoOrdenCarga().getNombre();
+
+        if (estadoActual.equalsIgnoreCase("Entregada") || estadoActual.equalsIgnoreCase("Cancelada")) {
+                throw new IllegalArgumentException(
+                                "No se puede rechazar una orden que ya se encuentra en estado '" + estadoActual + "'.");
+        }
+
+        // mismo estado, sacamos el true
+        orden.setConfirmado(false);
+
+        ordenCargaRepository.save(orden);
+
+        auditoriaOrdenService.registrarCambioEstado(
+                orden.getNumeroRemito(),
+                estadoActual,
+                estadoActual, // El estado no cambia, solo se marca como no confirmado
+                null,
+                legajoSupervisor,
+                "Supervisor rechazó la orden. Motivo: " + motivoRechazo);
+        }
+
       public void aprobarInicioViaje(
         Integer id,
         String legajoSupervisor) {
@@ -422,6 +446,7 @@ public class OrdenCargaService {
     OrdenCarga orden = ordenCargaRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException(
                     "Orden no encontrada."));
+
 
     // =========================
     // VALIDAR ESTADO ACTUAL
@@ -483,6 +508,32 @@ public class OrdenCargaService {
         legajoSupervisor,
         "Supervisor aprobó el inicio del viaje");
 }
+
+// Rechazar Inicio de Viaje
+
+public void rechazarInicioViaje(Integer id, String legajoSupervisor, String motivoRechazo) {
+        OrdenCarga orden = ordenCargaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Orden no encontrada."));
+        
+        if (!orden.getEstadoOrdenCarga().getNombre().equalsIgnoreCase("Pendiente de inicio de viaje")) {
+                throw new IllegalArgumentException("La orden no está pendiente de inicio de viaje.");
+        }
+
+        String estadoActual = orden.getEstadoOrdenCarga().getNombre();
+
+        // limpiamos salida
+        orden.setFechaSalidaPlanta(null);
+
+        ordenCargaRepository.save(orden);
+
+        auditoriaOrdenService.registrarCambioEstado(
+                orden.getNumeroRemito(),
+                estadoActual,
+                estadoActual, // El estado no cambia, solo se marca como no iniciado
+                null,
+                legajoSupervisor,
+                "Supervisor rechazó el inicio del viaje. Motivo: " + motivoRechazo);
+        }
 
         public OrdenCargaResponseDTO obtenerPorRemito(
                         String numeroRemito) {
@@ -915,4 +966,31 @@ public void confirmarEntrega(
         "Supervisor confirmó la entrega"
 );
 }
+
+// Rechazar Confirmación de Entrega
+public void rechazarEntrega(Integer id, String legajoSupervisor, String motivoRechazo) {
+        OrdenCarga orden = ordenCargaRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Orden no encontrada."));
+
+        if (!orden.getEstadoOrdenCarga().getNombre().equalsIgnoreCase("Pendiente de confirmacion de entrega")) {
+                throw new IllegalArgumentException("La orden no está pendiente de confirmación de entrega.");
+        }
+
+        String estadoActual = orden.getEstadoOrdenCarga().getNombre();
+
+        // Queda en el mismo estado, se anula los datos cargados por el transportista
+        orden.setFechaEntregaReal(null);
+        orden.setLitrosEntregados(null);
+
+        ordenCargaRepository.save(orden);
+
+        auditoriaOrdenService.registrarCambioEstado(
+                orden.getNumeroRemito(),
+                estadoActual,
+                estadoActual, 
+                null,
+                legajoSupervisor,
+                "Supervisor rechazó la entrega. Motivo: " + motivoRechazo);
+
+        }
 }
