@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public record OrdenSupervisorResponseDTO(
 
         Integer id,
+        String trackingId,
 
         String numeroRemito,
         String cot,
@@ -19,9 +20,11 @@ public record OrdenSupervisorResponseDTO(
         String combustible,
 
         Double litrosCargados,
+        Double litrosEntregados,
 
         String plantaDespacho,
         String estacionDestino,
+        String observaciones,
 
         LocalDateTime fechaCreacion,
         LocalDateTime fechaEntregaEstimada,

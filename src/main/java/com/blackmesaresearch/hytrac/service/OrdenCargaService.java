@@ -1,18 +1,20 @@
 package com.blackmesaresearch.hytrac.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.blackmesaresearch.hytrac.dto.request.CancelarOrdenRequestDTO;
-import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.ConfirmarEntregaRequestDTO;
+import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorResponseDTO;
 import com.blackmesaresearch.hytrac.model.core.AuditoriaEstado;
+import com.blackmesaresearch.hytrac.model.core.Incidencia;
 import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
 import com.blackmesaresearch.hytrac.model.core.Usuario;
 import com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga;
@@ -26,6 +28,7 @@ import com.blackmesaresearch.hytrac.repository.RutaRepository;
 import com.blackmesaresearch.hytrac.repository.TransportistaRepository;
 import com.blackmesaresearch.hytrac.repository.UsuarioRepository;
 import com.blackmesaresearch.hytrac.repository.VehiculoRepository;
+import com.blackmesaresearch.hytrac.service.AuditoriaOrdenService;
 
 @Service
 public class OrdenCargaService {
@@ -48,6 +51,8 @@ public class OrdenCargaService {
         private AcopladoRepository acopladoRepository;
         @Autowired
         private AuditoriaEstadoRepository auditoriaEstadoRepository;
+        @Autowired
+        private AuditoriaOrdenService auditoriaOrdenService;
         @Autowired
         private com.blackmesaresearch.hytrac.repository.IncidenciaRepository incidenciaRepository;
         @Autowired
@@ -215,6 +220,7 @@ public class OrdenCargaService {
                                 orden.getEstacionDestino().getNombre(),
 
                                 orden.getLitrosCargados(),
+                                orden.getLitrosEntregados(),
 
                                 orden.getRuta() != null
                                                 ? orden.getRuta().getId()
@@ -285,6 +291,7 @@ public class OrdenCargaService {
                                 .stream()
                                 .map(orden -> new OrdenSupervisorResponseDTO(
                                                 orden.getId(),
+                                                orden.getTrackingId(),
                                                 orden.getNumeroRemito(),
                                                 orden.getCot(),
                                                 orden.getEstadoOrdenCarga().getNombre(),
@@ -299,8 +306,10 @@ public class OrdenCargaService {
                                                                                 .getApellido(),
                                                 orden.getCombustible().getNombre(),
                                                 orden.getLitrosCargados(),
+                                                orden.getLitrosEntregados(),
                                                 orden.getPlantaDespacho().getNombre(),
                                                 orden.getEstacionDestino().getNombre(),
+                                                orden.getObservaciones(),
                                                 orden.getFechaCreacion(),
                                                 orden.getFechaEntregaEstimada(),
                                                 orden.getConfirmado()))
@@ -394,49 +403,86 @@ public class OrdenCargaService {
                                                 + orden.getOperador().getApellido());
         }
 
-        public void confirmarOrden(Integer id) {
+ public void confirmarOrden(Integer id) {
 
-                OrdenCarga orden = ordenCargaRepository.findById(id)
-                                .orElseThrow(() -> new IllegalArgumentException(
-                                                "Orden no encontrada."));
+    OrdenCarga orden = ordenCargaRepository.findById(id)
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Orden no encontrada."));
 
-                orden.setConfirmado(true);
+    orden.setConfirmado(true);
 
-                ordenCargaRepository.save(orden);
-        }
+    ordenCargaRepository.save(orden);
+}
 
-        public void aprobarInicioViaje(Integer id) {
+      public void aprobarInicioViaje(
+        Integer id,
+        String legajoSupervisor) {
 
-                OrdenCarga orden = ordenCargaRepository.findById(id)
-                                .orElseThrow(() -> new IllegalArgumentException(
-                                                "Orden no encontrada."));
+    OrdenCarga orden = ordenCargaRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Orden no encontrada."));
 
-                // =========================
-                // VALIDAR ESTADO ACTUAL
-                // =========================
-                if (!orden.getEstadoOrdenCarga()
-                                .getNombre()
-                                .equalsIgnoreCase("Pendiente de inicio de viaje")) {
+    // =========================
+    // VALIDAR ESTADO ACTUAL
+    // =========================
 
-                        throw new IllegalArgumentException(
-                                        "La orden no está pendiente de inicio de viaje.");
-                }
+    if (!orden.getEstadoOrdenCarga()
+            .getNombre()
+            .equalsIgnoreCase("Pendiente de inicio de viaje")) {
 
-                // =========================
-                // OBTENER NUEVO ESTADO
-                // =========================
-                EstadoOrdenCarga nuevoEstado = estadoOrdenCargaRepository
-                                .findByNombre("En Curso")
-                                .orElseThrow(() -> new IllegalArgumentException(
-                                                "Estado 'En Curso' no encontrado."));
+        throw new IllegalArgumentException(
+                "La orden no está pendiente de inicio de viaje.");
+    }
 
-                // =========================
-                // ACTUALIZAR
-                // =========================
-                orden.setEstadoOrdenCarga(nuevoEstado);
+    // =========================
+    // VALIDAR RUTA
+    // =========================
 
-                ordenCargaRepository.save(orden);
-        }
+    if (orden.getRuta() == null) {
+
+        throw new IllegalArgumentException(
+                "No se puede iniciar el viaje porque la orden no tiene una ruta asignada. Por favor, edite la orden y confirme el recorrido.");
+    }
+
+    // =========================
+    // GUARDAR ESTADO ANTERIOR
+    // =========================
+
+    String estadoAnterior =
+            orden.getEstadoOrdenCarga().getNombre();
+
+    // =========================
+    // OBTENER NUEVO ESTADO
+    // =========================
+
+    EstadoOrdenCarga nuevoEstado =
+            estadoOrdenCargaRepository
+                    .findByNombre("En Curso")
+                    .orElseThrow(() ->
+                            new IllegalArgumentException(
+                                    "Estado 'En Curso' no encontrado."));
+
+    // =========================
+    // ACTUALIZAR ESTADO
+    // =========================
+
+    orden.setEstadoOrdenCarga(nuevoEstado);
+
+    ordenCargaRepository.save(orden);
+
+    // =========================
+    // AUDITORIA
+    // =========================
+
+   auditoriaOrdenService.registrarCambioEstado(
+        orden.getNumeroRemito(),
+        estadoAnterior,
+        nuevoEstado.getNombre(),
+        null,
+        legajoSupervisor,
+        "Supervisor aprobó el inicio del viaje");
+}
 
         public OrdenCargaResponseDTO obtenerPorRemito(
                         String numeroRemito) {
@@ -456,6 +502,7 @@ public class OrdenCargaService {
                                 orden.getPlantaDespacho().getNombre(),
                                 orden.getEstacionDestino().getNombre(),
                                 orden.getLitrosCargados(),
+                                orden.getLitrosEntregados(),
                                orden.getRuta() != null
     ? orden.getRuta().getId()
     : null,
@@ -549,6 +596,8 @@ public class OrdenCargaService {
                 var estado = estadoOrdenCargaRepository.findById(dto.estadoId())
                                 .orElseThrow(() -> new IllegalArgumentException("Estado no encontrado."));
 
+                var ruta = rutaRepository.findById(dto.rutaId())
+                        .orElse(null);
                 // Reglas de Negocio Cruzadas
                 if (!camion.getEmpresa().getId().equals(acoplado.getEmpresa().getId())) {
                         throw new IllegalArgumentException("El camión y el acoplado pertenecen a empresas distintas.");
@@ -577,102 +626,172 @@ public class OrdenCargaService {
                 orden.setObservaciones(dto.observaciones());
                 orden.setFieAdjunta(dto.fieAdjunta());
                 orden.setConfirmado(dto.confirmado());
-
+                
+                orden.setRuta(ruta);
                 // Guardar la orden modificada
                 OrdenCarga modificada = ordenCargaRepository.save(orden);
 
                 return toResponseDTO(modificada);
         }
 
-        public OrdenCargaResponseDTO cancelarOrden(String numeroRemito, CancelarOrdenRequestDTO dto) {
+     public OrdenCargaResponseDTO cancelarOrden(
+        String numeroRemito,
+        CancelarOrdenRequestDTO dto) {
 
-                // Buscar la orden por número de remito
-                OrdenCarga orden = ordenCargaRepository.findByNumeroRemito(numeroRemito)
-                                .orElseThrow(() -> new IllegalArgumentException(
-                                                "Orden no encontrada con el remito: " + numeroRemito));
+    // =========================
+    // BUSCAR ORDEN
+    // =========================
 
-                // Validar que la orden no este en un estado final irreversible
-                String estadoActual = orden.getEstadoOrdenCarga().getNombre();
-                if (estadoActual.equalsIgnoreCase("Entregada") || estadoActual.equalsIgnoreCase("Cancelada")) {
-                        throw new IllegalArgumentException(
-                                        "No se puede gestionar la cancelación de una orden que ya se encuentra en estado '"
-                                                        + estadoActual + "'.");
-                }
+    OrdenCarga orden = ordenCargaRepository
+            .findByNumeroRemito(numeroRemito)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Orden no encontrada con el remito: "
+                            + numeroRemito));
 
-                // Buscar el usuario que realiza la acción
-                Usuario solicitante = usuarioRepository.findByLegajo(dto.legajo())
-                                .orElseThrow(() -> new IllegalArgumentException("Usuario solicitante no encontrado."));
+    // =========================
+    // VALIDAR ESTADO
+    // =========================
 
-                String rol = solicitante.getRol().getNombre();
+    String estadoActual =
+            orden.getEstadoOrdenCarga().getNombre();
 
-                // =========================================================================
-                  // FLUJO 2: EL ADMIN(Mas adelante supervisor/cambiar) ACEPTA O RECHAZA
-                  // Modificar/preguntar a gonza
-                  // =========================================================================
-               if (rol.equalsIgnoreCase("ADMIN")) {
+    if (estadoActual.equalsIgnoreCase("Entregada")
+            || estadoActual.equalsIgnoreCase("Cancelada")) {
 
-                        // Buscar la incidencia de cancelación abierta previamente por el transportista
-                        com.blackmesaresearch.hytrac.model.core.Incidencia incidenciaPendiente = incidenciaRepository
-                                        .findAll().stream()
-                                        .filter(i -> i.getOrden().getNumeroRemito().equals(orden.getNumeroRemito())
-                                                        && !i.getResuelto())
-                                        .findFirst()
-                                        .orElseThrow(() -> new IllegalArgumentException(
-                                                        "No hay ninguna solicitud de cancelación pendiente de transportista para esta orden."));
-                        // CASO A: El supervisor RECHAZA la cancelación del chofer
-                        if (dto.motivo() != null && (dto.motivo().equalsIgnoreCase("RECHAZADO"))) {
+        throw new IllegalArgumentException(
+                "No se puede gestionar la cancelación de una orden que ya se encuentra en estado '"
+                        + estadoActual + "'.");
+    }
 
-                                // Se resuelve la incidencia (La incidencia resolvió)
-                                incidenciaPendiente.setResuelto(true);
-                                incidenciaPendiente.setUsuarioGestion(solicitante);
-                                incidenciaPendiente.setFechaResolucion(java.time.LocalDateTime.now());
-                                incidenciaPendiente.setAccionesTomadas(
-                                                "Solicitud de cancelación RECHAZADA por el supervisor. El viaje debe continuar.");
-                                incidenciaRepository.save(incidenciaPendiente);
+    // =========================
+    // BUSCAR USUARIO
+    // =========================
 
-                                // Volvemos a dejar la orden disponible/confirmada para operar con normalidad
-                                OrdenCarga ordenGuardada = ordenCargaRepository.save(orden);
+    Usuario solicitante = usuarioRepository
+            .findByLegajo(dto.legajo())
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Usuario solicitante no encontrado."));
 
-                                return toResponseDTO(ordenGuardada);
-                        } // CASO B: El supervisor CONFIRMA la cancelación
-                        else {
-                                // Buscar el estado "Cancelada"
-                                EstadoOrdenCarga estadoCancelada = estadoOrdenCargaRepository.findByNombre("Cancelada")
-                                                .orElseThrow(() -> new IllegalArgumentException(
-                                                                "Estado 'Cancelada' no encontrado en el sistema."));
+    String rol = solicitante
+            .getRol()
+            .getNombre();
 
-                                EstadoOrdenCarga estadoAnterior = orden.getEstadoOrdenCarga();
+    // =========================
+    // SOLO SUPERVISOR
+    // =========================
 
-                                // Actualizar la orden a estado Cancelada definitivamente
-                                orden.setEstadoOrdenCarga(estadoCancelada);
-                                OrdenCarga ordenActualizada = ordenCargaRepository.save(orden);
+    if (!rol.equalsIgnoreCase("SUPERVISOR")) {
 
-                                // Registrar en el historial de auditoría de estados de la orden
-                                AuditoriaEstado auditoria = new AuditoriaEstado();
-                                auditoria.setOrden(ordenActualizada);
-                                auditoria.setEstadoAnterior(estadoAnterior);
-                                auditoria.setEstadoNuevo(estadoCancelada);
-                                auditoria.setFechaCambio(java.time.LocalDateTime.now());
-                                auditoria.setSolicitante(solicitante);
-                                auditoria.setMotivo("Cancelación aprobada por supervisor. Notas: " + dto.motivo());
-                                auditoriaEstadoRepository.save(auditoria);
+        throw new IllegalArgumentException(
+                "Su rol no está autorizado para realizar o gestionar solicitudes de cancelación.");
+    }
 
-                                // Se resuelve la incidencia (La incidencia resolvio)
-                                incidenciaPendiente.setResuelto(true);
-                                incidenciaPendiente.setUsuarioGestion(solicitante);
-                                incidenciaPendiente.setFechaResolucion(java.time.LocalDateTime.now());
-                                incidenciaPendiente.setAccionesTomadas(
-                                                "Cancelación CONFIRMADA por supervisor. Orden dada de baja del sistema.");
-                                incidenciaRepository.save(incidenciaPendiente);
+    // =========================
+    // BUSCAR INCIDENCIA ABIERTA
+    // =========================
 
-                                return toResponseDTO(ordenActualizada);
-                        }
-                } // OTRO ROL NO INGRESA A ESTE FLUJO
-                else {
-                        throw new IllegalArgumentException(
-                                        "Su rol no está autorizado para realizar o gestionar solicitudes de cancelación.");
-                }
-        }
+    Incidencia incidenciaPendiente =
+            incidenciaRepository.findAll()
+                    .stream()
+                    .filter(i ->
+                            i.getOrden()
+                                    .getNumeroRemito()
+                                    .equals(
+                                            orden.getNumeroRemito())
+                                    &&
+                                    !Boolean.TRUE.equals(
+                                            i.getResuelto()))
+                    .findFirst()
+                    .orElseThrow(() ->
+                            new IllegalArgumentException(
+                                    "No hay ninguna solicitud de cancelación pendiente para esta orden."));
+
+    // ======================================================
+    // CASO 1: RECHAZA CANCELACION
+    // ======================================================
+
+    if (dto.motivo() != null
+            && dto.motivo()
+                    .equalsIgnoreCase("RECHAZADO")) {
+
+        incidenciaPendiente.setResuelto(true);
+
+        incidenciaPendiente.setUsuarioGestion(
+                solicitante);
+
+        incidenciaPendiente.setFechaResolucion(
+                LocalDateTime.now());
+
+        incidenciaPendiente.setAccionesTomadas(
+                "Solicitud de cancelación rechazada por supervisor.");
+
+        incidenciaRepository.save(
+                incidenciaPendiente);
+
+        return toResponseDTO(
+                ordenCargaRepository.save(orden));
+    }
+
+    // ======================================================
+    // CASO 2: APRUEBA CANCELACION
+    // ======================================================
+
+    EstadoOrdenCarga estadoAnterior =
+            orden.getEstadoOrdenCarga();
+
+    EstadoOrdenCarga estadoCancelada =
+            estadoOrdenCargaRepository
+                    .findByNombre("Cancelada")
+                    .orElseThrow(() ->
+                            new IllegalArgumentException(
+                                    "Estado 'Cancelada' no encontrado."));
+
+    orden.setEstadoOrdenCarga(
+            estadoCancelada);
+
+    OrdenCarga ordenActualizada =
+            ordenCargaRepository.save(orden);
+
+    // =========================
+    // AUDITORIA
+    // =========================
+
+    auditoriaOrdenService.registrarCambioEstado(
+
+            ordenActualizada.getNumeroRemito(),
+
+            estadoAnterior.getNombre(),
+
+            estadoCancelada.getNombre(),
+
+            solicitante.getLegajo(),
+
+            solicitante.getLegajo(),
+
+            "Cancelación aprobada por supervisor. "
+                    + dto.motivo());
+
+    // =========================
+    // RESOLVER INCIDENCIA
+    // =========================
+
+    incidenciaPendiente.setResuelto(true);
+
+    incidenciaPendiente.setUsuarioGestion(
+            solicitante);
+
+    incidenciaPendiente.setFechaResolucion(
+            LocalDateTime.now());
+
+    incidenciaPendiente.setAccionesTomadas(
+            "Cancelación aprobada por supervisor. Orden cancelada.");
+
+    incidenciaRepository.save(
+            incidenciaPendiente);
+
+    return toResponseDTO(
+            ordenActualizada);
+}
 
         public void reportarEntrega(
                         Integer ordenId,
@@ -721,4 +840,79 @@ public class OrdenCargaService {
 
                 ordenCargaRepository.save(orden);
         }
+
+
+public void confirmarEntrega(
+        Integer ordenId,
+        String legajoSupervisor) {
+
+    // =========================
+    // OBTENER ORDEN
+    // =========================
+
+    OrdenCarga orden = ordenCargaRepository
+            .findById(ordenId)
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Orden no encontrada."
+                    )
+            );
+
+    // =========================
+    // VALIDAR ESTADO ACTUAL
+    // =========================
+
+    if (!orden.getEstadoOrdenCarga()
+            .getNombre()
+            .equalsIgnoreCase(
+                    "Pendiente de confirmacion de entrega")) {
+
+        throw new IllegalArgumentException(
+                "La orden no está pendiente de confirmación de entrega."
+        );
+    }
+
+    // =========================
+    // GUARDAR ESTADO ANTERIOR
+    // =========================
+
+    String estadoAnterior =
+            orden.getEstadoOrdenCarga().getNombre();
+
+    // =========================
+    // OBTENER ESTADO ENTREGADA
+    // =========================
+
+    EstadoOrdenCarga estadoEntregada =
+            estadoOrdenCargaRepository
+                    .findByNombre("Entregada")
+                    .orElseThrow(() ->
+                            new IllegalArgumentException(
+                                    "Estado 'Entregada' no encontrado."
+                            )
+                    );
+
+    // =========================
+    // ACTUALIZAR ESTADO
+    // =========================
+
+    orden.setEstadoOrdenCarga(
+            estadoEntregada
+    );
+
+    ordenCargaRepository.save(orden);
+
+    // =========================
+    // AUDITORIA
+    // =========================
+
+ auditoriaOrdenService.registrarCambioEstado(
+        orden.getNumeroRemito(),
+        estadoAnterior,
+        estadoEntregada.getNombre(),
+        null,
+        legajoSupervisor,
+        "Supervisor confirmó la entrega"
+);
+}
 }

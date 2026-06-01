@@ -5,6 +5,8 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.blackmesaresearch.hytrac.dto.request.IniciarViajeRequestDTO;
+import com.blackmesaresearch.hytrac.dto.request.NotificarEntregaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenTransportistaResponseDTO;
 import com.blackmesaresearch.hytrac.service.TransportistaOrdenService;
 
@@ -47,28 +49,31 @@ public class TransportistaOrdenController {
     // INICIAR VIAJE
     // =========================
 
-    @PutMapping("/orden/{ordenId}/iniciar-viaje")
-    public ResponseEntity<?> iniciarViaje(
-            @PathVariable Integer ordenId) {
+@PutMapping("/orden/{ordenId}/iniciar-viaje")
+public ResponseEntity<?> iniciarViaje(
+        @PathVariable Integer ordenId,
+        @RequestBody IniciarViajeRequestDTO dto) {
 
-        try {
+    try {
 
-            service.iniciarViaje(ordenId);
+        service.iniciarViaje(
+                ordenId,
+                dto.legajoTransportista());
 
-            return ResponseEntity.ok(
-                    Map.of(
-                            "success", true,
-                            "message",
-                            "Viaje iniciado correctamente."));
+        return ResponseEntity.ok(
+                Map.of(
+                        "success", true,
+                        "message",
+                        "Viaje iniciado correctamente."));
 
-        } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException e) {
 
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "success", false,
-                            "message", e.getMessage()));
-        }
+        return ResponseEntity.badRequest().body(
+                Map.of(
+                        "success", false,
+                        "message", e.getMessage()));
     }
+}
 
     // =========================
     // OBTENER ORDEN EN CURSO
@@ -96,28 +101,30 @@ public class TransportistaOrdenController {
     // =========================
     // NOTIFICAR ENTREGA
     // =========================
+@PutMapping("/orden/{ordenId}/notificar-entrega")
+public ResponseEntity<?> notificarEntrega(
+        @PathVariable Integer ordenId,
+        @RequestBody NotificarEntregaRequestDTO dto) {
 
-    @PutMapping("/orden/{ordenId}/notificar-entrega")
-    public ResponseEntity<?> notificarEntrega(
-            @PathVariable Integer ordenId) {
+    try {
 
-        try {
+        service.notificarEntrega(
+                ordenId,
+                dto.legajoTransportista());
 
-            service.notificarEntrega(ordenId);
+        return ResponseEntity.ok(
+                Map.of(
+                        "success", true,
+                        "message",
+                        "Entrega notificada correctamente."));
 
-            return ResponseEntity.ok(
-                    Map.of(
-                            "success", true,
-                            "message",
-                            "Entrega notificada correctamente."));
+    } catch (IllegalArgumentException e) {
 
-        } catch (IllegalArgumentException e) {
-
-            return ResponseEntity.badRequest().body(
-                    Map.of(
-                            "success", false,
-                            "message", e.getMessage()));
-        }
+        return ResponseEntity.badRequest().body(
+                Map.of(
+                        "success", false,
+                        "message", e.getMessage()));
     }
+}
 
 }

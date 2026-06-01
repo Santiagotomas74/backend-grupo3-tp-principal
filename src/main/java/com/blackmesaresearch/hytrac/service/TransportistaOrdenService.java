@@ -1,23 +1,31 @@
 package com.blackmesaresearch.hytrac.service;
 
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Service;
 
 import com.blackmesaresearch.hytrac.dto.response.OrdenTransportistaResponseDTO;
 import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
+import com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga;
 import com.blackmesaresearch.hytrac.repository.EstadoOrdenCargaRepository;
 import com.blackmesaresearch.hytrac.repository.OrdenCargaRepository;
+
 
 @Service
 public class TransportistaOrdenService {
 
     private final OrdenCargaRepository ordenCargaRepository;
+
     private final EstadoOrdenCargaRepository estadoRepository;
+    private final AuditoriaOrdenService auditoriaOrdenService;
 
     public TransportistaOrdenService(
             OrdenCargaRepository ordenCargaRepository,
-            EstadoOrdenCargaRepository estadoRepository) {
+            EstadoOrdenCargaRepository estadoRepository,
+            AuditoriaOrdenService auditoriaOrdenService) {
         this.ordenCargaRepository = ordenCargaRepository;
         this.estadoRepository = estadoRepository;
+        this.auditoriaOrdenService = auditoriaOrdenService;
     }
 
     // =========================
@@ -56,39 +64,74 @@ public class TransportistaOrdenService {
 
                 orden.getFechaEntregaEstimada(),
 
-                orden.getConfirmado());
+                orden.getConfirmado(),
+                orden.getRuta() != null ? orden.getRuta().getId() : null
+                
+                
+        );
+                
     }
 
     // =========================
     // INICIAR VIAJE
     // =========================
 
-    public void iniciarViaje(Integer ordenId) {
+    public void iniciarViaje(
+        Integer ordenId,
+        String legajoTransportista) {
 
-        OrdenCarga orden = ordenCargaRepository.findById(ordenId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Orden no encontrada."));
+    OrdenCarga orden = ordenCargaRepository.findById(ordenId)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Orden no encontrada."));
 
-        if (!orden.getEstadoOrdenCarga()
-                .getNombre()
-                .equalsIgnoreCase("Pendiente")) {
+    if (!orden.getEstadoOrdenCarga()
+            .getNombre()
+            .equalsIgnoreCase("Pendiente")) {
 
-            throw new IllegalArgumentException(
-                    "La orden no está en estado pendiente.");
-        }
-
-        var nuevoEstado = estadoRepository
-                .findByNombre("Pendiente de inicio de viaje")
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Estado no encontrado."));
-
-        orden.setEstadoOrdenCarga(nuevoEstado);
-
-        orden.setFechaSalidaPlanta(
-                java.time.LocalDateTime.now());
-
-        ordenCargaRepository.save(orden);
+        throw new IllegalArgumentException(
+                "La orden no está en estado pendiente.");
     }
+
+    // =========================
+    // ESTADO ANTERIOR
+    // =========================
+
+    String estadoAnterior =
+            orden.getEstadoOrdenCarga().getNombre();
+
+    // =========================
+    // NUEVO ESTADO
+    // =========================
+
+    EstadoOrdenCarga nuevoEstado =
+            estadoRepository
+                    .findByNombre("Pendiente de inicio de viaje")
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Estado no encontrado."));
+
+    // =========================
+    // ACTUALIZAR ORDEN
+    // =========================
+
+    orden.setEstadoOrdenCarga(nuevoEstado);
+
+    orden.setFechaSalidaPlanta(
+            LocalDateTime.now());
+
+    ordenCargaRepository.save(orden);
+
+    // =========================
+    // AUDITORIA
+    // =========================
+
+    auditoriaOrdenService.registrarCambioEstado(
+            orden.getNumeroRemito(),
+            estadoAnterior,
+            nuevoEstado.getNombre(),
+            legajoTransportista,
+            null,
+            "Transportista inició el viaje");
+}
 
     // =========================
     // OBTENER ORDEN EN CURSO
@@ -128,47 +171,70 @@ public class TransportistaOrdenService {
 
                 orden.getFechaEntregaEstimada(),
 
-                orden.getConfirmado());
+                orden.getConfirmado(),
+                orden.getRuta() != null ? orden.getRuta().getId() : null
+        );
     }
     // =========================
     // NOTIFICAR ENTREGA
     // =========================
+public void notificarEntrega(
+        Integer ordenId,
+        String legajoTransportista) {
 
-    public void notificarEntrega(Integer ordenId) {
+    OrdenCarga orden = ordenCargaRepository.findById(ordenId)
+            .orElseThrow(() -> new IllegalArgumentException(
+                    "Orden no encontrada."));
 
-        OrdenCarga orden = ordenCargaRepository.findById(ordenId)
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Orden no encontrada."));
+    // =========================
+    // VALIDAR ESTADO ACTUAL
+    // =========================
 
-        // =========================
-        // VALIDAR ESTADO ACTUAL
-        // =========================
+    if (!orden.getEstadoOrdenCarga()
+            .getNombre()
+            .equalsIgnoreCase("En Curso")) {
 
-        if (!orden.getEstadoOrdenCarga()
-                .getNombre()
-                .equalsIgnoreCase("En Curso")) {
-
-            throw new IllegalArgumentException(
-                    "La orden no está en curso.");
-        }
-
-        // =========================
-        // NUEVO ESTADO
-        // =========================
-
-        var nuevoEstado = estadoRepository
-                .findByNombre(
-                        "Pendiente de confirmacion de entrega")
-                .orElseThrow(() -> new IllegalArgumentException(
-                        "Estado no encontrado."));
-
-        // =========================
-        // ACTUALIZAR
-        // =========================
-
-        orden.setEstadoOrdenCarga(nuevoEstado);
-
-        ordenCargaRepository.save(orden);
+        throw new IllegalArgumentException(
+                "La orden no está en curso.");
     }
+
+    // =========================
+    // GUARDAR ESTADO ANTERIOR
+    // =========================
+
+    String estadoAnterior =
+            orden.getEstadoOrdenCarga().getNombre();
+
+    // =========================
+    // NUEVO ESTADO
+    // =========================
+
+    EstadoOrdenCarga nuevoEstado =
+            estadoRepository
+                    .findByNombre(
+                            "Pendiente de confirmacion de entrega")
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Estado no encontrado."));
+
+    // =========================
+    // ACTUALIZAR
+    // =========================
+
+    orden.setEstadoOrdenCarga(nuevoEstado);
+
+    ordenCargaRepository.save(orden);
+
+    // =========================
+    // AUDITORIA
+    // =========================
+
+    auditoriaOrdenService.registrarCambioEstado(
+            orden.getNumeroRemito(),
+            estadoAnterior,
+            nuevoEstado.getNombre(),
+            legajoTransportista,
+            null,
+            "Transportista notificó la entrega");
+}
 
 }

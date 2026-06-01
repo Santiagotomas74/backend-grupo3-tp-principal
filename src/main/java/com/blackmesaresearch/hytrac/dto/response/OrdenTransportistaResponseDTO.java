@@ -22,8 +22,10 @@ public record OrdenTransportistaResponseDTO(
         String estacionDestino,
 
         LocalDateTime fechaEntregaEstimada,
+        
 
-        Boolean confirmado
+        Boolean confirmado,
+        Integer rutaId
 
 ) {
 }

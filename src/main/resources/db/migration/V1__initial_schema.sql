@@ -273,9 +273,8 @@ CREATE TABLE Auditoria_Estado (
     motivo TEXT,
     FOREIGN KEY (orden_id) REFERENCES Orden_Carga(id),
     FOREIGN KEY (estado_anterior_id) REFERENCES Estado_Orden_Carga(id),
-    FOREIGN KEY (estado_nuevo_id) REFERENCES Estado_Orden_Carga(id),
-    FOREIGN KEY (solicitante_id) REFERENCES Usuario(id),
-    FOREIGN KEY (confirmador_id) REFERENCES Usuario(id)
+    FOREIGN KEY (estado_nuevo_id) REFERENCES Estado_Orden_Carga(id)
+
 );
 
 -- =========================
