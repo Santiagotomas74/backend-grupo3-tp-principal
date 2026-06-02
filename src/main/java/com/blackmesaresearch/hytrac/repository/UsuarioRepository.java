@@ -19,5 +19,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     boolean existsByDni(Long dni);
 
     boolean existsByLegajo(String legajo);
+    
+    Optional<Usuario> findTopByLegajoStartingWithOrderByLegajoDesc(String prefix);
 
 }
