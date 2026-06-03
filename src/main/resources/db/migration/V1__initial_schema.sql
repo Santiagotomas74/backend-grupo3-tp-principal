@@ -201,6 +201,7 @@ CREATE TABLE Orden_Carga (
     fie_adjunta BOOLEAN DEFAULT 0,
     ruta_id INTEGER,
     observaciones TEXT,
+    motivo_rechazo VARCHAR(500),
     FOREIGN KEY (camion_id) REFERENCES Vehiculo(id),
     FOREIGN KEY (acoplado_id) REFERENCES Acoplado(id),
     FOREIGN KEY (transportista_id) REFERENCES Transportista(id),

@@ -31,5 +31,6 @@ public record OrdenCargaResponseDTO(
 
         String operadorLegajo,
 
-        Boolean confirmado) {
+        Boolean confirmado,
+        String motivoRechazo) {
 }

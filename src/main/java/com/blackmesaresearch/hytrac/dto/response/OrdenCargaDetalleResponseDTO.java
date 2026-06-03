@@ -36,6 +36,7 @@ public record OrdenCargaDetalleResponseDTO(
                 String observaciones,
                 Boolean fieAdjunta,
                 Boolean confirmado,
+                String motivoRechazo,
 
                 // =========================
                 // DATOS COMBUSTIBLE

@@ -236,7 +236,8 @@ public class OrdenCargaService {
 
                                 orden.getOperador().getLegajo(),
 
-                                orden.getConfirmado());
+                                orden.getConfirmado(),
+                                orden.getMotivoRechazo());
         }
 
         public OrdenCargaDetalleResponseDTO obtenerDetallePorId(Integer id) {
@@ -274,6 +275,7 @@ public class OrdenCargaService {
                                 orden.getObservaciones(),
                                 orden.getFieAdjunta(),
                                 orden.getConfirmado(),
+                                orden.getMotivoRechazo(),
                                 // =========================
                                 // DATOS COMBUSTIBLE
                                 // =========================
@@ -427,6 +429,7 @@ public void rechazarOrden(Integer id, String legajoSupervisor, String motivoRech
 
         // mismo estado, sacamos el true
         orden.setConfirmado(false);
+        orden.setMotivoRechazo(motivoRechazo);
 
         ordenCargaRepository.save(orden);
 
@@ -575,7 +578,8 @@ public void rechazarInicioViaje(Integer id, String legajoSupervisor, String moti
                                                 .getUsuario()
                                                 .getLegajo(),
                                 orden.getOperador().getLegajo(),
-                                orden.getConfirmado());
+                                orden.getConfirmado(),
+                                orden.getMotivoRechazo());
         }
 
         public OrdenCargaResponseDTO editarOrdenCarga(Integer id, OrdenCargaRequestDTO dto) {
@@ -680,7 +684,10 @@ public void rechazarInicioViaje(Integer id, String legajoSupervisor, String moti
                 orden.setFechaEntregaEstimada(dto.fechaEntrega());
                 orden.setObservaciones(dto.observaciones());
                 orden.setFieAdjunta(dto.fieAdjunta());
-                orden.setConfirmado(dto.confirmado());
+
+                // seteamos una vez editada la orden a null. Limpieza
+                orden.setMotivoRechazo(null);
+                orden.setConfirmado(false);
                 
                 orden.setRuta(ruta);
                 // Guardar la orden modificada
