@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.blackmesaresearch.hytrac.dto.request.AltaTransportistaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.ReportarIncidenciaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.TransportistaResponseDTO;
 import com.blackmesaresearch.hytrac.service.IncidenciaService;
@@ -67,6 +68,33 @@ public class TransportistaController {
                     Map.of(
                             "success", false,
                             "message", e.getMessage()));
+        }
+    }
+
+    // =========================
+    // Alta Transportista
+    // =========================
+
+    @PostMapping("/alta")
+    public ResponseEntity<?> registraTransportista(@RequestBody AltaTransportistaRequestDTO dto) {
+        try {
+            transportistaService.registrarNuevoTransportista(dto);
+
+            return ResponseEntity.status(201).body(Map.of(
+                "success", true,
+                "message", "El transportista y su documentación fueron registrados"
+            ));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of(
+                    "success", false,
+                    "message", "Error interno al procesar el alta del transportista."
+            ));
         }
     }
 }

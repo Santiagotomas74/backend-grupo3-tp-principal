@@ -7,4 +7,6 @@ import com.blackmesaresearch.hytrac.model.core.Transportista;
 public interface TransportistaRepository
                 extends JpaRepository<Transportista, Integer> {
 
+                    boolean existsByCuit(String cuit);
+
 }
