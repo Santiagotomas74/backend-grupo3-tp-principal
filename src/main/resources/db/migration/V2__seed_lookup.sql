@@ -25,7 +25,8 @@ INSERT INTO Estado_Vehiculo (id, nombre) VALUES
 
 INSERT INTO Tipo_Vinculo (id, nombre) VALUES
 (1, 'Empleado'),
-(2, 'Tercerizado');
+(2, 'Tercerizado'),
+(3, 'Monotributo');
 
 -- =========================
 -- ESTADOS ORDEN
