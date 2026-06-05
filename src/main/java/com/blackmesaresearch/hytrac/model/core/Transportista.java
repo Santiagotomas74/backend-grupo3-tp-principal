@@ -38,6 +38,9 @@ public class Transportista {
     @Column(nullable = false)
     private boolean activo = true;
 
+    @Column(nullable = false)
+    private boolean disponible = true;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime fechaCreacion;
