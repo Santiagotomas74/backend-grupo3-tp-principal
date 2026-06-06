@@ -46,7 +46,7 @@ public class UsuarioService implements UserDetailsService {
 
                 var authorities = Stream.concat(
                                 Stream.of(
-                                                new SimpleGrantedAuthority("ROLE_" + rol.getNombre())),
+                                                new SimpleGrantedAuthority(rol.getNombre())),
                                 rol.getPermisos().stream()
                                                 .map(p -> new SimpleGrantedAuthority(p.getCodigo())))
                                 .collect(Collectors.toSet());
@@ -55,7 +55,7 @@ public class UsuarioService implements UserDetailsService {
                                 .username(usuario.getEmail())
                                 .password(usuario.getPasswordHash())
                                 .disabled(!usuario.isActivo())
-                                // .authorities(authorities)
+                                .authorities(authorities)
                                 .build();
         }
 

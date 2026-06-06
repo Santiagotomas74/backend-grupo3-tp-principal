@@ -1,7 +1,5 @@
 package com.blackmesaresearch.hytrac.service;
 
-import java.util.List;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +34,11 @@ public class AuthService {
                                 .findByEmail(dto.email())
                                 .orElseThrow(() -> new IllegalArgumentException(
                                                 "Email o contraseña incorrectos."));
+
+
+                if (!usuario.isActivo()) {
+                        throw new IllegalArgumentException("El usuario está dado de baja del sistema.");
+                }
 
                 // =========================
                 // VALIDAR PASSWORD

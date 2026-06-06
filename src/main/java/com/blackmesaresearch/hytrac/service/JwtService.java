@@ -2,13 +2,16 @@ package com.blackmesaresearch.hytrac.service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.function.Function;
 
 import javax.crypto.spec.SecretKeySpec;
 
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.blackmesaresearch.hytrac.model.core.Usuario;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
@@ -46,4 +49,29 @@ public class JwtService {
 
                 .compact();
     }
+
+
+    public String extraerEmail(String token) {
+        return extraerClaim(token, Claims::getSubject);
+    }
+
+
+    public boolean tokenValido(String token, UserDetails userDetails) {
+        String email = extraerEmail(token);
+        return email.equals(userDetails.getUsername()) && !tokenExpirado(token);
+    }
+
+    private boolean tokenExpirado(String token) {
+        return extraerClaim(token, Claims::getExpiration).before(new Date());
+    }
+
+    private <T> T extraerClaim(String token, Function<Claims, T> resolver) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return resolver.apply(claims);
+}
+
 }
