@@ -30,6 +30,7 @@ public record OrdenCargaResponseDTO(
         String transportistaLegajo,
 
         String operadorLegajo,
+        String codigoConfirmacion,
 
         Boolean confirmado,
         String motivoRechazo) {
