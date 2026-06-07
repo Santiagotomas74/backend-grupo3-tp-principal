@@ -139,6 +139,7 @@ CREATE TABLE Transportista (
     empresa_id INTEGER,
     activo BOOLEAN DEFAULT 1,
     disponible BOOLEAN DEFAULT 1,
+    inicio_actividad DATE,
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
     FOREIGN KEY (usuario_id) REFERENCES Usuario(id),

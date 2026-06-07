@@ -56,31 +56,15 @@ public class TransportistaService {
 
     return transportistaRepository.findAll()
         .stream()
-        .map(t -> new TransportistaResponseDTO(
-
-            t.getId(),
-
-            t.getUsuario().getNombre(),
-            t.getUsuario().getApellido(),
-            t.getCuit(),
-            t.getUsuario().getLegajo(),
-            t.getTipoVinculo().getNombre()))
+        .map(TransportistaResponseDTO::from)
         .toList();
   }
 
-  public List<TransportistaResponseDTO> obtenerTransportistasDisponibles() {
+  public List<TransportistaResponseDTO> obtenerDisponibles() {
 
     return transportistaRepository.findAllByActivoTrueAndDisponibleTrue()
         .stream()
-        .map(t -> new TransportistaResponseDTO(
-
-            t.getId(),
-
-            t.getUsuario().getNombre(),
-            t.getUsuario().getApellido(),
-            t.getCuit(),
-            t.getUsuario().getLegajo(),
-            t.getTipoVinculo().getNombre()))
+        .map(TransportistaResponseDTO::from)
         .toList();
   }
 
@@ -145,6 +129,8 @@ public class TransportistaService {
     nuevoTransportista.setCuit(dto.cuit());
     nuevoTransportista.setEmpresa(empresa);
     nuevoTransportista.setTipoVinculo(tipoVinculo);
+    nuevoTransportista.setInicioActividad(dto.inicioActividad());
+    nuevoTransportista.setDisponible(true);
     nuevoTransportista.setActivo(true);
 
     Transportista transportistaGuardado = transportistaRepository.save(nuevoTransportista);

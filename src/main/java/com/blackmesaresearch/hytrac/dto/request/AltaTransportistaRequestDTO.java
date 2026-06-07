@@ -1,4 +1,5 @@
 package com.blackmesaresearch.hytrac.dto.request;
+import java.time.LocalDate;
 import java.util.List;
 
 public record AltaTransportistaRequestDTO (
@@ -7,6 +8,8 @@ public record AltaTransportistaRequestDTO (
     Long dni,
     String email,
     String passwordTemporal,
+
+    LocalDate inicioActividad,
 
     String cuit,
     Integer empresaId,

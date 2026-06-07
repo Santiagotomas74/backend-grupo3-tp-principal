@@ -2,15 +2,20 @@ package com.blackmesaresearch.hytrac.service;
 
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.blackmesaresearch.hytrac.dto.request.ConductorOptimoRequestDTO;
+import com.blackmesaresearch.hytrac.dto.request.TransportistaOptimoRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.TransportistaResponseDTO;
 import com.blackmesaresearch.hytrac.model.core.StatsTransportista;
 import com.blackmesaresearch.hytrac.model.core.Transportista;
@@ -26,7 +31,7 @@ import smile.data.type.StructField;
 import smile.data.type.StructType;
 
 @Service
-public class DriverSelectionService {
+public class SeleccionTransportistasService {
 
   @Autowired
   private CombustibleRepository combustibleRepository;
@@ -37,7 +42,7 @@ public class DriverSelectionService {
 
   private RandomForest model;
 
-  public DriverSelectionService() {
+  public SeleccionTransportistasService() {
     loadModel();
   }
 
@@ -59,7 +64,7 @@ public class DriverSelectionService {
     }
   }
 
-  public List<TransportistaResponseDTO> seleccionarTransportistaOptimo(ConductorOptimoRequestDTO request) {
+  public List<TransportistaResponseDTO> seleccionarTransportistasOptimos(TransportistaOptimoRequestDTO request) {
 
     // 1. Estandarizar entrada
 
@@ -124,9 +129,11 @@ public class DriverSelectionService {
         new StructField("es_liviana", DataTypes.DoubleType)
     });
 
-    List<Pair<Transportista, Double>> probabilidadesExito = new ArrayList<>();
+    List<Pair<Transportista, Double>> probabilidadesExitoRegulares = new ArrayList<>();
+    List<Transportista> novatos = new ArrayList<>();
 
     for (Transportista t : transportistasDisponibles) {
+
       // matchear cada transportista con su estadistica para esta orden
       // (largo/media/corta, pesada/liviana) usando el modelo de ML y obtener la
       // probabilidad de exito
@@ -135,66 +142,99 @@ public class DriverSelectionService {
       StatsTransportista stats = StatsTransportistaRepository.findByTransportistaId(t.getId())
           .orElseThrow(() -> new IllegalStateException("Stats not found for transportista ID: " + t.getId()));
 
-      double experienciaAnios = 10; // Placeholder, se debería obtener de alguna parte
+      double experienciaAnios = t.getInicioActividad() != null
+          ? ChronoUnit.YEARS.between(t.getInicioActividad(), LocalDate.now())
+          : 0;
 
       double totalOrdenes = stats.getTotalOrdenes() != null ? stats.getTotalOrdenes() : 0; // se supone que un condcutor
                                                                                            // novato tiene otro criterio
                                                                                            // de seleccion, por ahora le
                                                                                            // ponemos 100 hasta refinar.
 
-      double tasaExitoTotal = totalOrdenes > 0
-          ? (double) (stats.getLargasExitosas() + stats.getMediasExitosas() + stats.getCortasExitosas()) / totalOrdenes
-          : 1.0;
-
-      double tasaExitoLargas = stats.getLargas() > 0 ? (double) stats.getLargasExitosas() / stats.getLargas() : 1.0;
-      double tasaExitoMedias = stats.getMediasExitosas() > 0
-          ? (double) stats.getMediasExitosas() / stats.getMediasExitosas()
-          : 1.0;
-      double tasaExitoCortas = stats.getCortas() > 0 ? (double) stats.getCortasExitosas() / stats.getCortas() : 1.0;
-
-      double tasaExitoPesadas = stats.getPesadas() > 0 ? (double) stats.getPesadasExitosas() / stats.getPesadas() : 1.0;
-      double tasaExitoLivianas = stats.getLivianas() > 0 ? (double) stats.getLivianasExitosas() / stats.getLivianas()
-          : 1.0;
-
-      // Armamos vector de Features: [exp, total_orders, total_rate, long_rate,
-      // med_rate, short_rate, heavy_rate, light_rate, es_larga, es_media, es_corta,
-      // es_pesada, es_liviana]
-
-      double[] features = {
-          experienciaAnios,
-          totalOrdenes,
-          tasaExitoTotal,
-          tasaExitoLargas,
-          tasaExitoMedias,
-          tasaExitoCortas,
-          tasaExitoPesadas,
-          tasaExitoLivianas,
-          esLarga,
-          esMedia,
-          esCorta,
-          esPesada,
-          esLiviana
-      };
-
-      Tuple featureTuple = Tuple.of(schema, features);
-      double[] probabilities = new double[2];
-      model.predict(featureTuple, probabilities);
-      double probabilidadExito = probabilities.length > 1 ? probabilities[1] : probabilities[0];
-
-      // TODO:
-      // 0.9 por ahora
-      // aun no se considera si ninguno cumple
-      if (probabilidadExito > 0.9) {
-        probabilidadesExito.add(Pair.of(t, probabilidadExito));
+      // Si la orden es corta y el transportista es novato (pocas ordenes), entra de
+      // manera especial
+      if (totalOrdenes < 20 && esCorta == 1) {
+        novatos.add(t);
+        continue;
       }
+
+      else {
+
+        double tasaExitoTotal = totalOrdenes > 0
+            ? (double) (stats.getLargasExitosas() + stats.getMediasExitosas() + stats.getCortasExitosas())
+                / totalOrdenes
+            : 1.0;
+
+        double tasaExitoLargas = stats.getLargas() > 0 ? (double) stats.getLargasExitosas() / stats.getLargas() : 1.0;
+        double tasaExitoMedias = stats.getMediasExitosas() > 0
+            ? (double) stats.getMediasExitosas() / stats.getMediasExitosas()
+            : 1.0;
+        double tasaExitoCortas = stats.getCortas() > 0 ? (double) stats.getCortasExitosas() / stats.getCortas() : 1.0;
+
+        double tasaExitoPesadas = stats.getPesadas() > 0 ? (double) stats.getPesadasExitosas() / stats.getPesadas()
+            : 1.0;
+        double tasaExitoLivianas = stats.getLivianas() > 0 ? (double) stats.getLivianasExitosas() / stats.getLivianas()
+            : 1.0;
+
+        // Armamos vector de Features: [exp, total_orders, total_rate, long_rate,
+        // med_rate, short_rate, heavy_rate, light_rate, es_larga, es_media, es_corta,
+        // es_pesada, es_liviana]
+
+        double[] features = {
+            experienciaAnios,
+            totalOrdenes,
+            tasaExitoTotal,
+            tasaExitoLargas,
+            tasaExitoMedias,
+            tasaExitoCortas,
+            tasaExitoPesadas,
+            tasaExitoLivianas,
+            esLarga,
+            esMedia,
+            esCorta,
+            esPesada,
+            esLiviana
+        };
+
+        Tuple featureTuple = Tuple.of(schema, features);
+        double[] probabilities = new double[2];
+        model.predict(featureTuple, probabilities);
+        double probabilidadExito = probabilities.length > 1 ? probabilities[1] : probabilities[0];
+
+        // TODO:
+        // 0.9 por ahora
+        // aun no se considera si ninguno cumple
+        if (probabilidadExito > 0.9) {
+          probabilidadesExitoRegulares.add(Pair.of(t, probabilidadExito));
+        }
+
+      }
+
     }
 
-    // ordenar de mayor a menor segun probabilidad
-    probabilidadesExito.sort(Comparator.comparing(Pair::getRight));
+    // ordenar regulares de menor a mayor segun probabilidad
+    probabilidadesExitoRegulares.sort(Comparator.comparing(Pair::getRight));
 
-    // devolver lista ordenada de transportistas optimos segun el modelo
-    return probabilidadesExito.stream()
-        .map(pair -> new TransportistaResponseDTO(pair.getLeft()))
+    // mezclar novatos
+    Collections.shuffle(novatos);
+
+    // armar array de resultado con todos los regulares
+    List<Transportista> resultado = probabilidadesExitoRegulares.stream()
+        .map(Pair::getLeft)
+        .collect(Collectors.toCollection(ArrayList::new));
+
+    // insertar hasta 10 novatos en posiciones aleatorias
+    int cantidadNovatos = Math.min(10, novatos.size());
+
+    Random random = new Random();
+
+    for (int i = 0; i < cantidadNovatos; i++) {
+      int posicion = random.nextInt(resultado.size() + 1);
+      resultado.add(posicion, novatos.get(i));
+    }
+
+    return resultado.stream()
+        .map(TransportistaResponseDTO::from)
         .toList();
   }
 

@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.*;
 
 import com.blackmesaresearch.hytrac.dto.request.AltaTransportistaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.ReportarIncidenciaRequestDTO;
+import com.blackmesaresearch.hytrac.dto.request.TransportistaOptimoRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.TransportistaResponseDTO;
 import com.blackmesaresearch.hytrac.service.IncidenciaService;
 import com.blackmesaresearch.hytrac.service.TransportistaService;
+import com.blackmesaresearch.hytrac.service.SeleccionTransportistasService;
 
 @RestController
 @RequestMapping("/api/transportistas")
@@ -18,20 +20,23 @@ import com.blackmesaresearch.hytrac.service.TransportistaService;
 public class TransportistaController {
 
     private final TransportistaService transportistaService;
-
     private final IncidenciaService incidenciaService;
+    private final SeleccionTransportistasService seleccionTransportistasService;
 
     public TransportistaController(
 
             TransportistaService transportistaService,
 
-            IncidenciaService incidenciaService
+            IncidenciaService incidenciaService,
+            SeleccionTransportistasService seleccionTransportistasService
 
     ) {
 
         this.transportistaService = transportistaService;
 
         this.incidenciaService = incidenciaService;
+
+        this.seleccionTransportistasService = seleccionTransportistasService;
     }
 
     // =========================
@@ -42,6 +47,20 @@ public class TransportistaController {
     public List<TransportistaResponseDTO> obtenerTodos() {
 
         return transportistaService.obtenerTodos();
+    }
+
+    @GetMapping("/disponibles")
+    public List<TransportistaResponseDTO> obtenerDisponibles() {
+
+        return transportistaService.obtenerDisponibles();
+    }
+
+    @GetMapping("/seleccionar-optimos")
+    public ResponseEntity<?> seleccionarTransportistas(
+            @RequestBody TransportistaOptimoRequestDTO dto) {
+
+        // Implement the logic to select transportistas based on volume and distance
+        return ResponseEntity.ok(seleccionTransportistasService.seleccionarTransportistasOptimos(dto));
     }
 
     // =========================

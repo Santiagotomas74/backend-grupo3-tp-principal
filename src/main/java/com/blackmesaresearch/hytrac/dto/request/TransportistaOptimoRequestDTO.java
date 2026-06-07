@@ -1,6 +1,6 @@
 package com.blackmesaresearch.hytrac.dto.request;
 
-public record ConductorOptimoRequestDTO(
+public record TransportistaOptimoRequestDTO(
     Double volumenCargaLitros,
     Double tiempoEfectivoEstimadoHoras,
     int combustibleId) {

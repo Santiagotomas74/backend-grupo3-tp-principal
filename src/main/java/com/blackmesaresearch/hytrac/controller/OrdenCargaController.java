@@ -28,8 +28,9 @@ public class OrdenCargaController {
 
     @Autowired
     private OrdenCargaService ordenCargaService;
-@Autowired
-private AuditoriaOrdenService auditoriaOrdenService;
+    @Autowired
+    private AuditoriaOrdenService auditoriaOrdenService;
+
     @GetMapping("/get")
     public ResponseEntity<List<OrdenCargaResponseDTO>> obtenerOrdenes() {
         return ResponseEntity.ok(ordenCargaService.obtenerTodas());
@@ -102,27 +103,26 @@ private AuditoriaOrdenService auditoriaOrdenService;
         }
     }
 
+    // =========================
+    // AUDITORIA DE UNA ORDEN
+    // =========================
 
-// =========================
-// AUDITORIA DE UNA ORDEN
-// =========================
+    @GetMapping("/{numeroRemito}/auditoria")
+    public ResponseEntity<?> obtenerAuditoriaOrden(
+            @PathVariable String numeroRemito) {
 
-@GetMapping("/{numeroRemito}/auditoria")
-public ResponseEntity<?> obtenerAuditoriaOrden(
-        @PathVariable String numeroRemito) {
+        try {
 
-    try {
+            return ResponseEntity.ok(
+                    auditoriaOrdenService
+                            .obtenerPorNumeroRemito(numeroRemito));
 
-        return ResponseEntity.ok(
-                auditoriaOrdenService
-                        .obtenerPorNumeroRemito(numeroRemito));
+        } catch (IllegalArgumentException e) {
 
-    } catch (IllegalArgumentException e) {
-
-        return ResponseEntity.badRequest().body(
-                Map.of(
-                        "success", false,
-                        "message", e.getMessage()));
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
+        }
     }
-}
 }
