@@ -110,7 +110,8 @@ public ResponseEntity<?> notificarEntrega(
 
         service.notificarEntrega(
                 ordenId,
-                dto.legajoTransportista());
+                dto.legajoTransportista(),
+                dto.codigoConfirmacion());
 
         return ResponseEntity.ok(
                 Map.of(
