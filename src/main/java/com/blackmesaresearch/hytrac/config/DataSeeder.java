@@ -28,6 +28,7 @@ import com.blackmesaresearch.hytrac.dto.csv.LocalidadCsv;
 import com.blackmesaresearch.hytrac.dto.csv.LugarOperativoCsv;
 import com.blackmesaresearch.hytrac.dto.csv.OrdenCargaCsv;
 import com.blackmesaresearch.hytrac.dto.csv.TransportistaCsv;
+import com.blackmesaresearch.hytrac.dto.csv.TransportistaMLCsv;
 import com.blackmesaresearch.hytrac.dto.csv.VehiculoCsv;
 import com.blackmesaresearch.hytrac.dto.csv.ProvinciaCsv;
 import com.blackmesaresearch.hytrac.dto.csv.UsuarioCsv;
@@ -38,6 +39,7 @@ import com.blackmesaresearch.hytrac.model.core.EmpresaTercerizada;
 import com.blackmesaresearch.hytrac.model.core.Incidencia;
 import com.blackmesaresearch.hytrac.model.core.LugarOperativo;
 import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
+import com.blackmesaresearch.hytrac.model.core.StatsTransportista;
 import com.blackmesaresearch.hytrac.model.core.Transportista;
 import com.blackmesaresearch.hytrac.model.core.Usuario;
 import com.blackmesaresearch.hytrac.model.core.Vehiculo;
@@ -80,6 +82,7 @@ public class DataSeeder implements CommandLineRunner {
     private final AuditoriaEstadoRepository auditoriaEstadoRepo;
     private final TipoDocumentoRepository tipoDocumentoRepo;
     private final TipoIncidenciaRepository tipoIncidenciaRepo;
+    private final StatsTransportistaRepository statsTransportistaRepo;
     private final CsvMapper csvMapper;
 
     public DataSeeder(
@@ -103,7 +106,8 @@ public class DataSeeder implements CommandLineRunner {
             IncidenciaRepository incidenciaRepo,
             AuditoriaEstadoRepository auditoriaEstadoRepo,
             TipoDocumentoRepository tipoDocumentoRepo,
-            TipoIncidenciaRepository tipoIncidenciaRepo) {
+            TipoIncidenciaRepository tipoIncidenciaRepo,
+            StatsTransportistaRepository statsTransportistaRepo) {
         this.provinciaRepo = provinciaRepo;
         this.localidadRepo = localidadRepo;
         this.combustibleRepo = combustibleRepo;
@@ -125,6 +129,7 @@ public class DataSeeder implements CommandLineRunner {
         this.auditoriaEstadoRepo = auditoriaEstadoRepo;
         this.tipoDocumentoRepo = tipoDocumentoRepo;
         this.tipoIncidenciaRepo = tipoIncidenciaRepo;
+        this.statsTransportistaRepo = statsTransportistaRepo;
         this.csvMapper = new CsvMapper();
         this.csvMapper.registerModule(new JavaTimeModule());
     }
@@ -171,7 +176,7 @@ public class DataSeeder implements CommandLineRunner {
         loadUsuarios(rolMap, lugarMap);
 
         // 9. Load Transportistas
-        loadTransportistas();
+        // loadTransportistas();
 
         // 10. Load Vehiculos
         loadVehiculos();
@@ -190,6 +195,9 @@ public class DataSeeder implements CommandLineRunner {
 
         // 15. Load Auditoria de Estados
         loadAuditoriaEstados();
+
+        // 16. Load Transportistas de ML
+        loadTransportistasML();
 
         log.info("Full database seeding completed successfully!");
 
@@ -452,6 +460,51 @@ public class DataSeeder implements CommandLineRunner {
 
             transportistaRepo.save(transportista);
         }
+    }
+
+    private void loadTransportistasML() throws IOException {
+        InputStream is = new ClassPathResource("db/seed/transportistas_ml.csv").getInputStream();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+        Map<String, TipoVinculo> tipoVinculoMap = tipoVinculoRepo.findAll().stream()
+                .collect(Collectors.toMap(TipoVinculo::getNombre, t -> t));
+
+        MappingIterator<TransportistaMLCsv> it = csvMapper.readerFor(TransportistaMLCsv.class)
+                .with(schema).readValues(is);
+
+        while (it.hasNext()) {
+            TransportistaMLCsv row = it.next();
+            Usuario usuario = null;
+            TipoVinculo tipoVinculo = tipoVinculoMap.get(row.getTipo_vinculo_nombre());
+
+            Transportista transportista = new Transportista();
+            transportista.setUsuario(null);
+            transportista.setTipoVinculo(tipoVinculo);
+            transportista.setCuit(row.getCuit());
+            transportista.setEmpresa(null);
+            transportista.setActivo(true);
+            transportista.setDisponible(row.getDisponible() == 1);
+            transportista.setInicioActividad(row.getInicio_actividad());
+
+            transportistaRepo.save(transportista);
+
+            StatsTransportista stats = new StatsTransportista();
+            stats.setTransportista(transportista);
+            stats.setTotalOrdenes(row.getTotal_ordenes());
+            stats.setLargas(row.getLargas());
+            stats.setLargasExitosas(row.getLargas_exitosas());
+            stats.setMedias(row.getMedias());
+            stats.setMediasExitosas(row.getMedias_exitosas());
+            stats.setCortas(row.getCortas());
+            stats.setCortasExitosas(row.getCortas_exitosas());
+            stats.setPesadas(row.getPesadas());
+            stats.setPesadasExitosas(row.getPesadas_exitosas());
+            stats.setLivianas(row.getLivianas());
+            stats.setLivianasExitosas(row.getLivianas_exitosas());
+            stats.setIncidenciasGraves(row.getIncidencias_graves());
+            statsTransportistaRepo.save(stats);
+        }
+
     }
 
     private void loadVehiculos() throws IOException {

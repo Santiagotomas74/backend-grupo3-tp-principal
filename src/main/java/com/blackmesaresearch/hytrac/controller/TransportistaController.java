@@ -55,7 +55,7 @@ public class TransportistaController {
         return transportistaService.obtenerDisponibles();
     }
 
-    @GetMapping("/seleccionar-optimos")
+    @PostMapping("/seleccionar-optimos")
     public ResponseEntity<?> seleccionarTransportistas(
             @RequestBody TransportistaOptimoRequestDTO dto) {
 

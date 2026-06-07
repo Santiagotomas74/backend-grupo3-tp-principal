@@ -109,6 +109,19 @@ public class SeleccionTransportistasService {
     // 2. Obtener todos los transportistas disponibles
     List<Transportista> transportistasDisponibles = transportistaRepository.findAllByActivoTrueAndDisponibleTrue();
 
+    System.out.println("=== SeleccionTransportistasOptimos ===");
+    System.out.println("Orden details: tiempoHoras=" + request.tiempoEfectivoEstimadoHoras()
+        + ", combustibleId=" + request.combustibleId()
+        + ", volumenCargaLitros=" + request.volumenCargaLitros()
+        + ", densidad=" + densidad
+        + ", pesoCarga=" + pesoCarga
+        + ", esCorta=" + esCorta
+        + ", esMedia=" + esMedia
+        + ", esLarga=" + esLarga
+        + ", esLiviana=" + esLiviana
+        + ", esPesada=" + esPesada);
+    System.out.println("Transportistas disponibles: " + transportistasDisponibles.size());
+
     // 3. Crear tabla de probabilidades de exito para cada transportista con esta
     // orden
 
@@ -166,8 +179,8 @@ public class SeleccionTransportistasService {
             : 1.0;
 
         double tasaExitoLargas = stats.getLargas() > 0 ? (double) stats.getLargasExitosas() / stats.getLargas() : 1.0;
-        double tasaExitoMedias = stats.getMediasExitosas() > 0
-            ? (double) stats.getMediasExitosas() / stats.getMediasExitosas()
+        double tasaExitoMedias = stats.getMedias() > 0
+            ? (double) stats.getMediasExitosas() / stats.getMedias()
             : 1.0;
         double tasaExitoCortas = stats.getCortas() > 0 ? (double) stats.getCortasExitosas() / stats.getCortas() : 1.0;
 
@@ -231,6 +244,19 @@ public class SeleccionTransportistasService {
     for (int i = 0; i < cantidadNovatos; i++) {
       int posicion = random.nextInt(resultado.size() + 1);
       resultado.add(posicion, novatos.get(i));
+    }
+
+    // Imprimir transportistas seleccionados y sus probabilidades
+    var probabilidadesByTransportistaId = probabilidadesExitoRegulares.stream()
+        .collect(Collectors.toMap(p -> p.getLeft().getId(), Pair::getRight));
+
+    System.out.println("=== Transportistas seleccionados ===");
+    for (Transportista transportista : resultado) {
+      String probabilityLabel = probabilidadesByTransportistaId.containsKey(transportista.getId())
+          ? String.format("%.4f", probabilidadesByTransportistaId.get(transportista.getId()))
+          : "newbie";
+      System.out.println("id=" + transportista.getId()
+          + ", probability=" + probabilityLabel);
     }
 
     return resultado.stream()

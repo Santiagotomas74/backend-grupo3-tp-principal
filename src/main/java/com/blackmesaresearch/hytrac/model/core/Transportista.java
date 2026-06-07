@@ -40,7 +40,7 @@ public class Transportista {
     private boolean activo = true;
 
     @Column(nullable = false)
-    private boolean disponible = true;
+    private boolean disponible;
 
     @Column(name = "inicio_actividad")
     private LocalDate inicioActividad;

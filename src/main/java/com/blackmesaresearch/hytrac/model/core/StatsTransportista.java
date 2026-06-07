@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "Stats_Transportistas")
+@Table(name = "Stats_Transportista")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -27,6 +27,9 @@ public class StatsTransportista {
 
     @Column(name = "largas_exitosas")
     private Integer largasExitosas;
+
+    @Column(name = "medias")
+    private Integer medias;
 
     @Column(name = "medias_exitosas")
     private Integer mediasExitosas;
