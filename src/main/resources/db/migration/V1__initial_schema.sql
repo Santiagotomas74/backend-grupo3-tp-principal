@@ -203,6 +203,7 @@ CREATE TABLE Orden_Carga (
     ruta_id INTEGER,
     observaciones TEXT,
     motivo_rechazo VARCHAR(500),
+    codigo_confirmacion VARCHAR(10),
     FOREIGN KEY (camion_id) REFERENCES Vehiculo(id),
     FOREIGN KEY (acoplado_id) REFERENCES Acoplado(id),
     FOREIGN KEY (transportista_id) REFERENCES Transportista(id),
@@ -210,7 +211,7 @@ CREATE TABLE Orden_Carga (
     FOREIGN KEY (estacion_destino_id) REFERENCES Lugar_Operativo(id),
     FOREIGN KEY (operador_id) REFERENCES Usuario(id),
     FOREIGN KEY (combustible_id) REFERENCES Combustible(id),
-    FOREIGN KEY (estado_id) REFERENCES Estado_Orden_Carga(id)
+    FOREIGN KEY (estado_id) REFERENCES Estado_Orden_Carga(id),
     FOREIGN KEY (ruta_id) REFERENCES Ruta(id)
 );
 

@@ -43,6 +43,7 @@ public record OrdenCargaDetalleResponseDTO(
                 // =========================
 
                 String combustibleNombre,
+                String combustibleCodigo,
                 String numeroOnu,
                 String claseRiesgo
 

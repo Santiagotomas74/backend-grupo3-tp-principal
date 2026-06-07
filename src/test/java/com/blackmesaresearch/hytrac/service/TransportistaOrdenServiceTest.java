@@ -117,7 +117,7 @@ public class TransportistaOrdenServiceTest {
 
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> transportistaOrdenService.notificarEntrega(99, "LEG-001")
+            () -> transportistaOrdenService.notificarEntrega(99, "LEG-001", "123456")
         );
 
         assertEquals("Orden no encontrada.", exception.getMessage());
@@ -136,7 +136,7 @@ public class TransportistaOrdenServiceTest {
 
         IllegalArgumentException exception = assertThrows(
             IllegalArgumentException.class,
-            () -> transportistaOrdenService.notificarEntrega(1, "LEG-001")
+            () -> transportistaOrdenService.notificarEntrega(1, "LEG-001", "123456")
         );
 
         assertEquals(
@@ -154,6 +154,7 @@ public class TransportistaOrdenServiceTest {
         estadoActual.setNombre("En Curso");
         var orden = new OrdenCarga();
         orden.setEstadoOrdenCarga(estadoActual);
+        orden.setCodigoConfirmacion("123456");
 
         when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
 
@@ -162,7 +163,7 @@ public class TransportistaOrdenServiceTest {
         when(estadoRepository.findByNombre("Pendiente de confirmacion de entrega"))
             .thenReturn(Optional.of(nuevoEstado));
 
-        transportistaOrdenService.notificarEntrega(1, "LEG-001");
+        transportistaOrdenService.notificarEntrega(1, "LEG-001", "123456");
 
         assertEquals(
             "Pendiente de confirmacion de entrega",

@@ -235,6 +235,7 @@ public class OrdenCargaService {
                                 orden.getTransportista().getUsuario().getLegajo(),
 
                                 orden.getOperador().getLegajo(),
+                                orden.getCodigoConfirmacion(),
 
                                 orden.getConfirmado(),
                                 orden.getMotivoRechazo());
@@ -276,6 +277,7 @@ public class OrdenCargaService {
                                 orden.getFieAdjunta(),
                                 orden.getConfirmado(),
                                 orden.getMotivoRechazo(),
+                                orden.getCodigoConfirmacion(),
                                 // =========================
                                 // DATOS COMBUSTIBLE
                                 // =========================
@@ -442,14 +444,13 @@ public void rechazarOrden(Integer id, String legajoSupervisor, String motivoRech
                 "Supervisor rechazó la orden. Motivo: " + motivoRechazo);
         }
 
-      public void aprobarInicioViaje(
+    public void aprobarInicioViaje(
         Integer id,
         String legajoSupervisor) {
 
     OrdenCarga orden = ordenCargaRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException(
                     "Orden no encontrada."));
-
 
     // =========================
     // VALIDAR ESTADO ACTUAL
@@ -492,10 +493,21 @@ public void rechazarOrden(Integer id, String legajoSupervisor, String motivoRech
                                     "Estado 'En Curso' no encontrado."));
 
     // =========================
-    // ACTUALIZAR ESTADO
+    // GENERAR CODIGO DE ENTREGA
+    // =========================
+
+    String codigoConfirmacion =
+            String.valueOf(
+                    100000 + new java.util.Random().nextInt(900000));
+
+    // =========================
+    // ACTUALIZAR ORDEN
     // =========================
 
     orden.setEstadoOrdenCarga(nuevoEstado);
+
+    orden.setCodigoConfirmacion(
+            codigoConfirmacion);
 
     ordenCargaRepository.save(orden);
 
@@ -503,13 +515,14 @@ public void rechazarOrden(Integer id, String legajoSupervisor, String motivoRech
     // AUDITORIA
     // =========================
 
-   auditoriaOrdenService.registrarCambioEstado(
-        orden.getNumeroRemito(),
-        estadoAnterior,
-        nuevoEstado.getNombre(),
-        null,
-        legajoSupervisor,
-        "Supervisor aprobó el inicio del viaje");
+    auditoriaOrdenService.registrarCambioEstado(
+            orden.getNumeroRemito(),
+            estadoAnterior,
+            nuevoEstado.getNombre(),
+            null,
+            legajoSupervisor,
+            "Supervisor aprobó el inicio del viaje. Código generado: "
+                    + codigoConfirmacion);
 }
 
 // Rechazar Inicio de Viaje
@@ -550,36 +563,35 @@ public void rechazarInicioViaje(Integer id, String legajoSupervisor, String moti
                                 .orElseThrow(() -> new IllegalArgumentException(
                                                 "Orden no encontrada."));
 
-                return new OrdenCargaResponseDTO(
-                                orden.getId(),
-                                orden.getTrackingId(),
-                                orden.getNumeroRemito(),
-                                orden.getCot(),
-                                orden.getEstadoOrdenCarga().getNombre(),
-                                orden.getCombustible().getNombre(),
-                                orden.getPlantaDespacho().getNombre(),
-                                orden.getEstacionDestino().getNombre(),
-                                orden.getLitrosCargados(),
-                                orden.getLitrosEntregados(),
-                               orden.getRuta() != null
-    ? orden.getRuta().getId()
-    : null,
-                                orden.getFechaCreacion(),
-                                orden.getFechaEntregaEstimada(),
-                                orden.getCamion().getPatente(),
-                                orden.getAcoplado().getPatente(),
-                                orden.getTransportista()
-                                                .getUsuario()
-                                                .getNombre(),
-                                orden.getTransportista()
-                                                .getUsuario()
-                                                .getApellido(),
-                                orden.getTransportista()
-                                                .getUsuario()
-                                                .getLegajo(),
-                                orden.getOperador().getLegajo(),
-                                orden.getConfirmado(),
-                                orden.getMotivoRechazo());
+               return new OrdenCargaResponseDTO(
+        orden.getId(),
+        orden.getTrackingId(),
+        orden.getNumeroRemito(),
+        orden.getCot(),
+        orden.getEstadoOrdenCarga().getNombre(),
+        orden.getCombustible().getNombre(),
+        orden.getPlantaDespacho().getNombre(),
+        orden.getEstacionDestino().getNombre(),
+        orden.getLitrosCargados(),
+        orden.getLitrosEntregados(),
+        orden.getRuta() != null
+                ? orden.getRuta().getId()
+                : null,
+        orden.getFechaCreacion(),
+        orden.getFechaEntregaEstimada(),
+        orden.getCamion().getPatente(),
+        orden.getAcoplado().getPatente(),
+        orden.getTransportista().getUsuario().getNombre(),
+        orden.getTransportista().getUsuario().getApellido(),
+        orden.getTransportista().getUsuario().getLegajo(),
+        orden.getOperador().getLegajo(),
+
+        // estos dos estaban invertidos
+        orden.getCodigoConfirmacion(),
+        orden.getConfirmado(),
+
+        orden.getMotivoRechazo()
+);
         }
 
         public OrdenCargaResponseDTO editarOrdenCarga(Integer id, OrdenCargaRequestDTO dto) {

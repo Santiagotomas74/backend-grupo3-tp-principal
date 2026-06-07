@@ -180,7 +180,8 @@ public class TransportistaOrdenService {
     // =========================
 public void notificarEntrega(
         Integer ordenId,
-        String legajoTransportista) {
+        String legajoTransportista,
+        String codigoConfirmacion) {
 
     OrdenCarga orden = ordenCargaRepository.findById(ordenId)
             .orElseThrow(() -> new IllegalArgumentException(
@@ -196,6 +197,23 @@ public void notificarEntrega(
 
         throw new IllegalArgumentException(
                 "La orden no está en curso.");
+    }
+
+    // =========================
+    // VALIDAR CODIGO
+    // =========================
+
+    if (orden.getCodigoConfirmacion() == null) {
+
+        throw new IllegalArgumentException(
+                "La orden no posee un código de confirmación.");
+    }
+
+    if (!orden.getCodigoConfirmacion()
+            .equals(codigoConfirmacion)) {
+
+        throw new IllegalArgumentException(
+                "El código de confirmación es incorrecto.");
     }
 
     // =========================
@@ -234,7 +252,7 @@ public void notificarEntrega(
             nuevoEstado.getNombre(),
             legajoTransportista,
             null,
-            "Transportista notificó la entrega");
+            "Transportista notificó la entrega validando el código de confirmación.");
 }
 
 }
