@@ -357,8 +357,8 @@ public class DataSeeder implements CommandLineRunner {
       // Entrada en tabla de stats
       StatsLugar stats = new StatsLugar();
       stats.setLugar(lugar);
-      stats.setDespachos(0);
-      stats.setRecepciones(0);
+      stats.setDespachos(row.getDespachos() != null ? row.getDespachos() : 0);
+      stats.setRecepciones(row.getRecepciones() != null ? row.getRecepciones() : 0);
       statsLugarRepo.save(stats);
 
     }
