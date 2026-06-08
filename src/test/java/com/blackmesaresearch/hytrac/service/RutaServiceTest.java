@@ -1,4 +1,5 @@
 package com.blackmesaresearch.hytrac.service;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -14,6 +15,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -21,6 +23,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.client.RestTemplate;
 
 import com.blackmesaresearch.hytrac.dto.graphhopper.GraphhopperResponse;
+import com.blackmesaresearch.hytrac.dto.graphhopper.GraphhopperRoute;
 import com.blackmesaresearch.hytrac.dto.response.RutaResponseDTO;
 import com.blackmesaresearch.hytrac.model.core.LugarOperativo;
 import com.blackmesaresearch.hytrac.model.core.Ruta;
@@ -37,6 +40,7 @@ public class RutaServiceTest {
 
     @Mock
     private LugarOperativoRepository lugarOperativoRepository;
+
 
     @Mock private RestTemplate restTemplate;
 
@@ -166,7 +170,42 @@ public class RutaServiceTest {
 
     }
 
-    // Ver lo de calcular matematicamente //
+    @Test
+    void calcularRuta_DebeLlamarApiGuardarYRetornarRuta() throws Exception {
+        var ghResponse = new GraphhopperResponse(
+            List.of(new GraphhopperRoute(
+                10000.0,    
+                3600000L,   
+                null       
+            ))
+        );
+
+        when(lugarOperativoRepository.findById(1)).thenReturn(Optional.of(origenValido));
+        when(lugarOperativoRepository.findById(2)).thenReturn(Optional.of(destinoValido));
+        when(rutaRepository.findByOrigenIdAndDestinoId(1, 2)).thenReturn(Optional.empty());
+        
+     
+        when(restTemplate.getForObject(anyString(), eq(GraphhopperResponse.class))).thenReturn(ghResponse);
+        
+       
+        when(objectMapper.writeValueAsString(any())).thenReturn("[]");
+
+        when(rutaRepository.save(any(Ruta.class))).thenAnswer(i -> {
+            Ruta r = i.getArgument(0);
+            r.setId(500);
+            return r;
+        });
+
+        
+        RutaResponseDTO response = rutaService.calcularRuta(1, 2);
+
+  
+        assertNotNull(response);
+        assertEquals(10.0, response.distanciaKm());
+        assertEquals(1.375, response.tiempoEstimadoHoras(), 0.001); 
+        
+        verify(rutaRepository, times(1)).save(any(Ruta.class));
+    }
 
 
 
