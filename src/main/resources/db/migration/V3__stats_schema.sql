@@ -16,7 +16,16 @@ CREATE TABLE Stats_Transportista (
   FOREIGN KEY (transportista_id) REFERENCES Transportista(id)
 );
 
-CREATE TABLE Stats_System (
+CREATE TABLE Stats_Lugar (
+  id INTEGER PRIMARY KEY,
+  lugar_id INTEGER,
+  despachos INTEGER DEFAULT 0,
+  recepciones INTEGER DEFAULT 0,
+
+  FOREIGN KEY (lugar_id) REFERENCES Lugar_Operativo(id)
+);
+
+CREATE TABLE Stats_Sistema (
   total_ordenes INTEGER DEFAULT 0,
   largas INTEGER DEFAULT 0,
   largas_exitosas INTEGER DEFAULT 0,
