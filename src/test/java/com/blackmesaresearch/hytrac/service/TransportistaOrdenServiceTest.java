@@ -63,7 +63,7 @@ public class TransportistaOrdenServiceTest {
     void iniciarViaje_DebeLanzarExcepcionCuandoEstadoNoEsPendiente() {
 
         var estado = new EstadoOrdenCarga();
-        estado.setNombre("En Cursor");
+        estado.setNombre("En Curso");
         var orden = new OrdenCarga();
         orden.setEstadoOrdenCarga(estado);
 
