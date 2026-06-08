@@ -14,12 +14,13 @@ public class NotificacionService {
 
     public NotificacionService(NotificacionRepository repo) { this.repo = repo; }
 
-    public void crearNotificacion(String legajo, String desc, String tipo, String link) {
+
+    public void crearNotificacion(String legajo, String desc, String tipo) {
         Notificacion n = new Notificacion();
         n.setLegajoReceptor(legajo);
         n.setDescripcion(desc);
         n.setTipoNotificacion(tipo);
-        n.setEnlace(link);
+        n.setVisto(false);
         repo.save(n);
     }
 
@@ -28,7 +29,7 @@ public class NotificacionService {
             .stream()
             .map(n -> new NotificacionResponseDTO(
                 n.getId(), n.getDescripcion(), n.getTipoNotificacion(), 
-                n.getVisto(), n.getEnlace(), n.getFechaCreacion()
+                n.getVisto(), n.getFechaCreacion()
             ))
             .toList();
     }

@@ -2,17 +2,25 @@ package com.blackmesaresearch.hytrac.model.core;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "notificacion")
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor
 public class Notificacion {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,35 +28,15 @@ public class Notificacion {
     @Column(name = "legajo_receptor", nullable = false)
     private String legajoReceptor;
 
-    @Column(name = "descripcion", nullable = false)
+    @Column(nullable = false)
     private String descripcion;
 
     @Column(name = "tipo_notificacion", nullable = false)
     private String tipoNotificacion;
 
-    @Column(name = "visto")
     private Boolean visto = false;
 
-    @Column(name = "enlace")
-    private String enlace;
-
+    @CreationTimestamp
     @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
-
-    @PrePersist
-    protected void onCreate() { this.fechaCreacion = LocalDateTime.now(); }
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getLegajoReceptor() { return legajoReceptor; }
-    public void setLegajoReceptor(String legajoReceptor) { this.legajoReceptor = legajoReceptor; }
-    public String getDescripcion() { return descripcion; }
-    public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
-    public String getTipoNotificacion() { return tipoNotificacion; }
-    public void setTipoNotificacion(String tipoNotificacion) { this.tipoNotificacion = tipoNotificacion; }
-    public Boolean getVisto() { return visto; }
-    public void setVisto(Boolean visto) { this.visto = visto; }
-    public String getEnlace() { return enlace; }
-    public void setEnlace(String enlace) { this.enlace = enlace; }
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
 }

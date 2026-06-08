@@ -23,10 +23,11 @@ public class NotificacionController {
     public ResponseEntity<List<NotificacionResponseDTO>> obtenerMisNotificaciones(@PathVariable String legajo) {
         return ResponseEntity.ok(service.obtenerPorLegajo(legajo));
     }
-
+    //Marcar como leida una notificacion
     @PutMapping("/{id}/leer")
     public ResponseEntity<Void> marcarComoLeida(@PathVariable Long id) {
         service.marcarComoVisto(id);
         return ResponseEntity.ok().build();
     }
+
 }

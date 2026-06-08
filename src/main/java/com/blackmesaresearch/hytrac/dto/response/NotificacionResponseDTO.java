@@ -7,6 +7,5 @@ public record NotificacionResponseDTO(
     String descripcion,
     String tipoNotificacion,
     Boolean visto,
-    String enlace,
     LocalDateTime fechaCreacion
 ) {}
