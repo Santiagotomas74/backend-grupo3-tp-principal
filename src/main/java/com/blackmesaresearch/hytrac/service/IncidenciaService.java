@@ -24,6 +24,8 @@ public class IncidenciaService {
 
     private final TipoIncidenciaRepository tipoIncidenciaRepository;
 
+    private final NotificacionService notificacionService;
+
     public IncidenciaService(
 
             IncidenciaRepository incidenciaRepository,
@@ -32,7 +34,9 @@ public class IncidenciaService {
 
             UsuarioRepository usuarioRepository,
 
-            TipoIncidenciaRepository tipoIncidenciaRepository
+            TipoIncidenciaRepository tipoIncidenciaRepository,
+        
+            NotificacionService notificacionService
 
     ) {
 
@@ -43,6 +47,8 @@ public class IncidenciaService {
         this.usuarioRepository = usuarioRepository;
 
         this.tipoIncidenciaRepository = tipoIncidenciaRepository;
+        
+        this.notificacionService = notificacionService;
     }
 
     // =========================
@@ -139,5 +145,18 @@ public class IncidenciaService {
         incidencia.setResuelto(false);
 
         incidenciaRepository.save(incidencia);
+
+        notificacionService.crearNotificacion(
+            orden.getOperador().getLegajo(), 
+            "ALERTA: Nueva INCIDENCIA reportada en el Remito N° " + orden.getNumeroRemito() + " (" + tipoIncidencia.getNombre() + ").", 
+            "SUPERVISOR_INCIDENCIA_PENDIENTE"
+        );
+
+        notificacionService.crearNotificacion(
+            usuario.getLegajo(), 
+            "Tu reporte de incidencia sobre el Remito N° " + orden.getNumeroRemito() + " fue recibido y guardado correctamente.", 
+            "TRANSPORTISTA_INCIDENCIA_OK"
+        );
+
     }
 }

@@ -15,17 +15,20 @@ import com.blackmesaresearch.hytrac.repository.OrdenCargaRepository;
 public class TransportistaOrdenService {
 
     private final OrdenCargaRepository ordenCargaRepository;
-
     private final EstadoOrdenCargaRepository estadoRepository;
     private final AuditoriaOrdenService auditoriaOrdenService;
+    
+    private final NotificacionService notificacionService; 
 
     public TransportistaOrdenService(
             OrdenCargaRepository ordenCargaRepository,
             EstadoOrdenCargaRepository estadoRepository,
-            AuditoriaOrdenService auditoriaOrdenService) {
+            AuditoriaOrdenService auditoriaOrdenService,
+            NotificacionService notificacionService) { // Agregado aquí
         this.ordenCargaRepository = ordenCargaRepository;
         this.estadoRepository = estadoRepository;
         this.auditoriaOrdenService = auditoriaOrdenService;
+        this.notificacionService = notificacionService; // Agregado aquí
     }
 
     // =========================
@@ -131,6 +134,12 @@ public class TransportistaOrdenService {
             legajoTransportista,
             null,
             "Transportista inició el viaje");
+            
+    notificacionService.crearNotificacion(
+            orden.getOperador().getLegajo(), 
+            "El transportista inició el viaje. El Remito N° " + orden.getNumeroRemito() + " se encuentra ahora EN VIAJE.", 
+            "ESTACION_EN_VIAJE"
+        );
 }
 
     // =========================
@@ -253,6 +262,11 @@ public void notificarEntrega(
             legajoTransportista,
             null,
             "Transportista notificó la entrega validando el código de confirmación.");
+    notificacionService.crearNotificacion(
+            orden.getOperador().getLegajo(), 
+            "Tienes una ENTREGA A CONFIRMAR pendiente para el Remito N° " + orden.getNumeroRemito() + ".", 
+            "SUPERVISOR_ENTREGA_PENDIENTE"
+        );
 }
 
 }
