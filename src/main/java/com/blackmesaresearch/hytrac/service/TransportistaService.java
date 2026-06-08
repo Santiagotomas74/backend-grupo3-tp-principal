@@ -10,12 +10,14 @@ import com.blackmesaresearch.hytrac.dto.request.AltaTransportistaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.DocumentoRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.TransportistaResponseDTO;
 import com.blackmesaresearch.hytrac.model.core.Documentacion;
+import com.blackmesaresearch.hytrac.model.core.StatsTransportista;
 import com.blackmesaresearch.hytrac.model.core.Transportista;
 import com.blackmesaresearch.hytrac.model.core.Usuario;
 import com.blackmesaresearch.hytrac.model.lookup.Rol;
 import com.blackmesaresearch.hytrac.repository.DocumentacionRepository;
 import com.blackmesaresearch.hytrac.repository.EmpresaTercerizadaRepository;
 import com.blackmesaresearch.hytrac.repository.RolRepository;
+import com.blackmesaresearch.hytrac.repository.StatsTransportistaRepository;
 import com.blackmesaresearch.hytrac.repository.TipoDocumentoRepository;
 import com.blackmesaresearch.hytrac.repository.TipoVinculoRepository;
 import com.blackmesaresearch.hytrac.repository.TransportistaRepository;
@@ -32,11 +34,13 @@ public class TransportistaService {
   private final TipoVinculoRepository tipoVinculoRepository;
   private final TipoDocumentoRepository tipoDocumentoRepository;
   private final PasswordEncoder passwordEncoder;
+  private final StatsTransportistaRepository statsTransportistaRepo;
 
   public TransportistaService(
       TransportistaRepository transportistaRepository,
       DocumentacionRepository documentacionRepository,
       UsuarioRepository usuarioRepository,
+      StatsTransportistaRepository statsTransportistaRepo,
       RolRepository rolRepository,
       EmpresaTercerizadaRepository empresaTercerizadaRepository,
       TipoVinculoRepository tipoVinculoRepository,
@@ -45,6 +49,7 @@ public class TransportistaService {
     this.transportistaRepository = transportistaRepository;
     this.documentacionRepository = documentacionRepository;
     this.usuarioRepository = usuarioRepository;
+    this.statsTransportistaRepo = statsTransportistaRepo;
     this.rolRepository = rolRepository;
     this.empresaTercerizadaRepository = empresaTercerizadaRepository;
     this.tipoVinculoRepository = tipoVinculoRepository;
@@ -153,6 +158,11 @@ public class TransportistaService {
         doc.setEstadoVerificacion(false); // Supervisor aprueba?
 
         documentacionRepository.save(doc);
+
+        // generar entrada de stats
+        StatsTransportista stats = new StatsTransportista();
+        stats.setTransportista(transportistaGuardado);
+        statsTransportistaRepo.save(stats);
 
       }
     }

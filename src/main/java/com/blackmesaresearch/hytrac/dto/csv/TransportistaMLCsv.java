@@ -7,9 +7,12 @@ import lombok.Data;
 public class TransportistaMLCsv {
 
     // datos
+    private String nombre;
+    private String apellido;
     private String usuario_email;
     private String usuario_legajo;
     private String tipo_vinculo_nombre;
+    private Long dni;
     private String cuit;
     private String empresa_nombre;
     private Integer disponible;

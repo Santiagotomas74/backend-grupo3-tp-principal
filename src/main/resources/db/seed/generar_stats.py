@@ -159,8 +159,9 @@ def generar_dataset_produccion(cantidad=100):
         incidencias_graves = int(np.random.poisson(impru * 4))
         
         # 4. Generación de Atributos del Perfil de Producción (Esquema Java)
-        nombre_completo = f"{random.choice(NOMBRES_POOL)} {random.choice(APELLIDOS_POOL)}"
-        email_base = nombre_completo.lower().replace(" ", ".")
+        nombre = f"{random.choice(NOMBRES_POOL)}"
+        apellido = f"{random.choice(APELLIDOS_POOL)}"
+        email_base = f"{nombre.lower().replace(' ', '.')}_{apellido.lower().replace(' ', '.')}"
         
         usuario_email = sanitizar_email(f"{email_base}_{idx+1}@ejemplar-ml.com")
         usuario_legajo = f"ML-{str(1000 + idx + 1)}"
@@ -172,9 +173,12 @@ def generar_dataset_produccion(cantidad=100):
         
         # Mapear al Schema Java
         registro_produccion = {
+            "nombre": nombre,
+            "apellido": apellido,
             "usuario_email": usuario_email,
             "usuario_legajo": usuario_legajo,
             "tipo_vinculo_nombre": tipo_vinculo_nombre,
+            "dni": dni_inicial + idx,
             "cuit": cuit,
             "empresa_nombre": empresa_nombre,
             "disponible": disponible,

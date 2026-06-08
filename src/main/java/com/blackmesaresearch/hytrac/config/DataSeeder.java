@@ -407,6 +407,7 @@ public class DataSeeder implements CommandLineRunner {
             user.setLugarOperativo(lugarMap.get(row.getLugar_nombre()));
 
             usuarioRepo.save(user);
+
         }
     }
 
@@ -459,6 +460,24 @@ public class DataSeeder implements CommandLineRunner {
             transportista.setActivo(row.getActivo() == 1);
 
             transportistaRepo.save(transportista);
+
+            // Generar entrada de stats
+            StatsTransportista stats = new StatsTransportista();
+            stats.setTransportista(transportista);
+            stats.setTotalOrdenes(0);
+            stats.setLargas(0);
+            stats.setLargasExitosas(0);
+            stats.setMedias(0);
+            stats.setMediasExitosas(0);
+            stats.setCortas(0);
+            stats.setCortasExitosas(0);
+            stats.setPesadas(0);
+            stats.setPesadasExitosas(0);
+            stats.setLivianas(0);
+            stats.setLivianasExitosas(0);
+            stats.setIncidenciasGraves(0);
+            statsTransportistaRepo.save(stats);
+
         }
     }
 
@@ -503,6 +522,23 @@ public class DataSeeder implements CommandLineRunner {
             stats.setLivianasExitosas(row.getLivianas_exitosas());
             stats.setIncidenciasGraves(row.getIncidencias_graves());
             statsTransportistaRepo.save(stats);
+
+            // generar usuario
+            Usuario nuevoUsuario = new Usuario();
+            nuevoUsuario.setNombre(row.getNombre());
+            nuevoUsuario.setApellido(row.getApellido());
+            nuevoUsuario.setDni(row.getDni());
+            nuevoUsuario.setEmail(row.getUsuario_email());
+            nuevoUsuario.setLegajo(row.getUsuario_legajo());
+            nuevoUsuario.setPasswordHash(new BCryptPasswordEncoder().encode("wearehytrac"));
+            nuevoUsuario.setRol(rolRepo.findByNombre("TRANSPORTISTA").orElse(null));
+            nuevoUsuario.setLugarOperativo(null);
+            nuevoUsuario.setActivo(true);
+
+            Usuario usuarioGuardado = usuarioRepo.save(nuevoUsuario);
+
+            transportista.setUsuario(usuarioGuardado);
+            transportistaRepo.save(transportista);
         }
 
     }
