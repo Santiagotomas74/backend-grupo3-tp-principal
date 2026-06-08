@@ -29,5 +29,4 @@ public class NotificacionController {
         service.marcarComoVisto(id);
         return ResponseEntity.ok().build();
     }
-
 }

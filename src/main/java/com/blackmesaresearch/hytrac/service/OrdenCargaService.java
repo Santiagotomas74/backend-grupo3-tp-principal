@@ -58,6 +58,8 @@ public class OrdenCargaService {
         private static final List<String> MOTIVOS_CANCELACION = List.of("DEMORA", "ACCIDENTE", "DOCUMENTACION");
         @Autowired
         private RutaRepository rutaRepository;
+        @Autowired
+        private NotificacionService notificacionService;
 
         public List<OrdenCargaResponseDTO> obtenerTodas() {
                 return ordenCargaRepository.findAll()
@@ -197,6 +199,11 @@ public class OrdenCargaService {
                 // GUARDAR
                 // =========================
                 OrdenCarga guardada = ordenCargaRepository.save(orden);
+                notificacionService.crearNotificacion(
+                    guardada.getOperador().getLegajo(),
+                    "Se ha creado un nuevo envío con Remito N° " + guardada.getNumeroRemito() + " asignado a tu estación operativa.",
+                    "ENVIO_CREADO"
+                );
 
                 return toResponseDTO(guardada);
         }
@@ -415,6 +422,14 @@ public class OrdenCargaService {
     orden.setConfirmado(true);
 
     ordenCargaRepository.save(orden);
+
+    notificacionService.crearNotificacion(
+                    orden.getTransportista().getUsuario().getLegajo(),
+                    "Tu envío con Remito N° " + orden.getNumeroRemito() + " ha sido CONFIRMADO por el operador. Ya puedes iniciar ruta.",
+                    "OPERADOR_CONFIRMACION"
+                );
+
+        
 }
 
 // Rechazar Orden
@@ -442,6 +457,13 @@ public void rechazarOrden(Integer id, String legajoSupervisor, String motivoRech
                 null,
                 legajoSupervisor,
                 "Supervisor rechazó la orden. Motivo: " + motivoRechazo);
+
+                notificacionService.crearNotificacion(
+                    orden.getTransportista().getUsuario().getLegajo(),
+                    "ATENCIÓN: Tu envío con Remito N° " + orden.getNumeroRemito() + " ha sido RECHAZADO por el sistema. Motivo: " + motivoRechazo,
+                    "OPERADOR_RECHAZO"
+                );
+
         }
 
     public void aprobarInicioViaje(
@@ -523,6 +545,12 @@ public void rechazarOrden(Integer id, String legajoSupervisor, String motivoRech
             legajoSupervisor,
             "Supervisor aprobó el inicio del viaje. Código generado: "
                     + codigoConfirmacion);
+
+        notificacionService.crearNotificacion(
+                orden.getTransportista().getUsuario().getLegajo(),
+                "El supervisor APROBO el inicio de tu viaje para el Remito N° " + orden.getNumeroRemito() + ".",
+                "VIAJE_APROBADO");
+
 }
 
 // Rechazar Inicio de Viaje
@@ -553,6 +581,12 @@ public void rechazarInicioViaje(Integer id, String legajoSupervisor, String moti
                 null,
                 legajoSupervisor,
                 "Supervisor rechazó el inicio del viaje. Motivo: " + motivoRechazo);
+
+        notificacionService.crearNotificacion(
+                orden.getTransportista().getUsuario().getLegajo(),
+                "El supervisor RECHAZÓ el inicio de tu viaje para el Remito N° " + orden.getNumeroRemito() + ". Motivo: " + motivoRechazo,
+                "VIAJE_RECHAZADO");
+                
         }
 
         public OrdenCargaResponseDTO obtenerPorRemito(
@@ -802,6 +836,9 @@ public void rechazarInicioViaje(Integer id, String legajoSupervisor, String moti
         incidenciaRepository.save(
                 incidenciaPendiente);
 
+        
+        
+
         return toResponseDTO(
                 ordenCargaRepository.save(orden));
     }
@@ -862,6 +899,18 @@ public void rechazarInicioViaje(Integer id, String legajoSupervisor, String moti
 
     incidenciaRepository.save(
             incidenciaPendiente);
+
+        notificacionService.crearNotificacion(
+                ordenActualizada.getTransportista().getUsuario().getLegajo(),
+                "El viaje correspondiente al Remito N° " + ordenActualizada.getNumeroRemito() + " ha sido CANCELADO.",
+                "VIAJE_CANCELADO"
+                );
+                
+        notificacionService.crearNotificacion(
+                ordenActualizada.getOperador().getLegajo(), 
+                "Aviso de Cancelación: Se canceló la llegada del envío con Remito N° " + ordenActualizada.getNumeroRemito(),
+                "CANCELACION_APROBADA"
+                );
 
     return toResponseDTO(
             ordenActualizada);
@@ -988,6 +1037,18 @@ public void confirmarEntrega(
         legajoSupervisor,
         "Supervisor confirmó la entrega"
 );
+        notificacionService.crearNotificacion(
+                orden.getTransportista().getUsuario().getLegajo(),
+                "La entrega de tu Remito N° " + orden.getNumeroRemito() + " fue aprobada de manera exitosa.",
+                "ENTREGA_APROBADA"
+                );
+                
+        notificacionService.crearNotificacion(
+                orden.getOperador().getLegajo(),
+                "Confirmación de Entrega: El Remito N° " + orden.getNumeroRemito() + " fue recibido.",
+                "JEFE_CONFIRMAR_ENTREGA"
+                );
+
 }
 
 // Rechazar Confirmación de Entrega
@@ -1018,6 +1079,19 @@ public void rechazarEntrega(Integer id, String legajoSupervisor, String motivoRe
                 null,
                 legajoSupervisor,
                 "Supervisor rechazó la entrega. Motivo: " + motivoRechazo);
+
+        notificacionService.crearNotificacion(
+                orden.getTransportista().getUsuario().getLegajo(),
+                "¡Excelente! La entrega de tu Remito N° " + orden.getNumeroRemito() + " fue aprobada de manera exitosa.",
+                "ENTREGA_APROBADA"
+                );
+                
+        notificacionService.crearNotificacion(
+                orden.getOperador().getLegajo(),
+                "Confirmación de Entrega: El Remito N° " + orden.getNumeroRemito() + " fue recibido y asentado físicamente.",
+                "JEFE_CONFIRMAR_ENTREGA"
+                );        
+
 
         }
 }

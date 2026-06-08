@@ -13,7 +13,7 @@ public class NotificacionService {
     private final NotificacionRepository repo;
 
     public NotificacionService(NotificacionRepository repo) { this.repo = repo; }
-
+    
 
     public void crearNotificacion(String legajo, String desc, String tipo) {
         Notificacion n = new Notificacion();
