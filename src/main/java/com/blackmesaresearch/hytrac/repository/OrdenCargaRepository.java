@@ -34,4 +34,9 @@ public interface OrdenCargaRepository
 
     List<OrdenCarga> findByTransportista_Usuario_LegajoAndConfirmadoTrue(
             String legajo);
+
+        // Counts
+        long countByEstadoOrdenCarga_Id(int id);
+
+        long countByEstadoOrdenCarga_IdIn(List<Integer> ids);
 }

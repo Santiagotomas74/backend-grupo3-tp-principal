@@ -26,6 +26,9 @@ import com.blackmesaresearch.hytrac.dto.csv.*;
 import com.blackmesaresearch.hytrac.model.core.*;
 import com.blackmesaresearch.hytrac.model.lookup.*;
 import com.blackmesaresearch.hytrac.model.reference.*;
+import com.blackmesaresearch.hytrac.model.stats.StatsLugar;
+import com.blackmesaresearch.hytrac.model.stats.StatsSistema;
+import com.blackmesaresearch.hytrac.model.stats.StatsTransportista;
 import com.blackmesaresearch.hytrac.repository.*;
 
 import jakarta.transaction.Transactional;

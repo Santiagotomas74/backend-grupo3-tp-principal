@@ -1,4 +1,6 @@
-package com.blackmesaresearch.hytrac.model.core;
+package com.blackmesaresearch.hytrac.model.stats;
+
+import com.blackmesaresearch.hytrac.model.core.LugarOperativo;
 
 import jakarta.persistence.*;
 import lombok.*;

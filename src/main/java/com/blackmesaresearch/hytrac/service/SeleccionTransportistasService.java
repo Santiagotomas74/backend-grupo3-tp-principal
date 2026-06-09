@@ -17,9 +17,8 @@ import org.springframework.stereotype.Service;
 
 import com.blackmesaresearch.hytrac.dto.request.TransportistaOptimoRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.TransportistaResponseDTO;
-import com.blackmesaresearch.hytrac.model.core.StatsTransportista;
 import com.blackmesaresearch.hytrac.model.core.Transportista;
-
+import com.blackmesaresearch.hytrac.model.stats.StatsTransportista;
 import com.blackmesaresearch.hytrac.repository.TransportistaRepository;
 import com.blackmesaresearch.hytrac.repository.CombustibleRepository;
 import com.blackmesaresearch.hytrac.repository.StatsTransportistaRepository;

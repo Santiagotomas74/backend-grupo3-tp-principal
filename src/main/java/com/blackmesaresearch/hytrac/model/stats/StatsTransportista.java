@@ -1,19 +1,25 @@
-package com.blackmesaresearch.hytrac.model.core;
+package com.blackmesaresearch.hytrac.model.stats;
+
+import com.blackmesaresearch.hytrac.model.core.Transportista;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "Stats_Sistema")
+@Table(name = "Stats_Transportista")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StatsSistema {
-    
-  @Id // realmente no hace falta el id, pero Hibernate lo demanda
+public class StatsTransportista {
+
+  @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Integer id;
+
+  @ManyToOne
+  @JoinColumn(name = "transportista_id")
+  private Transportista transportista;
 
   @Column(name = "total_ordenes")
   private Integer totalOrdenes;
@@ -48,5 +54,7 @@ public class StatsSistema {
   @Column(name = "livianas_exitosas")
   private Integer livianasExitosas;
 
+  @Column(name = "incidencias_graves")
+  private Integer incidenciasGraves;
 
 }

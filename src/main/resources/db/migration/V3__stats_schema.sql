@@ -26,6 +26,7 @@ CREATE TABLE Stats_Lugar (
 );
 
 CREATE TABLE Stats_Sistema (
+  id INTEGER PRIMARY KEY DEFAULT 1,
   total_ordenes INTEGER DEFAULT 0,
   largas INTEGER DEFAULT 0,
   largas_exitosas INTEGER DEFAULT 0,
