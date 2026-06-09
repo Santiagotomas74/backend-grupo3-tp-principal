@@ -3,6 +3,7 @@ package com.blackmesaresearch.hytrac.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -14,6 +15,7 @@ import com.blackmesaresearch.hytrac.service.NotificacionService;
 
 @RestController
 @RequestMapping("/api/notificaciones")
+@CrossOrigin("*")
 public class NotificacionController {
     private final NotificacionService service;
 
