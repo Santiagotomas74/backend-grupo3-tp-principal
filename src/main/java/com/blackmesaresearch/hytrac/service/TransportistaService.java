@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.blackmesaresearch.hytrac.dto.request.AltaTransportistaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.DocumentoRequestDTO;
+import com.blackmesaresearch.hytrac.dto.response.DocumentoResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.TransportistaResponseDTO;
 import com.blackmesaresearch.hytrac.model.core.Documentacion;
 import com.blackmesaresearch.hytrac.model.core.Transportista;
@@ -153,6 +154,26 @@ public class TransportistaService {
 
 
     }
+
+    // Obtener Documentación 
+
+    public List<DocumentoResponseDTO> obtenerDocumentosPorTransportista(Integer transportistaId) {
+
+        if (!transportistaRepository.existsById(transportistaId)) {
+        throw new IllegalArgumentException("Transportista no encontrado.");
+        }
+        return documentacionRepository.findByTransportistaId(transportistaId)
+            .stream()
+            .map(doc -> new DocumentoResponseDTO(
+                    doc.getId(),
+                    doc.getTipoDocumento().getNombre(),
+                    doc.getNroDocumento(),
+                    doc.getFechaEmision(),
+                    doc.getFechaVencimiento(),
+                    doc.getArchivoUrl()
+            ))
+            .toList();
+        }
 
 
     // AUX Generador Legajo //
