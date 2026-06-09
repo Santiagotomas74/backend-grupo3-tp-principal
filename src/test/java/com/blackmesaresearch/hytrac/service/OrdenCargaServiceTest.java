@@ -51,6 +51,7 @@ import com.blackmesaresearch.hytrac.repository.TransportistaRepository;
 import com.blackmesaresearch.hytrac.repository.UsuarioRepository;
 import com.blackmesaresearch.hytrac.repository.VehiculoRepository;
 
+
 @ExtendWith(MockitoExtension.class)
 public class OrdenCargaServiceTest {
 
@@ -67,6 +68,7 @@ public class OrdenCargaServiceTest {
     @Mock private AuditoriaEstadoRepository auditoriaEstadoRepository;
     @Mock private IncidenciaRepository incidenciaRepository;
     @Mock private TipoIncidenciaRepository tipoIncidenciaRepository;
+    @Mock private NotificacionService notificacionService;
 
 
 
@@ -146,6 +148,13 @@ public class OrdenCargaServiceTest {
         when(combustibleRepository.findById(1)).thenReturn(Optional.of(new Combustible()));
         when(usuarioRepository.findById(1)).thenReturn(Optional.of(new Usuario()));
         when(rutaRepository.findById(any())).thenReturn(Optional.of(new Ruta()));
+    }
+
+    private OrdenCarga ordenConTransportista(String estadoNombre) {
+        var orden = new OrdenCarga();
+        orden.setEstadoOrdenCarga(estadoOrden(estadoNombre));
+        orden.setTransportista(transportista(1, usuario("Trans", "Port", "LEG-T")));
+        return orden;
     }
 
     @BeforeEach
@@ -384,7 +393,7 @@ public class OrdenCargaServiceTest {
     @Test
     void confirmarOrden_DebeSetearEstadoConfirmado() {
 
-        var orden = new OrdenCarga();
+        var orden = ordenConTransportista("Pendiente");
         orden.setConfirmado(false);
 
         when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
@@ -423,7 +432,7 @@ public class OrdenCargaServiceTest {
 
     @Test
     void rechazarOrden_DebeQuedarConfirmadoFalseYGuardarMotivo() {
-        var orden = new OrdenCarga();
+        var orden = ordenConTransportista("Pendiente");
         orden.setNumeroRemito("REM-001");
         orden.setEstadoOrdenCarga(estadoOrden("Pendiente"));
         orden.setConfirmado(true);
@@ -493,7 +502,7 @@ public class OrdenCargaServiceTest {
     @Test
     void aprobarInicioViaje_DebeCambiarEstadoAEnCurso() {
 
-        var orden = new OrdenCarga();
+        var orden = ordenConTransportista("Pendiente de inicio de viaje");
         orden.setEstadoOrdenCarga(estadoOrden("Pendiente de inicio de viaje"));
         orden.setRuta(new Ruta());
         orden.setNumeroRemito("REM-001");
@@ -538,7 +547,7 @@ public class OrdenCargaServiceTest {
 
     @Test
     void rechazarInicioViaje_DebeVolverAPendienteYLimpiarFechaSalida() {
-        var orden = new OrdenCarga();
+        var orden = ordenConTransportista("Pendiente de inicio de viaje");
         orden.setNumeroRemito("REM-001");
         orden.setEstadoOrdenCarga(estadoOrden("Pendiente de inicio de viaje"));
         orden.setFechaSalidaPlanta(java.time.LocalDateTime.now());
@@ -647,9 +656,12 @@ public class OrdenCargaServiceTest {
 
     @Test
     void confirmarEntrega_DebeCambiarEstadoAEntregada() {
-        var orden = new OrdenCarga();
+        var orden = ordenConTransportista("Pendiente de confirmacion de entrega");
         orden.setNumeroRemito("REM-001");
-        orden.setEstadoOrdenCarga(estadoOrden("Pendiente de confirmacion de entrega"));
+
+        var operador = usuario("Operador", "Test", "LEG-OPE");
+        orden.setOperador(operador);
+
         when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
         when(estadoOrdenCargaRepository.findByNombre("Entregada"))
             .thenReturn(Optional.of(estadoOrden("Entregada")));
@@ -689,11 +701,14 @@ public class OrdenCargaServiceTest {
 
     @Test
     void rechazarEntrega_DebeVolverAEnCursoYLimpiarDatos() {
-        var orden = new OrdenCarga();
+        var orden = ordenConTransportista("Pendiente de confirmacion de entrega");
         orden.setNumeroRemito("REM-001");
-        orden.setEstadoOrdenCarga(estadoOrden("Pendiente de confirmacion de entrega"));
         orden.setFechaEntregaReal(java.time.LocalDateTime.now());
         orden.setLitrosEntregados(15000.0);
+
+        var operador = usuario("Operador", "Test", "LEG-OPE");
+        orden.setOperador(operador);
+
         when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
         when(estadoOrdenCargaRepository.findByNombre("En Curso"))
             .thenReturn(Optional.of(estadoOrden("En Curso")));

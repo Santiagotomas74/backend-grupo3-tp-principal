@@ -44,6 +44,8 @@ public class IncidenciaServiceTest {
     @Mock
     private TipoIncidenciaRepository tipoIncidenciaRepository;
 
+    @Mock private NotificacionService notificacionService;
+
     @InjectMocks
     private IncidenciaService incidenciaService;
 
@@ -87,6 +89,10 @@ public class IncidenciaServiceTest {
 
         var orden = new OrdenCarga();
         when(ordenCargaRepository.findByNumeroRemito("REM-123")).thenReturn(Optional.of(orden));
+
+        var operador = new Usuario();
+        operador.setLegajo("LEG-OPERADOR");
+        orden.setOperador(operador);
 
         var usuario = new Usuario();
         when(usuarioRepository.findByLegajo("LEG-001")).thenReturn(Optional.of(usuario));

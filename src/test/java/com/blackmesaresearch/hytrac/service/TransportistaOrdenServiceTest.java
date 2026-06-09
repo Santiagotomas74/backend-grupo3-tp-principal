@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
+import com.blackmesaresearch.hytrac.model.core.Usuario;
 import com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga;
 import com.blackmesaresearch.hytrac.repository.EstadoOrdenCargaRepository;
 import com.blackmesaresearch.hytrac.repository.OrdenCargaRepository;
@@ -37,9 +38,14 @@ public class TransportistaOrdenServiceTest {
     @Mock
     private AuditoriaOrdenService auditoriaOrdenService;
 
+    @Mock 
+    private NotificacionService notificacionService;
+
     @InjectMocks
     private TransportistaOrdenService transportistaOrdenService;
 
+   
+    
     // =========================
     // INICIAR VIAJE
     // =========================
@@ -90,6 +96,11 @@ public class TransportistaOrdenServiceTest {
 
         var orden = new OrdenCarga();
         orden.setEstadoOrdenCarga(estadoActual);
+
+        var operador = new Usuario();
+        operador.setLegajo("LEG-OP");
+        orden.setOperador(operador);
+            
 
         when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
 
@@ -155,6 +166,10 @@ public class TransportistaOrdenServiceTest {
         var orden = new OrdenCarga();
         orden.setEstadoOrdenCarga(estadoActual);
         orden.setCodigoConfirmacion("123456");
+
+        var operador = new Usuario();
+        operador.setLegajo("LEG-OP");
+        orden.setOperador(operador);
 
         when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
 
