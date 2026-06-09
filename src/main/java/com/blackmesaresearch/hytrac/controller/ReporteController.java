@@ -1,6 +1,7 @@
 package com.blackmesaresearch.hytrac.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,6 +11,7 @@ import com.blackmesaresearch.hytrac.service.ReporteService;
 
 @RestController
 @RequestMapping("/api/reportes")
+@CrossOrigin("*")
 public class ReporteController {
 
     private final ReporteService reporteService;
