@@ -22,4 +22,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     
     Optional<Usuario> findTopByLegajoStartingWithOrderByLegajoDesc(String prefix);
 
+    @org.springframework.data.jpa.repository.Query("SELECT u FROM Usuario u WHERE u.rol.nombre = :rolNombre AND u.lugarOperativo = :lugar")
+    java.util.List<Usuario> findByRolAndLugarOperativo(
+    @org.springframework.data.repository.query.Param("rolNombre") String rolNombre, 
+    @org.springframework.data.repository.query.Param("lugar") com.blackmesaresearch.hytrac.model.core.LugarOperativo lugar
+);
+
 }

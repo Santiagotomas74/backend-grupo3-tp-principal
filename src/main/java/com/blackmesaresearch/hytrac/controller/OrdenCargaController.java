@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.blackmesaresearch.hytrac.dto.request.CancelarOrdenRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
