@@ -199,12 +199,16 @@ public class OrdenCargaService {
                 // GUARDAR
                 // =========================
                 OrdenCarga guardada = ordenCargaRepository.save(orden);
-                notificacionService.crearNotificacion(
-                    guardada.getOperador().getLegajo(),
-                    "Se ha creado un nuevo envío con Remito N° " + guardada.getNumeroRemito() + " asignado a tu estación operativa.",
-                    "ENVIO_CREADO"
-                );
 
+                // Se busca al jefe de estacion asignado al destino
+                String legajoJefe = usuarioRepository.findByRolAndLugarOperativo("JEFE_ESTACION", guardada.getEstacionDestino())
+                .stream().map(Usuario::getLegajo).findFirst().orElse(null);
+
+                if (legajoJefe != null) {
+                        notificacionService.crearNotificacion(legajoJefe,
+                        "Se ha creado un nuevo envío con Remito N° " + guardada.getNumeroRemito() + 
+                        " asignado a tu estación operativa.");
+                }
                 return toResponseDTO(guardada);
         }
 
@@ -423,12 +427,19 @@ public class OrdenCargaService {
 
     ordenCargaRepository.save(orden);
 
-    notificacionService.crearNotificacion(
-                    orden.getTransportista().getUsuario().getLegajo(),
-                    "Tu envío con Remito N° " + orden.getNumeroRemito() + " ha sido CONFIRMADO por el operador. Ya puedes iniciar ruta.",
-                    "OPERADOR_CONFIRMACION"
-                );
+        // NOTIFICACION AL TRANSPORTISTA
+        notificacionService.crearNotificacion(
+                orden.getTransportista().getUsuario().getLegajo(),
+                "Tu envío con Remito N° " + orden.getNumeroRemito() + 
+                " ha sido CONFIRMADO por el operador. Ya puedes iniciar ruta.");
 
+        //NOTIFICACION AL OPERADOR
+        if (orden.getOperador() != null) {
+                notificacionService.crearNotificacion(
+                orden.getOperador().getLegajo(),
+                "Envío Confirmado: El Remito N° " + orden.getNumeroRemito() + 
+                " fue aprobado en el sistema.");
+}
         
 }
 
@@ -458,11 +469,20 @@ public void rechazarOrden(Integer id, String legajoSupervisor, String motivoRech
                 legajoSupervisor,
                 "Supervisor rechazó la orden. Motivo: " + motivoRechazo);
 
+                //NOTIFICACION PARA EL TRANSPORTISTA
                 notificacionService.crearNotificacion(
                     orden.getTransportista().getUsuario().getLegajo(),
-                    "ATENCIÓN: Tu envío con Remito N° " + orden.getNumeroRemito() + " ha sido RECHAZADO por el sistema. Motivo: " + motivoRechazo,
-                    "OPERADOR_RECHAZO"
-                );
+                    "ATENCIÓN: Tu envío con Remito N° " + orden.getNumeroRemito() + 
+                    " ha sido RECHAZADO por el sistema. Motivo: " + motivoRechazo);
+
+                //NOTIFICACION PARA EL OPERADOR
+                if (orden.getOperador() != null) {
+                        notificacionService.crearNotificacion(
+                        orden.getOperador().getLegajo(),
+                        "Envío Rechazado: El Remito N° " + orden.getNumeroRemito() + 
+                        " fue cancelado/rechazado en la plataforma.");
+}
+
 
         }
 
@@ -548,8 +568,7 @@ public void rechazarOrden(Integer id, String legajoSupervisor, String motivoRech
 
         notificacionService.crearNotificacion(
                 orden.getTransportista().getUsuario().getLegajo(),
-                "El supervisor APROBO el inicio de tu viaje para el Remito N° " + orden.getNumeroRemito() + ".",
-                "VIAJE_APROBADO");
+                "El supervisor APROBO el inicio de tu viaje para el Remito N° " + orden.getNumeroRemito() + ".");
 
 }
 
@@ -584,8 +603,8 @@ public void rechazarInicioViaje(Integer id, String legajoSupervisor, String moti
 
         notificacionService.crearNotificacion(
                 orden.getTransportista().getUsuario().getLegajo(),
-                "El supervisor RECHAZÓ el inicio de tu viaje para el Remito N° " + orden.getNumeroRemito() + ". Motivo: " + motivoRechazo,
-                "VIAJE_RECHAZADO");
+                "El supervisor RECHAZÓ el inicio de tu viaje para el Remito N° " + orden.getNumeroRemito() +
+                ". Motivo: " + motivoRechazo);
                 
         }
 
@@ -900,17 +919,34 @@ public void rechazarInicioViaje(Integer id, String legajoSupervisor, String moti
     incidenciaRepository.save(
             incidenciaPendiente);
 
+        // NOTIFICACION TRANSPORTISTA
         notificacionService.crearNotificacion(
                 ordenActualizada.getTransportista().getUsuario().getLegajo(),
-                "El viaje correspondiente al Remito N° " + ordenActualizada.getNumeroRemito() + " ha sido CANCELADO.",
-                "VIAJE_CANCELADO"
-                );
-                
-        notificacionService.crearNotificacion(
+                "El viaje correspondiente al Remito N° " + ordenActualizada.getNumeroRemito() + " ha sido CANCELADO.");
+        
+        // NOTIFICACION OPERADOR , SE PUEDE RETIRAR
+        // No se pide pero es un envio que se cancelo por algun motivo se informa al operador?
+        if(orden.getOperador()!=null){
+                notificacionService.crearNotificacion(
                 ordenActualizada.getOperador().getLegajo(), 
-                "Aviso de Cancelación: Se canceló la llegada del envío con Remito N° " + ordenActualizada.getNumeroRemito(),
-                "CANCELACION_APROBADA"
+                "Aviso de Cancelación: Se canceló la llegada del envío con Remito N° "
+                + ordenActualizada.getNumeroRemito()
                 );
+        }        
+
+        //NOTIFICACION JEFE ESTACION
+        
+        String legajoJefeCancel = usuarioRepository.findByRolAndLugarOperativo("JEFE_ESTACION", ordenActualizada.getEstacionDestino())
+                .stream().map(Usuario::getLegajo).findFirst().orElse(null);
+
+        if (legajoJefeCancel != null) {
+                notificacionService.crearNotificacion(
+                legajoJefeCancel,
+                "Aviso de Cancelación: Se aprobó la cancelación del envío con Remito N° "
+                + ordenActualizada.getNumeroRemito());
+}
+
+
 
     return toResponseDTO(
             ordenActualizada);
@@ -1037,18 +1073,21 @@ public void confirmarEntrega(
         legajoSupervisor,
         "Supervisor confirmó la entrega"
 );
+        // NOTIFICACION TRANSPORTISTA
         notificacionService.crearNotificacion(
                 orden.getTransportista().getUsuario().getLegajo(),
-                "La entrega de tu Remito N° " + orden.getNumeroRemito() + " fue aprobada de manera exitosa.",
-                "ENTREGA_APROBADA"
-                );
-                
-        notificacionService.crearNotificacion(
-                orden.getOperador().getLegajo(),
-                "Confirmación de Entrega: El Remito N° " + orden.getNumeroRemito() + " fue recibido.",
-                "JEFE_CONFIRMAR_ENTREGA"
-                );
+                "La entrega de tu Remito N° " + orden.getNumeroRemito() + " fue aprobada de manera exitosa.");
+        
+        // NOTIFICACION JEFE ESTACION
+        String legajoJefeEntrega = usuarioRepository.findByRolAndLugarOperativo("JEFE_ESTACION", orden.getEstacionDestino())
+                .stream().map(Usuario::getLegajo).findFirst().orElse(null);
 
+        if (legajoJefeEntrega != null) {
+                notificacionService.crearNotificacion(
+                legajoJefeEntrega,
+                "Confirmación de Entrega: El Remito N° " + orden.getNumeroRemito() + 
+                " fue recibido y asentado físicamente en el destino.");
+}
 }
 
 // Rechazar Confirmación de Entrega
@@ -1080,17 +1119,18 @@ public void rechazarEntrega(Integer id, String legajoSupervisor, String motivoRe
                 legajoSupervisor,
                 "Supervisor rechazó la entrega. Motivo: " + motivoRechazo);
 
+        //NOTIFICACION TRANSPORTISTA
         notificacionService.crearNotificacion(
                 orden.getTransportista().getUsuario().getLegajo(),
-                "¡Excelente! La entrega de tu Remito N° " + orden.getNumeroRemito() + " fue aprobada de manera exitosa.",
-                "ENTREGA_APROBADA"
-                );
-                
+                "La entrega de tu Remito N° "
+                + orden.getNumeroRemito() + 
+                " fue rechazada. Motivo: "+ motivoRechazo);
+        //NOTIFICACION OPERADOR
         notificacionService.crearNotificacion(
                 orden.getOperador().getLegajo(),
-                "Confirmación de Entrega: El Remito N° " + orden.getNumeroRemito() + " fue recibido y asentado físicamente.",
-                "JEFE_CONFIRMAR_ENTREGA"
-                );        
+                "La entrega del Remito N° " 
+                + orden.getNumeroRemito() + 
+                " fue rechazada. Motivo :"+ motivoRechazo);     
 
 
         }

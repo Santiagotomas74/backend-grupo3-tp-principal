@@ -6,10 +6,11 @@ import org.springframework.stereotype.Service;
 
 import com.blackmesaresearch.hytrac.dto.response.OrdenTransportistaResponseDTO;
 import com.blackmesaresearch.hytrac.model.core.OrdenCarga;
+import com.blackmesaresearch.hytrac.model.core.Usuario;
 import com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga;
 import com.blackmesaresearch.hytrac.repository.EstadoOrdenCargaRepository;
 import com.blackmesaresearch.hytrac.repository.OrdenCargaRepository;
-
+import com.blackmesaresearch.hytrac.repository.UsuarioRepository;
 
 @Service
 public class TransportistaOrdenService {
@@ -17,18 +18,20 @@ public class TransportistaOrdenService {
     private final OrdenCargaRepository ordenCargaRepository;
     private final EstadoOrdenCargaRepository estadoRepository;
     private final AuditoriaOrdenService auditoriaOrdenService;
-    
+    private final UsuarioRepository usuarioRepository;
     private final NotificacionService notificacionService; 
 
     public TransportistaOrdenService(
             OrdenCargaRepository ordenCargaRepository,
             EstadoOrdenCargaRepository estadoRepository,
             AuditoriaOrdenService auditoriaOrdenService,
-            NotificacionService notificacionService) { // Agregado aquí
+            NotificacionService notificacionService,
+            UsuarioRepository usuarioRepository) {
         this.ordenCargaRepository = ordenCargaRepository;
         this.estadoRepository = estadoRepository;
         this.auditoriaOrdenService = auditoriaOrdenService;
-        this.notificacionService = notificacionService; // Agregado aquí
+        this.notificacionService = notificacionService;
+        this.usuarioRepository = usuarioRepository; 
     }
 
     // =========================
@@ -134,12 +137,19 @@ public class TransportistaOrdenService {
             legajoTransportista,
             null,
             "Transportista inició el viaje");
-            
-    notificacionService.crearNotificacion(
-            orden.getOperador().getLegajo(), 
-            "El transportista inició el viaje. El Remito N° " + orden.getNumeroRemito() + " se encuentra ahora EN VIAJE.", 
-            "ESTACION_EN_VIAJE"
-        );
+
+        //NOTIFICACION JEFE ESTACION
+        String legajoJefeViaje = usuarioRepository.findByRolAndLugarOperativo("JEFE_ESTACION", orden.getEstacionDestino())
+                .stream().map(Usuario::getLegajo).findFirst().orElse(null);
+
+        if (legajoJefeViaje != null) {
+                notificacionService.crearNotificacion(
+                legajoJefeViaje,
+                "El transportista inició el viaje. El Remito N° " 
+                + orden.getNumeroRemito() + 
+                " se encuentra ahora EN VIAJE hacia tu planta.");
+        }
+
 }
 
     // =========================
@@ -262,11 +272,19 @@ public void notificarEntrega(
             legajoTransportista,
             null,
             "Transportista notificó la entrega validando el código de confirmación.");
-    notificacionService.crearNotificacion(
-            orden.getOperador().getLegajo(), 
-            "Tienes una ENTREGA A CONFIRMAR pendiente para el Remito N° " + orden.getNumeroRemito() + ".", 
-            "SUPERVISOR_ENTREGA_PENDIENTE"
-        );
+   
+
+        //NOTIFICACION SUPERVISOR
+        String legajoSuperEntrega = usuarioRepository.findByRolAndLugarOperativo("SUPERVISOR", orden.getEstacionDestino())
+                .stream().map(Usuario::getLegajo).findFirst()
+                .orElse(orden.getOperador() != null ? orden.getOperador().getLegajo() : null);
+
+        if (legajoSuperEntrega != null) {
+                notificacionService.crearNotificacion(
+                legajoSuperEntrega,
+                "ATENCIÓN: Nueva ENTREGA A CONFIRMAR pendiente en el sistema para el Remito N° " 
+                + orden.getNumeroRemito() + ".");
+        }
 }
 
 }

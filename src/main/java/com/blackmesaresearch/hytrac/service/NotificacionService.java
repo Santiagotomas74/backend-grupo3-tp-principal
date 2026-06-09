@@ -16,7 +16,7 @@ public class NotificacionService {
     public NotificacionService(NotificacionRepository repo) { this.repo = repo; }
     
 
-    public void crearNotificacion(String legajo, String desc, String tipo) {
+    public void crearNotificacion(String legajo, String desc) {
         Notificacion n = new Notificacion();
         n.setLegajoReceptor(legajo);
         n.setDescripcion(desc);
