@@ -31,12 +31,10 @@ public class Notificacion {
     @Column(nullable = false)
     private String descripcion;
 
-    @Column(name = "tipo_notificacion", nullable = false)
-    private String tipoNotificacion;
 
     private Boolean visto = false;
 
     @CreationTimestamp
-    @Column(name = "fecha_creacion", updatable = false)
+    @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion;
 }
