@@ -45,7 +45,7 @@ public class SecurityConfig {
                         
                     // Publico
                     .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**").permitAll()
+                    .requestMatchers("/api/swagger-ui/**", "/v3/api-docs/**", "/api-docs/**").permitAll()
 
                     // Solo admin
                     .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
