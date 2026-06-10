@@ -315,4 +315,27 @@ public class TransportistaServiceTest {
         verify(empresaTercerizadaRepository, never()).findById(any()); 
         verify(documentacionRepository, never()).save(any(Documentacion.class)); 
     }
+
+    @Test
+    void obtenerDocumentosPorTransportista_DebeRetornarListaDeDocumentos() {
+        Integer tId = 1;
+        when(transportistaRepository.existsById(tId)).thenReturn(true);
+        
+        Documentacion doc = new Documentacion();
+        doc.setId(10);
+        TipoDocumento tipo = new TipoDocumento(); 
+        tipo.setNombre("DNI");                    
+        doc.setTipoDocumento(tipo);
+        doc.setNroDocumento("12345");
+        
+        when(documentacionRepository.findByTransportistaId(tId)).thenReturn(List.of(doc));
+
+
+        var resultados = transportistaService.obtenerDocumentosPorTransportista(tId);
+
+      
+        assertEquals(1, resultados.size());
+        assertEquals("DNI", resultados.get(0).tipoDocumentoNombre());
+    }
+
 }
