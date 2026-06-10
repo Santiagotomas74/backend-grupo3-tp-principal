@@ -72,7 +72,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/api/ordenes/crear").hasAuthority("OPERADOR")
                     .requestMatchers(HttpMethod.PUT, "/api/ordenes/*/editar").hasAuthority("OPERADOR")
                     .requestMatchers(HttpMethod.POST, "/api/transportistas/seleccionar-optimos").hasAuthority("OPERADOR")
-                    .requestMatchers(HttpMethod.POST, "/api/transportistas/incidencia").hasAnyAuthority("OPERADOR", "SUPERVISOR", "ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/transportistas/incidencia").hasAnyAuthority("OPERADOR", "SUPERVISOR", "ADMIN", "TRANSPORTISTA")
 
                     // Supervisor
                     .requestMatchers("/api/supervisor/**").hasAuthority("SUPERVISOR")    
