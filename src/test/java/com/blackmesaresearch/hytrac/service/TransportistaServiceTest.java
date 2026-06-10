@@ -36,6 +36,7 @@ import com.blackmesaresearch.hytrac.model.lookup.TipoVinculo;
 import com.blackmesaresearch.hytrac.repository.DocumentacionRepository;
 import com.blackmesaresearch.hytrac.repository.EmpresaTercerizadaRepository;
 import com.blackmesaresearch.hytrac.repository.RolRepository;
+import com.blackmesaresearch.hytrac.repository.StatsTransportistaRepository;
 import com.blackmesaresearch.hytrac.repository.TipoDocumentoRepository;
 import com.blackmesaresearch.hytrac.repository.TipoVinculoRepository;
 import com.blackmesaresearch.hytrac.repository.TransportistaRepository;
@@ -52,6 +53,7 @@ public class TransportistaServiceTest {
     @Mock private TipoVinculoRepository tipoVinculoRepository;
     @Mock private TipoDocumentoRepository tipoDocumentoRepository;
     @Mock private PasswordEncoder passwordEncoder;
+    @Mock private StatsTransportistaRepository statsTransportistaRepo;
 
     @InjectMocks
     private TransportistaService transportistaService;
@@ -98,6 +100,7 @@ public class TransportistaServiceTest {
             12345678L, 
             "juan@test.com", 
             "pass123", 
+            LocalDate.now(),
             "20123456780", 
             1, 
             1, 
@@ -118,6 +121,7 @@ public class TransportistaServiceTest {
             87654321L, 
             "carlos@test.com", 
             "pass123", 
+            LocalDate.now(),
             "20876543210", 
             null, 
             2,    
@@ -234,7 +238,7 @@ public class TransportistaServiceTest {
         when(tipoVinculoRepository.findById(1)).thenReturn(Optional.of(tipoVinculoMock(1, "Tercerizado")));
 
         var dtoSinEmpresa = new AltaTransportistaRequestDTO(
-            "J", "P", 1L, "e@e.c", "p", "20", null, 1, Collections.emptyList()
+            "J", "P", 1L, "e@e.c", "p", java.time.LocalDate.now(),"20", null, 1, Collections.emptyList()
         ); 
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, 
@@ -253,7 +257,7 @@ public class TransportistaServiceTest {
         when(tipoVinculoRepository.findById(2)).thenReturn(Optional.of(tipoVinculoMock(2, "Contratado")));
 
         var dtoConEmpresa = new AltaTransportistaRequestDTO(
-            "C", "G", 2L, "c@c.c", "p", "20", 1, 2, Collections.emptyList()
+            "C", "G", 2L, "c@c.c", "p", java.time.LocalDate.now(),"20", 1, 2, Collections.emptyList()
         );
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, 

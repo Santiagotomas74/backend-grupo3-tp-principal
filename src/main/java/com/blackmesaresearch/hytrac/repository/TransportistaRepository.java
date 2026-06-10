@@ -1,5 +1,6 @@
 package com.blackmesaresearch.hytrac.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +14,7 @@ public interface TransportistaRepository
     boolean existsByCuit(String cuit);
 
     Optional<Transportista> findByUsuario(Usuario usuario);
+
+    List<Transportista> findAllByActivoTrueAndDisponibleTrue();
+
 }

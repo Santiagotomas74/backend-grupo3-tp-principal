@@ -23,6 +23,7 @@ import com.blackmesaresearch.hytrac.config.JwtAuthFilter;
 import com.blackmesaresearch.hytrac.dto.response.TransportistaResponseDTO;
 import com.blackmesaresearch.hytrac.service.IncidenciaService;
 import com.blackmesaresearch.hytrac.service.JwtService;
+import com.blackmesaresearch.hytrac.service.SeleccionTransportistasService;
 import com.blackmesaresearch.hytrac.service.TransportistaService;
 import com.blackmesaresearch.hytrac.service.UsuarioService;
 
@@ -38,10 +39,11 @@ class TransportistaControllerTest {
     @MockBean private JwtAuthFilter jwtAuthFilter;
     @MockBean private JwtService jwtService;
     @MockBean private UsuarioService usuarioService;
+    @MockBean private SeleccionTransportistasService seleccionTransportistasService;
 
     private TransportistaResponseDTO dtoResponse() {
         return new TransportistaResponseDTO(
-            1, "Juan", "Perez", "20-12345678-9", "LEG-001", "MONOTRIBUTISTA"
+            1, "Juan", "Perez", "20-12345678-9", "LEG-001", java.time.LocalDate.now(),"MONOTRIBUTISTA"
         );
     }
 

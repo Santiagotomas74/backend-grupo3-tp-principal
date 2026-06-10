@@ -7,6 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import com.blackmesaresearch.hytrac.model.lookup.TipoVinculo;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -37,6 +38,12 @@ public class Transportista {
 
     @Column(nullable = false)
     private boolean activo = true;
+
+    @Column(nullable = false)
+    private boolean disponible;
+
+    @Column(name = "inicio_actividad")
+    private LocalDate inicioActividad;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

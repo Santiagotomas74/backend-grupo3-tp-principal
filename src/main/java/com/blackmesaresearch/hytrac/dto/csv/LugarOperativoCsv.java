@@ -12,5 +12,7 @@ public class LugarOperativoCsv {
     private Double longitud;
     private Integer puede_recibir;
     private Integer puede_despachar;
+    private Integer recepciones;
+    private Integer despachos;
     private Integer activo;
 }

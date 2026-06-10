@@ -49,31 +49,31 @@ public class TransportistaOrdenController {
     // INICIAR VIAJE
     // =========================
 
-@PutMapping("/orden/{ordenId}/iniciar-viaje")
-public ResponseEntity<?> iniciarViaje(
-        @PathVariable Integer ordenId,
-        @RequestBody IniciarViajeRequestDTO dto) {
+    @PutMapping("/orden/{ordenId}/iniciar-viaje")
+    public ResponseEntity<?> iniciarViaje(
+            @PathVariable Integer ordenId,
+            @RequestBody IniciarViajeRequestDTO dto) {
 
-    try {
+        try {
 
-        service.iniciarViaje(
-                ordenId,
-                dto.legajoTransportista());
+            service.iniciarViaje(
+                    ordenId,
+                    dto.legajoTransportista());
 
-        return ResponseEntity.ok(
-                Map.of(
-                        "success", true,
-                        "message",
-                        "Viaje iniciado correctamente."));
+            return ResponseEntity.ok(
+                    Map.of(
+                            "success", true,
+                            "message",
+                            "Viaje iniciado correctamente."));
 
-    } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
 
-        return ResponseEntity.badRequest().body(
-                Map.of(
-                        "success", false,
-                        "message", e.getMessage()));
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
+        }
     }
-}
 
     // =========================
     // OBTENER ORDEN EN CURSO
@@ -101,31 +101,31 @@ public ResponseEntity<?> iniciarViaje(
     // =========================
     // NOTIFICAR ENTREGA
     // =========================
-@PutMapping("/orden/{ordenId}/notificar-entrega")
-public ResponseEntity<?> notificarEntrega(
-        @PathVariable Integer ordenId,
-        @RequestBody NotificarEntregaRequestDTO dto) {
+    @PutMapping("/orden/{ordenId}/notificar-entrega")
+    public ResponseEntity<?> notificarEntrega(
+            @PathVariable Integer ordenId,
+            @RequestBody NotificarEntregaRequestDTO dto) {
 
-    try {
+        try {
 
-        service.notificarEntrega(
-                ordenId,
-                dto.legajoTransportista(),
-                dto.codigoConfirmacion());
+            service.notificarEntrega(
+                    ordenId,
+                    dto.legajoTransportista(),
+                    dto.codigoConfirmacion());
 
-        return ResponseEntity.ok(
-                Map.of(
-                        "success", true,
-                        "message",
-                        "Entrega notificada correctamente."));
+            return ResponseEntity.ok(
+                    Map.of(
+                            "success", true,
+                            "message",
+                            "Entrega notificada correctamente."));
 
-    } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
 
-        return ResponseEntity.badRequest().body(
-                Map.of(
-                        "success", false,
-                        "message", e.getMessage()));
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "success", false,
+                            "message", e.getMessage()));
+        }
     }
-}
 
 }

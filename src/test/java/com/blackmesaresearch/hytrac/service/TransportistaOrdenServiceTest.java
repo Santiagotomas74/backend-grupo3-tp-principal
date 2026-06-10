@@ -25,6 +25,7 @@ import com.blackmesaresearch.hytrac.model.core.Usuario;
 import com.blackmesaresearch.hytrac.model.lookup.EstadoOrdenCarga;
 import com.blackmesaresearch.hytrac.repository.EstadoOrdenCargaRepository;
 import com.blackmesaresearch.hytrac.repository.OrdenCargaRepository;
+import com.blackmesaresearch.hytrac.repository.UsuarioRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class TransportistaOrdenServiceTest {
@@ -40,6 +41,9 @@ public class TransportistaOrdenServiceTest {
 
     @Mock 
     private NotificacionService notificacionService;
+
+    @Mock
+    private UsuarioRepository usuarioRepository;
 
     @InjectMocks
     private TransportistaOrdenService transportistaOrdenService;

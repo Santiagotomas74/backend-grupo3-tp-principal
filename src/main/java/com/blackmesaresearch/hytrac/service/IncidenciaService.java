@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.blackmesaresearch.hytrac.dto.request.ReportarIncidenciaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.response.IncidenciaResponseDTO;
 import com.blackmesaresearch.hytrac.model.core.Incidencia;
+import com.blackmesaresearch.hytrac.model.core.Usuario;
 import com.blackmesaresearch.hytrac.repository.IncidenciaRepository;
 import com.blackmesaresearch.hytrac.repository.OrdenCargaRepository;
 import com.blackmesaresearch.hytrac.repository.TipoIncidenciaRepository;
@@ -146,17 +147,22 @@ public class IncidenciaService {
 
         incidenciaRepository.save(incidencia);
 
-        notificacionService.crearNotificacion(
-            orden.getOperador().getLegajo(), 
-            "ALERTA: Nueva INCIDENCIA reportada en el Remito N° " + orden.getNumeroRemito() + " (" + tipoIncidencia.getNombre() + ").", 
-            "SUPERVISOR_INCIDENCIA_PENDIENTE"
-        );
+        //NOTIFICACION SUPERVISOR
+        String legajoSuperIncidencia = usuarioRepository.findByRolAndLugarOperativo("SUPERVISOR", orden.getEstacionDestino())
+                .stream().map(Usuario::getLegajo).findFirst()
+                .orElse(orden.getOperador() != null ? orden.getOperador().getLegajo() : null);
 
+        if (legajoSuperIncidencia != null) {
+                notificacionService.crearNotificacion(
+                legajoSuperIncidencia,
+                "ALERTA: Nueva INCIDENCIA A CONFIRMAR reportada por el transportista en el Remito N° " + orden.getNumeroRemito() + ".");
+        }
+        //NOTIFICACION
         notificacionService.crearNotificacion(
-            usuario.getLegajo(), 
-            "Tu reporte de incidencia sobre el Remito N° " + orden.getNumeroRemito() + " fue recibido y guardado correctamente.", 
-            "TRANSPORTISTA_INCIDENCIA_OK"
-        );
+                usuario.getLegajo(), 
+                "Tu reporte de incidencia sobre el Remito N° " 
+                + orden.getNumeroRemito() + 
+                " fue recibido y guardado correctamente.");
 
     }
 }
