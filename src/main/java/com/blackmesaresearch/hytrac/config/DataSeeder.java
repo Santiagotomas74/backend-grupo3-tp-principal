@@ -479,6 +479,16 @@ public class DataSeeder implements CommandLineRunner {
     Map<String, TipoVinculo> tipoVinculoMap = tipoVinculoRepo.findAll().stream()
         .collect(Collectors.toMap(TipoVinculo::getNombre, t -> t));
 
+    Map<String, EmpresaTercerizada> empresaMap = new java.util.HashMap<>();
+    empresaTercerizadaRepo.findAll().forEach(e -> {
+      if (e.getNombreFantasia() != null) {
+        empresaMap.put(e.getNombreFantasia(), e);
+      }
+      if (e.getRazonSocial() != null) {
+        empresaMap.putIfAbsent(e.getRazonSocial(), e);
+      }
+    });
+
     MappingIterator<TransportistaMLCsv> it = csvMapper.readerFor(TransportistaMLCsv.class)
         .with(schema).readValues(is);
 
@@ -500,12 +510,13 @@ public class DataSeeder implements CommandLineRunner {
       TransportistaMLCsv row = it.next();
       Usuario usuario = null;
       TipoVinculo tipoVinculo = tipoVinculoMap.get(row.getTipo_vinculo_nombre());
+      EmpresaTercerizada empresa = empresaMap.get(row.getEmpresa_nombre());
 
       Transportista transportista = new Transportista();
       transportista.setUsuario(null);
       transportista.setTipoVinculo(tipoVinculo);
       transportista.setCuit(row.getCuit());
-      transportista.setEmpresa(null);
+      transportista.setEmpresa(empresa);
       transportista.setActivo(true);
       transportista.setDisponible(row.getDisponible() == 1);
       transportista.setInicioActividad(row.getInicio_actividad());
