@@ -31,6 +31,14 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                .cors(cors -> cors.configurationSource(request -> {
+                    var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+                    corsConfiguration.setAllowedOrigins(java.util.List.of("*")); // Permitir acceso desde cualquier origen
+                    corsConfiguration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                    corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
+                    corsConfiguration.setAllowCredentials(false);
+                    return corsConfiguration;
+                }))
                 .csrf(csrf -> csrf.disable())
 
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -65,6 +73,7 @@ public class SecurityConfig {
                     // Operador 
                     .requestMatchers(HttpMethod.POST, "/api/ordenes/crear").hasAuthority("OPERADOR")
                     .requestMatchers(HttpMethod.PUT, "/api/ordenes/*/editar").hasAuthority("OPERADOR")
+                    .requestMatchers(HttpMethod.POST, "/api/transportistas/seleccionar-optimos").hasAuthority("OPERADOR")
 
 
                     .requestMatchers(HttpMethod.GET, "/api/ordenes/**").authenticated()
