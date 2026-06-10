@@ -57,26 +57,45 @@ public class SecurityConfig {
                     // Swagger
                     .requestMatchers("/api/swagger-ui/**", "/api/v3/api-docs/**", "/api/api-docs/**","/swagger-ui/**","/v3/api-docs/**").permitAll()
 
+                    //Especificos por ahora
+                    .requestMatchers(HttpMethod.GET, "/api/supervisor/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/transportistas/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/transportista/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN")
+
                     // Solo admin
                     .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                    .requestMatchers("/api/transportistas/alta").hasAuthority("ADMIN")
-
-                    // Supervisor
-                    .requestMatchers("/api/supervisor/**").hasAuthority("SUPERVISOR")
-                
+                    .requestMatchers("/api/transportistas/alta").hasAuthority("ADMIN")     
                     // Jefe de ESTACION
                     .requestMatchers("/api/jefe-estacion/**").hasAuthority("JEFE_ESTACION")
 
-                    // Transportista 
-                    .requestMatchers("/api/transportista/**").hasAuthority("TRANSPORTISTA")
-
-                    // Operador 
+                     // Operador Acciones especificas
                     .requestMatchers(HttpMethod.POST, "/api/ordenes/crear").hasAuthority("OPERADOR")
                     .requestMatchers(HttpMethod.PUT, "/api/ordenes/*/editar").hasAuthority("OPERADOR")
                     .requestMatchers(HttpMethod.POST, "/api/transportistas/seleccionar-optimos").hasAuthority("OPERADOR")
+                    .requestMatchers(HttpMethod.POST, "/api/transportistas/incidencia").hasAnyAuthority("OPERADOR", "SUPERVISOR", "ADMIN")
 
+                    // Supervisor
+                    .requestMatchers("/api/supervisor/**").hasAuthority("SUPERVISOR")    
+                    // Transportista 
+                    .requestMatchers("/api/transportista/**").hasAuthority("TRANSPORTISTA")
 
+                    //Autenticados
                     .requestMatchers(HttpMethod.GET, "/api/ordenes/**").authenticated()
+                    .requestMatchers("/api/notificaciones/**").authenticated()
+
+                    //por ahora para el uso del sistema facil
+                    .requestMatchers("/api/vehiculos/**").authenticated()
+                    .requestMatchers("/api/supervisor/incidencias").authenticated()
+                    .requestMatchers("/api/stats/**").authenticated()
+                    .requestMatchers("/api/rutas/**").authenticated()
+                    .requestMatchers("/api/reportes/**").authenticated()
+                    .requestMatchers("/api/provincias/get").authenticated()
+                    .requestMatchers("/api/ouch").authenticated()
+                    .requestMatchers("/api/lugares-operativos/**").authenticated()
+                    .requestMatchers("/api/entidades/**").authenticated()
+                    .requestMatchers("/api/combustibles").authenticated()
+                    .requestMatchers("/api/bcra/**").authenticated()
+                    .requestMatchers("/api/auditoria/**").authenticated()
 
                     .anyRequest().authenticated()
                 )
