@@ -59,8 +59,8 @@ public class SecurityConfig {
 
                     //Especificos por ahora
                     .requestMatchers(HttpMethod.GET, "/api/supervisor/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/api/transportistas/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/api/transportista/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN")
+                    .requestMatchers(HttpMethod.GET, "/api/transportistas/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN", "TRANSPORTISTA", "JEFE_ESTACION")
+                    .requestMatchers(HttpMethod.GET, "/api/transportista/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN", "TRANSPORTISTA", "JEFE_ESTACION")
 
                     // Solo admin
                     .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
