@@ -1,6 +1,8 @@
 package com.blackmesaresearch.hytrac.service;
 
 import java.util.Optional;
+import java.util.List;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -1176,6 +1178,281 @@ public class OrdenCargaServiceTest {
             eq("REM-001"), eq("Pendiente"), eq("Cancelada"), eq("LEG-SUP"), eq("LEG-SUP"), anyString()
         );
     }
+
+// Todo Respecto a Notificaciones
+
+@Test
+void guardarNuevaOrdenCarga_DebeNotificarJefeDeEstacionCuandoExiste() {
+    when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
+    when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.empty());
+
+    var emp = empresa(1);
+    var disp = estadoVehiculo("Disponible");
+    var camion = camion(1, emp, disp);
+    var acoplado = acoplado(1, emp, disp, 5000.0);
+    var usuarioBase = usuario("Ricardo", "Fort", "LEG-001");
+    var trans = transportista(1, usuarioBase);
+    var planta = lugar(1, "Planta");
+    var destino = lugar(2, "Destino");
+    var combustible = new Combustible(1, "Nafta", "1203", "Clase 3", 0.74, 15.0);
+    var estadoOrden = new EstadoOrdenCarga(1, "Pendiente");
+
+    when(vehiculoRepository.findById(1)).thenReturn(Optional.of(camion));
+    when(acopladoRepository.findById(1)).thenReturn(Optional.of(acoplado));
+    when(estadoOrdenCargaRepository.findById(1)).thenReturn(Optional.of(estadoOrden));
+    when(transportistaRepository.findById(1)).thenReturn(Optional.of(trans));
+    when(lugarOperativoRepository.findById(1)).thenReturn(Optional.of(planta));
+    when(lugarOperativoRepository.findById(2)).thenReturn(Optional.of(destino));
+    when(combustibleRepository.findById(1)).thenReturn(Optional.of(combustible));
+    when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuarioBase));
+    when(rutaRepository.findById(any())).thenReturn(Optional.of(new Ruta()));
+    when(ordenCargaRepository.save(any(OrdenCarga.class))).thenAnswer(inv -> {
+        OrdenCarga o = inv.getArgument(0);
+        o.setId(100);
+        return o;
+    });
+
+
+    var jefeEstacion = usuario("Jefe", "Estacion", "LEG-JEFE");
+    when(usuarioRepository.findByRolAndLugarOperativo(eq("JEFE_ESTACION"), any()))
+        .thenReturn(List.of(jefeEstacion));
+
+    ordenCargaService.guardarNuevaOrdenCarga(dtoValido);
+
+    verify(notificacionService, times(1))
+        .crearNotificacion(eq("LEG-JEFE"), anyString());
+}
+
+@Test
+void guardarNuevaOrdenCarga_DebeNoNotificarCuandoNoHayJefeEstacion() {
+    when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
+    when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.empty());
+
+    var emp = empresa(1);
+    var disp = estadoVehiculo("Disponible");
+    var camion = camion(1, emp, disp);
+    var acoplado = acoplado(1, emp, disp, 5000.0);
+    var usuarioBase = usuario("Ricardo", "Fort", "LEG-001");
+    var trans = transportista(1, usuarioBase);
+
+    when(vehiculoRepository.findById(1)).thenReturn(Optional.of(camion));
+    when(acopladoRepository.findById(1)).thenReturn(Optional.of(acoplado));
+    when(estadoOrdenCargaRepository.findById(1)).thenReturn(Optional.of(new EstadoOrdenCarga(1, "Pendiente")));
+    when(transportistaRepository.findById(1)).thenReturn(Optional.of(trans));
+    when(lugarOperativoRepository.findById(1)).thenReturn(Optional.of(lugar(1, "Planta")));
+    when(lugarOperativoRepository.findById(2)).thenReturn(Optional.of(lugar(2, "Destino")));
+    when(combustibleRepository.findById(1)).thenReturn(Optional.of(new Combustible(1, "Nafta", "1203", "Clase 3", 0.74, 15.0)));
+    when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuarioBase));
+    when(rutaRepository.findById(any())).thenReturn(Optional.of(new Ruta()));
+    when(ordenCargaRepository.save(any(OrdenCarga.class))).thenAnswer(inv -> {
+        OrdenCarga o = inv.getArgument(0);
+        o.setId(100);
+        return o;
+    });
+
+    
+    when(usuarioRepository.findByRolAndLugarOperativo(eq("JEFE_ESTACION"), any()))
+        .thenReturn(Collections.emptyList());
+
+    ordenCargaService.guardarNuevaOrdenCarga(dtoValido);
+
+    verify(notificacionService, never()).crearNotificacion(anyString(), anyString());
+}
+
+
+
+@Test
+void confirmarOrden_DebeNotificarTransportistaYOperador() {
+    var operador = usuario("Ope", "Rador", "LEG-OPE");
+    var orden = ordenConTransportista("Pendiente");
+    orden.setNumeroRemito("REM-001");
+    orden.setConfirmado(false);
+    orden.setOperador(operador);
+    when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+
+    ordenCargaService.confirmarOrden(1);
+
+    assertTrue(orden.getConfirmado());
+
+    verify(notificacionService, times(1))
+        .crearNotificacion(eq("LEG-T"), anyString());
+  
+    verify(notificacionService, times(1))
+        .crearNotificacion(eq("LEG-OPE"), anyString());
+}
+
+
+
+@Test
+void rechazarOrden_DebeNotificarTransportistaYOperador() {
+    var operador = usuario("Ope", "Rador", "LEG-OPE");
+    var orden = ordenConTransportista("Pendiente");
+    orden.setNumeroRemito("REM-001");
+    orden.setConfirmado(true);
+    orden.setOperador(operador);
+    when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+
+    ordenCargaService.rechazarOrden(1, "LEG-SUP", "Datos incorrectos");
+
+    assertFalse(orden.getConfirmado());
+
+    verify(notificacionService, times(1))
+        .crearNotificacion(eq("LEG-T"), anyString());
+   
+    verify(notificacionService, times(1))
+        .crearNotificacion(eq("LEG-OPE"), anyString());
+}
+
+
+
+@Test
+void aprobarInicioViaje_DebeNotificarTransportista() {
+    var orden = ordenConTransportista("Pendiente de inicio de viaje");
+    orden.setRuta(new Ruta());
+    orden.setNumeroRemito("REM-001");
+    when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+    when(estadoOrdenCargaRepository.findByNombre("En Curso"))
+        .thenReturn(Optional.of(estadoOrden("En Curso")));
+
+    ordenCargaService.aprobarInicioViaje(1, "LEG-SUP");
+
+    verify(notificacionService, times(1))
+        .crearNotificacion(eq("LEG-T"), anyString());
+}
+
+
+
+@Test
+void rechazarInicioViaje_DebeNotificarTransportista() {
+    var orden = ordenConTransportista("Pendiente de inicio de viaje");
+    orden.setNumeroRemito("REM-001");
+    orden.setFechaSalidaPlanta(java.time.LocalDateTime.now());
+    when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+    when(estadoOrdenCargaRepository.findByNombre("Pendiente"))
+        .thenReturn(Optional.of(estadoOrden("Pendiente")));
+
+    ordenCargaService.rechazarInicioViaje(1, "LEG-SUP", "Camión con fallas");
+
+    verify(notificacionService, times(1))
+        .crearNotificacion(eq("LEG-T"), anyString());
+}
+
+
+
+@Test
+void confirmarEntrega_DebeNotificarTransportistaYJefeEstacion() {
+    var orden = ordenConTransportista("Pendiente de confirmacion de entrega");
+    orden.setNumeroRemito("REM-001");
+    orden.setEstacionDestino(lugar(2, "Estacion"));
+    when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+    when(estadoOrdenCargaRepository.findByNombre("Entregada"))
+        .thenReturn(Optional.of(estadoOrden("Entregada")));
+
+    var jefeEstacion = usuario("Jefe", "Estacion", "LEG-JEFE");
+    when(usuarioRepository.findByRolAndLugarOperativo(eq("JEFE_ESTACION"), any()))
+        .thenReturn(List.of(jefeEstacion));
+
+    ordenCargaService.confirmarEntrega(1, "LEG-SUP");
+
+   
+    verify(notificacionService, times(1))
+        .crearNotificacion(eq("LEG-T"), anyString());
+
+    verify(notificacionService, times(1))
+        .crearNotificacion(eq("LEG-JEFE"), anyString());
+}
+
+@Test
+void confirmarEntrega_DebeNoNotificarJefeCuandoNoExiste() {
+    var orden = ordenConTransportista("Pendiente de confirmacion de entrega");
+    orden.setNumeroRemito("REM-001");
+    orden.setEstacionDestino(lugar(2, "Estacion"));
+    when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+    when(estadoOrdenCargaRepository.findByNombre("Entregada"))
+        .thenReturn(Optional.of(estadoOrden("Entregada")));
+    when(usuarioRepository.findByRolAndLugarOperativo(eq("JEFE_ESTACION"), any()))
+        .thenReturn(Collections.emptyList());
+
+    ordenCargaService.confirmarEntrega(1, "LEG-SUP");
+
+    
+    verify(notificacionService, times(1))
+        .crearNotificacion(anyString(), anyString());
+}
+
+
+
+@Test
+void rechazarEntrega_DebeNotificarTransportistaYOperador() {
+    var operador = usuario("Ope", "Rador", "LEG-OPE");
+    var orden = ordenConTransportista("Pendiente de confirmacion de entrega");
+    orden.setNumeroRemito("REM-001");
+    orden.setFechaEntregaReal(java.time.LocalDateTime.now());
+    orden.setLitrosEntregados(15000.0);
+    orden.setOperador(operador);
+    when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
+    when(estadoOrdenCargaRepository.findByNombre("En Curso"))
+        .thenReturn(Optional.of(estadoOrden("En Curso")));
+
+    ordenCargaService.rechazarEntrega(1, "LEG-SUP", "Producto dañado");
+
+
+    verify(notificacionService, times(1))
+        .crearNotificacion(eq("LEG-T"), anyString());
+
+    verify(notificacionService, times(1))
+        .crearNotificacion(eq("LEG-OPE"), anyString());
+}
+
+
+
+@Test
+void cancelarOrden_DebeNotificarCuandoSeApruebaCancelacion() {
+    var emp = empresa(1);
+    var disp = estadoVehiculo("Disponible");
+    var orden = new OrdenCarga();
+    orden.setId(1);
+    orden.setNumeroRemito("REM-001");
+    orden.setEstadoOrdenCarga(estadoOrden("Pendiente"));
+    orden.setCamion(camion(1, emp, disp));
+    orden.setAcoplado(acoplado(1, emp, disp, 5000.0));
+    orden.setTransportista(transportista(1, usuario("Trans", "Port", "LEG-T")));
+    orden.setPlantaDespacho(lugar(1, "Planta"));
+    orden.setEstacionDestino(lugar(2, "Destino"));
+    orden.setCombustible(new Combustible(1, "Gasoil", "1202", "3", 1.0, 1.0));
+    var operador = usuario("Ope", "Rador", "LEG-OPE");
+    orden.setOperador(operador);
+
+    when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.of(orden));
+
+    var rol = new Rol();
+    rol.setNombre("SUPERVISOR");
+    var supervisor = usuario("Sup", "Evisor", "LEG-SUP");
+    supervisor.setRol(rol);
+    when(usuarioRepository.findByLegajo("LEG-SUP")).thenReturn(Optional.of(supervisor));
+
+    var incidencia = new com.blackmesaresearch.hytrac.model.core.Incidencia();
+    incidencia.setOrden(orden);
+    incidencia.setResuelto(false);
+    when(incidenciaRepository.findAll()).thenReturn(List.of(incidencia));
+    when(estadoOrdenCargaRepository.findByNombre("Cancelada"))
+        .thenReturn(Optional.of(estadoOrden("Cancelada")));
+    when(ordenCargaRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+
+
+    var jefe = usuario("Jefe", "Est", "LEG-JEFE");
+    when(usuarioRepository.findByRolAndLugarOperativo(eq("JEFE_ESTACION"), any()))
+        .thenReturn(List.of(jefe));
+
+    ordenCargaService.cancelarOrden("REM-001", new CancelarOrdenRequestDTO("LEG-SUP", "Falla grave"));
+
+  
+    verify(notificacionService, times(1)).crearNotificacion(eq("LEG-T"), anyString());
+ 
+    verify(notificacionService, times(1)).crearNotificacion(eq("LEG-OPE"), anyString());
+  
+    verify(notificacionService, times(1)).crearNotificacion(eq("LEG-JEFE"), anyString());
+}
 
 
    
