@@ -22,8 +22,8 @@ public class ScanController {
     @PostMapping("/scan")
     public ResponseEntity<ScanResponseDTO> scanBarcode(@RequestBody ScanRequestDTO request) {
         try {
-            // Step 1: Decode the barcode
-            String rawText = scanService.decodePdf417(request.getBase64Image());
+            // Step 1: Decode the barcode based on the requested document type
+            String rawText = scanService.decodeBarcode(request.getBase64Image(), request.getDocumentType());
             
             // Step 2: Parse payload based on doc type
             Map<String, Object> parsedData = scanService.parsePayload(rawText, request.getDocumentType());

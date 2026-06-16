@@ -24,9 +24,13 @@ public class ScanService {
         this.parserFactory = parserFactory;
     }
 
-    public String decodePdf417(String base64Image) throws Exception {
+    public String decodeBarcode(String base64Image, String documentType) throws Exception {
+        if (base64Image == null || base64Image.isBlank()) {
+            throw new IllegalArgumentException("Missing image data.");
+        }
+
         if (base64Image.contains(",")) {
-            base64Image = base64Image.split(",")[1];
+            base64Image = base64Image.split(",", 2)[1];
         }
 
         byte[] imageBytes = Base64.getDecoder().decode(base64Image);
@@ -36,18 +40,12 @@ public class ScanService {
             throw new IllegalArgumentException("Invalid image data.");
         }
 
-        // Image processing optimizations
-        int newWidth = originalImage.getWidth() * 2;
-        int newHeight = originalImage.getHeight() * 2;
-        BufferedImage processedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_BYTE_GRAY);
-        Graphics2D g2d = processedImage.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        g2d.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
-        g2d.dispose();
+        BufferedImage processedImage = preprocessImage(originalImage);
+        BarcodeFormat barcodeFormat = getBarcodeFormat(documentType);
 
         Map<DecodeHintType, Object> hints = new EnumMap<>(DecodeHintType.class);
         hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
-        hints.put(DecodeHintType.POSSIBLE_FORMATS, java.util.Collections.singletonList(BarcodeFormat.PDF_417));
+        hints.put(DecodeHintType.POSSIBLE_FORMATS, java.util.Collections.singletonList(barcodeFormat));
 
         try {
             LuminanceSource source = new BufferedImageLuminanceSource(processedImage);
@@ -56,6 +54,32 @@ public class ScanService {
             return result.getText();
         } catch (NotFoundException e) {
             throw new Exception("Barcode could not be read or detected from the source.");
+        }
+    }
+
+    private BufferedImage preprocessImage(BufferedImage originalImage) {
+        int newWidth = originalImage.getWidth() * 2;
+        int newHeight = originalImage.getHeight() * 2;
+        BufferedImage processedImage = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_BYTE_GRAY);
+        Graphics2D g2d = processedImage.createGraphics();
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2d.drawImage(originalImage, 0, 0, newWidth, newHeight, null);
+        g2d.dispose();
+        return processedImage;
+    }
+
+    private BarcodeFormat getBarcodeFormat(String documentType) {
+        if (documentType == null) {
+            return BarcodeFormat.PDF_417;
+        }
+
+        String normalizedType = documentType.toLowerCase().trim();
+        switch (normalizedType) {
+            case "vehicle_verification":
+            case "vtv":
+                return BarcodeFormat.QR_CODE;
+            default:
+                return BarcodeFormat.PDF_417;
         }
     }
 

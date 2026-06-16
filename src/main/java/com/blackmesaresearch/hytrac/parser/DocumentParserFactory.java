@@ -1,7 +1,7 @@
 package com.blackmesaresearch.hytrac.parser;
 
 import com.blackmesaresearch.hytrac.parser.impl.DniParser;
-import com.blackmesaresearch.hytrac.parser.impl.DriverLicenseParser;
+import com.blackmesaresearch.hytrac.parser.impl.VtvParser;
 
 import org.springframework.stereotype.Component;
 
@@ -16,7 +16,7 @@ public class DocumentParserFactory {
     public DocumentParserFactory() {
         // Register your document parsers here
         parsers.put("dni", new DniParser());
-        parsers.put("drivers", new DriverLicenseParser());
+        parsers.put("vtv", new VtvParser());
         
         // Hook new documents here seamlessly:
         // parsers.put("vehicle_verification", new VehicleVerificationParser());
