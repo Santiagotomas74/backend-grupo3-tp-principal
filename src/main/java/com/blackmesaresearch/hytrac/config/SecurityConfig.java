@@ -54,6 +54,9 @@ public class SecurityConfig {
                     // Publico
                     .requestMatchers("/api/auth/**").permitAll()
 
+                    // Scaner. TODO: Cambiar esto
+                    .requestMatchers("/api/scanner/**").permitAll()
+
                     // Swagger
                     .requestMatchers("/api/swagger-ui/**", "/api/v3/api-docs/**", "/api/api-docs/**","/swagger-ui/**","/v3/api-docs/**").permitAll()
 
