@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 
 import com.blackmesaresearch.hytrac.dto.request.CancelarOrdenRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.ConfirmarEntregaRequestDTO;
+import com.blackmesaresearch.hytrac.dto.request.GenerarCotRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
+import com.blackmesaresearch.hytrac.dto.response.CotResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaDetalleResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenCargaResponseDTO;
 import com.blackmesaresearch.hytrac.dto.response.OrdenSupervisorDetalleResponseDTO;
@@ -27,6 +29,12 @@ import com.blackmesaresearch.hytrac.repository.RutaRepository;
 import com.blackmesaresearch.hytrac.repository.TransportistaRepository;
 import com.blackmesaresearch.hytrac.repository.UsuarioRepository;
 import com.blackmesaresearch.hytrac.repository.VehiculoRepository;
+import com.blackmesaresearch.hytrac.util.CotGenerator;
+import com.blackmesaresearch.hytrac.service.ArbaService;
+
+ 
+import java.time.LocalDate;
+import java.util.UUID;
 
 @Service
 public class OrdenCargaService {
@@ -60,6 +68,10 @@ public class OrdenCargaService {
         private RutaRepository rutaRepository;
         @Autowired
         private NotificacionService notificacionService;
+        @Autowired
+        private CotGenerator cotGenerator;
+        @Autowired
+        private ArbaService arbaService;
 
         public List<OrdenCargaResponseDTO> obtenerTodas() {
                 return ordenCargaRepository.findAll()
@@ -68,149 +80,319 @@ public class OrdenCargaService {
                                 .toList();
         }
 
-        public OrdenCargaResponseDTO guardarNuevaOrdenCarga(OrdenCargaRequestDTO dto) {
+        private String generarNumeroRemito() {
 
-                // =========================
-                // VALIDACIONES DE UNICIDAD
-                // =========================
-                if (ordenCargaRepository.findByNumeroRemito(dto.numeroRemito()).isPresent()) {
-                        throw new IllegalArgumentException(
-                                        "El número de remito ya existe en el sistema.");
-                }
+    return "REM-"
+            + LocalDate.now().getYear()
+            + "-"
+            + UUID.randomUUID()
+                .toString()
+                .substring(0, 8)
+                .toUpperCase();
+}
 
-                if (ordenCargaRepository.findByCot(dto.cot()).isPresent()) {
-                        throw new IllegalArgumentException(
-                                        "El COT ya existe en el sistema.");
-                }
+      public OrdenCargaResponseDTO guardarNuevaOrdenCarga(
+        OrdenCargaRequestDTO dto) {
 
-                // =========================
-                // VALIDACIONES BÁSICAS
-                // =========================
-                if (dto.litrosCargados() == null || dto.litrosCargados() <= 0) {
-                        throw new IllegalArgumentException(
-                                        "Los litros cargados son obligatorios.");
-                }
 
-                if (dto.plantaDespachoId().equals(dto.estacionDestinoId())) {
-                        throw new IllegalArgumentException(
-                                        "La planta de despacho y el destino no pueden ser iguales.");
-                }
+    // =========================
+    // VALIDACIONES BÁSICAS
+    // =========================
 
-                // =========================
-                // OBTENER ENTIDADES
-                // =========================
-                var camion = vehiculoRepository.findById(dto.camionId())
-                                .orElseThrow(() -> new IllegalArgumentException("Camión no encontrado."));
+    if (dto.litrosCargados() == null
+            || dto.litrosCargados() <= 0) {
 
-                var acoplado = acopladoRepository.findById(dto.acopladoId())
-                                .orElseThrow(() -> new IllegalArgumentException("Acoplado no encontrado."));
+        throw new IllegalArgumentException(
+                "Los litros cargados son obligatorios.");
+    }
 
-                var transportista = transportistaRepository.findById(dto.transportistaId())
-                                .orElseThrow(() -> new IllegalArgumentException("Transportista no encontrado."));
 
-                var plantaDespacho = lugarOperativoRepository.findById(dto.plantaDespachoId())
-                                .orElseThrow(() -> new IllegalArgumentException("Planta de despacho no encontrada."));
+    if (dto.plantaDespachoId()
+            .equals(dto.estacionDestinoId())) {
 
-                var estacionDestino = lugarOperativoRepository.findById(dto.estacionDestinoId())
-                                .orElseThrow(() -> new IllegalArgumentException("Estación destino no encontrada."));
+        throw new IllegalArgumentException(
+                "La planta de despacho y el destino no pueden ser iguales.");
+    }
 
-                var operador = usuarioRepository.findById(dto.operadorId())
-                                .orElseThrow(() -> new IllegalArgumentException("Operador no encontrado."));
 
-                var combustible = combustibleRepository.findById(dto.combustibleId())
-                                .orElseThrow(() -> new IllegalArgumentException("Combustible no encontrado."));
 
-                var estado = estadoOrdenCargaRepository.findById(dto.estadoId())
-                                .orElseThrow(() -> new IllegalArgumentException("Estado no encontrado."));
+    // =========================
+    // OBTENER ENTIDADES
+    // =========================
 
-                var ruta = rutaRepository.findById(dto.rutaId())
-                                .orElse(null); // La ruta es opcional, si no se encuentra se deja null  
 
-                // =========================
-                // VALIDACIONES DE NEGOCIO
-                // =========================
-                // mismo empresa
-                if (!camion.getEmpresa().getId().equals(acoplado.getEmpresa().getId())) {
+    var camion = vehiculoRepository.findById(dto.camionId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Camión no encontrado."));
 
-                        throw new IllegalArgumentException(
-                                        "El camión y el acoplado pertenecen a empresas distintas.");
-                }
 
-                // capacidad máxima del acoplado
-                if (dto.litrosCargados() > acoplado.getCapacidadMaximaLitros()) {
+    var acoplado = acopladoRepository.findById(dto.acopladoId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Acoplado no encontrado."));
 
-                        throw new IllegalArgumentException(
-                                        "Los litros cargados superan la capacidad máxima del acoplado.");
-                }
 
-                // disponibilidad camión
-                if (!camion.getEstado().getNombre().equalsIgnoreCase("Disponible")) {
+    var transportista = transportistaRepository.findById(dto.transportistaId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Transportista no encontrado."));
 
-                        throw new IllegalArgumentException(
-                                        "El camión no está disponible.");
-                }
 
-                // disponibilidad acoplado
-                if (!acoplado.getEstado().getNombre().equalsIgnoreCase("Disponible")) {
+    var plantaDespacho = lugarOperativoRepository.findById(dto.plantaDespachoId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Planta de despacho no encontrada."));
 
-                        throw new IllegalArgumentException(
-                                        "El acoplado no está disponible.");
-                }
 
-                // =========================
-                // CREAR ORDEN
-                // =========================
-                OrdenCarga orden = new OrdenCarga();
+    var estacionDestino = lugarOperativoRepository.findById(dto.estacionDestinoId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Estación destino no encontrada."));
 
-                orden.setTrackingId("HT-" + System.currentTimeMillis()); // Generación simple de tracking_id
 
-                orden.setNumeroRemito(dto.numeroRemito());
-                orden.setCot(dto.cot());
+    var operador = usuarioRepository.findById(dto.operadorId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Operador no encontrado."));
 
-                orden.setCamion(camion);
-                orden.setAcoplado(acoplado);
 
-                orden.setTransportista(transportista);
+    var combustible = combustibleRepository.findById(dto.combustibleId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Combustible no encontrado."));
 
-                orden.setPlantaDespacho(plantaDespacho);
-                orden.setEstacionDestino(estacionDestino);
 
-                orden.setOperador(operador);
+    var estado = estadoOrdenCargaRepository.findById(dto.estadoId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Estado no encontrado."));
 
-                orden.setCombustible(combustible);
 
-                orden.setEstadoOrdenCarga(estado);
+    var ruta = rutaRepository.findById(dto.rutaId())
+            .orElse(null);
 
-                orden.setLitrosCargados(dto.litrosCargados());
-                orden.setLitrosEntregados(dto.litrosEntregados());
 
-                orden.setFechaCreacion(dto.fechaCreacion());
-                orden.setFechaSalidaPlanta(dto.fechaSalidaPlanta());
-                orden.setFechaEntregaEstimada(dto.fechaEntrega());
 
-                orden.setObservaciones(dto.observaciones());
+    // =========================
+    // VALIDACIONES NEGOCIO
+    // =========================
 
-                orden.setFieAdjunta(dto.fieAdjunta());
-                orden.setConfirmado(dto.confirmado());
 
-                orden.setRuta(ruta);
+    if (!camion.getEmpresa()
+            .getId()
+            .equals(acoplado.getEmpresa().getId())) {
 
-                // =========================
-                // GUARDAR
-                // =========================
-                OrdenCarga guardada = ordenCargaRepository.save(orden);
+        throw new IllegalArgumentException(
+                "El camión y el acoplado pertenecen a empresas distintas.");
+    }
 
-                // Se busca al jefe de estacion asignado al destino
-                String legajoJefe = usuarioRepository.findByRolAndLugarOperativo("JEFE_ESTACION", guardada.getEstacionDestino())
-                .stream().map(Usuario::getLegajo).findFirst().orElse(null);
 
-                if (legajoJefe != null) {
-                        notificacionService.crearNotificacion(legajoJefe,
-                        "Se ha creado un nuevo envío con Remito N° " + guardada.getNumeroRemito() + 
-                        " asignado a tu estación operativa.");
-                }
-                return toResponseDTO(guardada);
-        }
+
+    if (dto.litrosCargados()
+            > acoplado.getCapacidadMaximaLitros()) {
+
+        throw new IllegalArgumentException(
+                "Los litros cargados superan la capacidad máxima del acoplado.");
+    }
+
+
+
+    if (!camion.getEstado()
+            .getNombre()
+            .equalsIgnoreCase("Disponible")) {
+
+        throw new IllegalArgumentException(
+                "El camión no está disponible.");
+    }
+
+
+
+    if (!acoplado.getEstado()
+            .getNombre()
+            .equalsIgnoreCase("Disponible")) {
+
+        throw new IllegalArgumentException(
+                "El acoplado no está disponible.");
+    }
+
+
+
+
+    // =========================
+    // GENERAR REMITO
+    // =========================
+
+
+    String numeroRemito = generarNumeroRemito();
+
+
+
+    while(
+        ordenCargaRepository
+            .findByNumeroRemito(numeroRemito)
+            .isPresent()
+    ){
+
+        numeroRemito = generarNumeroRemito();
+
+    }
+
+
+
+    // =========================
+    // GENERAR COT
+    // =========================
+
+CotResponseDTO cotResponse =
+        arbaService.generarCot(
+
+            new GenerarCotRequestDTO(
+
+                plantaDespacho.getNombre(),
+
+                estacionDestino.getNombre(),
+
+                dto.litrosCargados(),
+
+                combustible.getDensidad(),
+
+                dto.valorMercaderia(),
+
+                combustible.getNombre(),
+
+                numeroRemito
+            )
+        );
+
+
+
+    // =========================
+    // CREAR ORDEN
+    // =========================
+
+
+    OrdenCarga orden = new OrdenCarga();
+
+
+
+    orden.setTrackingId(
+            "HT-" + System.currentTimeMillis()
+    );
+
+
+    orden.setNumeroRemito(
+            numeroRemito
+    );
+
+
+    orden.setCot(
+            cotResponse.cot()
+    );
+
+
+
+    orden.setCamion(camion);
+
+    orden.setAcoplado(acoplado);
+
+    orden.setTransportista(transportista);
+
+    orden.setPlantaDespacho(plantaDespacho);
+
+    orden.setEstacionDestino(estacionDestino);
+
+    orden.setOperador(operador);
+
+    orden.setCombustible(combustible);
+
+    orden.setEstadoOrdenCarga(estado);
+
+
+
+    orden.setLitrosCargados(
+            dto.litrosCargados()
+    );
+
+
+    orden.setLitrosEntregados(
+            dto.litrosEntregados()
+    );
+
+
+    orden.setFechaCreacion(
+            dto.fechaCreacion()
+    );
+
+
+    orden.setFechaEntregaEstimada(
+            dto.fechaEntrega()
+    );
+
+
+    orden.setObservaciones(
+            dto.observaciones()
+    );
+
+
+    orden.setFieAdjunta(
+            dto.fieAdjunta()
+    );
+
+
+    orden.setConfirmado(
+            dto.confirmado()
+    );
+
+
+    orden.setRuta(
+            ruta
+    );
+
+
+
+    // =========================
+    // GUARDAR
+    // =========================
+
+
+    OrdenCarga guardada =
+            ordenCargaRepository.save(orden);
+
+
+
+    // =========================
+    // NOTIFICAR JEFE ESTACION
+    // =========================
+
+
+    String legajoJefe =
+            usuarioRepository
+                .findByRolAndLugarOperativo(
+                        "JEFE_ESTACION",
+                        guardada.getEstacionDestino()
+                )
+                .stream()
+                .map(Usuario::getLegajo)
+                .findFirst()
+                .orElse(null);
+
+
+
+    if(legajoJefe != null){
+
+        notificacionService.crearNotificacion(
+                legajoJefe,
+                "Nuevo envío asignado. Remito: "
+                + guardada.getNumeroRemito()
+        );
+
+    }
+
+
+
+    return toResponseDTO(guardada);
+}
 
         private OrdenCargaResponseDTO toResponseDTO(
                         OrdenCarga orden) {
@@ -647,120 +829,238 @@ public void rechazarInicioViaje(Integer id, String legajoSupervisor, String moti
 );
         }
 
-        public OrdenCargaResponseDTO editarOrdenCarga(Integer id, OrdenCargaRequestDTO dto) {
+        public OrdenCargaResponseDTO editarOrdenCarga(
+        Integer id,
+        OrdenCargaRequestDTO dto) {
 
-                OrdenCarga orden = ordenCargaRepository.findById(id)
-                                .orElseThrow(() -> new IllegalArgumentException("Orden no encontrada."));
 
-                // Validar que no este en un estado final e inamovible
-                String estadoActual = orden.getEstadoOrdenCarga().getNombre();
-                if (estadoActual.equalsIgnoreCase("Entregada") || estadoActual.equalsIgnoreCase("Cancelada")) {
-                        throw new IllegalArgumentException(
-                                        "No se puede editar una orden que ya se encuentra en estado '" + estadoActual
-                                                        + "'.");
-                }
+    OrdenCarga orden = ordenCargaRepository.findById(id)
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Orden no encontrada."));
 
-                // Validar unico Remito y COT excluyendo la orden actual
-                ordenCargaRepository.findByNumeroRemito(dto.numeroRemito()).ifPresent(o -> {
-                        if (!o.getId().equals(id)) {
-                                throw new IllegalArgumentException(
-                                                "El número de remito ya existe en otra orden del sistema.");
-                        }
-                });
 
-                ordenCargaRepository.findByCot(dto.cot()).ifPresent(o -> {
-                        if (!o.getId().equals(id)) {
-                                throw new IllegalArgumentException("El COT ya existe en otra orden del sistema.");
-                        }
-                });
+    // =========================
+    // VALIDAR ESTADO
+    // =========================
 
-                // Validaciones de formatos y posibles valores contradicctorios //
-                if (dto.litrosCargados() == null || dto.litrosCargados() <= 0) {
-                        throw new IllegalArgumentException(
-                                        "Los litros cargados son obligatorios y deben ser mayores a cero.");
-                }
+    String estadoActual =
+            orden.getEstadoOrdenCarga().getNombre();
 
-                if (dto.plantaDespachoId().equals(dto.estacionDestinoId())) {
-                        throw new IllegalArgumentException("La planta de despacho y el destino no pueden ser iguales.");
-                }
 
-                // Obtener Entidades asociadas
-                var camion = vehiculoRepository.findById(dto.camionId())
-                                .orElseThrow(() -> new IllegalArgumentException("Camión no encontrado."));
+    if (estadoActual.equalsIgnoreCase("Entregada")
+            || estadoActual.equalsIgnoreCase("Cancelada")) {
 
-                var acoplado = acopladoRepository.findById(dto.acopladoId())
-                                .orElseThrow(() -> new IllegalArgumentException("Acoplado no encontrado."));
 
-                // Validar disponibilidad de vehículos SOLO si se cambiaron por unos nuevos
-                if (!camion.getId().equals(orden.getCamion().getId())
-                                && !camion.getEstado().getNombre().equalsIgnoreCase("Disponible")) {
-                        throw new IllegalArgumentException("El nuevo camión seleccionado no está disponible.");
-                }
+        throw new IllegalArgumentException(
+                "No se puede editar una orden que ya se encuentra en estado '"
+                + estadoActual + "'.");
+    }
 
-                if (!acoplado.getId().equals(orden.getAcoplado().getId())
-                                && !acoplado.getEstado().getNombre().equalsIgnoreCase("Disponible")) {
-                        throw new IllegalArgumentException("El nuevo acoplado seleccionado no está disponible.");
-                }
 
-                var transportista = transportistaRepository.findById(dto.transportistaId())
-                                .orElseThrow(() -> new IllegalArgumentException("Transportista no encontrado."));
 
-                var plantaDespacho = lugarOperativoRepository.findById(dto.plantaDespachoId())
-                                .orElseThrow(() -> new IllegalArgumentException("Planta de despacho no encontrada."));
+    // =========================
+    // VALIDACIONES BÁSICAS
+    // =========================
 
-                var estacionDestino = lugarOperativoRepository.findById(dto.estacionDestinoId())
-                                .orElseThrow(() -> new IllegalArgumentException("Estación destino no encontrada."));
+    if(dto.litrosCargados() == null
+            || dto.litrosCargados() <= 0) {
 
-                var operador = usuarioRepository.findById(dto.operadorId())
-                                .orElseThrow(() -> new IllegalArgumentException("Operador no encontrado."));
 
-                var combustible = combustibleRepository.findById(dto.combustibleId())
-                                .orElseThrow(() -> new IllegalArgumentException("Combustible no encontrado."));
+        throw new IllegalArgumentException(
+                "Los litros cargados son obligatorios.");
+    }
 
-                var estado = estadoOrdenCargaRepository.findById(dto.estadoId())
-                                .orElseThrow(() -> new IllegalArgumentException("Estado no encontrado."));
 
-                var ruta = rutaRepository.findById(dto.rutaId())
-                        .orElse(null);
-                // Reglas de Negocio Cruzadas
-                if (!camion.getEmpresa().getId().equals(acoplado.getEmpresa().getId())) {
-                        throw new IllegalArgumentException("El camión y el acoplado pertenecen a empresas distintas.");
-                }
 
-                if (dto.litrosCargados() > acoplado.getCapacidadMaximaLitros()) {
-                        throw new IllegalArgumentException(
-                                        "Los litros cargados superan la capacidad máxima del acoplado.");
-                }
 
-                // Mapear y actualizar los campos de la orden existente
-                orden.setNumeroRemito(dto.numeroRemito());
-                orden.setCot(dto.cot());
-                orden.setCamion(camion);
-                orden.setAcoplado(acoplado);
-                orden.setTransportista(transportista);
-                orden.setPlantaDespacho(plantaDespacho);
-                orden.setEstacionDestino(estacionDestino);
-                orden.setOperador(operador);
-                orden.setCombustible(combustible);
-                orden.setEstadoOrdenCarga(estado);
-                orden.setLitrosCargados(dto.litrosCargados());
-                orden.setLitrosEntregados(dto.litrosEntregados());
-                orden.setFechaSalidaPlanta(dto.fechaSalidaPlanta());
-                orden.setFechaEntregaEstimada(dto.fechaEntrega());
-                orden.setObservaciones(dto.observaciones());
-                orden.setFieAdjunta(dto.fieAdjunta());
 
-                // seteamos una vez editada la orden a null. Limpieza
-                orden.setMotivoRechazo(null);
-                orden.setConfirmado(false);
-                
-                orden.setRuta(ruta);
-                // Guardar la orden modificada
-                OrdenCarga modificada = ordenCargaRepository.save(orden);
 
-                return toResponseDTO(modificada);
-        }
+    if(dto.plantaDespachoId()
+            .equals(dto.estacionDestinoId())) {
 
+
+        throw new IllegalArgumentException(
+                "La planta de despacho y el destino no pueden ser iguales.");
+    }
+
+
+
+
+    // =========================
+    // OBTENER ENTIDADES
+    // =========================
+
+
+    var camion =
+            vehiculoRepository.findById(dto.camionId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Camión no encontrado."));
+
+
+
+    var acoplado =
+            acopladoRepository.findById(dto.acopladoId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Acoplado no encontrado."));
+
+
+
+    var transportista =
+            transportistaRepository.findById(dto.transportistaId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Transportista no encontrado."));
+
+
+
+    var plantaDespacho =
+            lugarOperativoRepository.findById(dto.plantaDespachoId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Planta no encontrada."));
+
+
+
+    var estacionDestino =
+            lugarOperativoRepository.findById(dto.estacionDestinoId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Destino no encontrado."));
+
+
+
+    var operador =
+            usuarioRepository.findById(dto.operadorId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Operador no encontrado."));
+
+
+
+    var combustible =
+            combustibleRepository.findById(dto.combustibleId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Combustible no encontrado."));
+
+
+
+    var estado =
+            estadoOrdenCargaRepository.findById(dto.estadoId())
+            .orElseThrow(() ->
+                    new IllegalArgumentException(
+                            "Estado no encontrado."));
+
+
+
+    var ruta =
+            rutaRepository.findById(dto.rutaId())
+            .orElse(null);
+
+
+
+
+    // =========================
+    // VALIDACIONES NEGOCIO
+    // =========================
+
+
+    if(!camion.getEmpresa()
+            .getId()
+            .equals(acoplado.getEmpresa().getId())) {
+
+
+        throw new IllegalArgumentException(
+                "El camión y el acoplado pertenecen a empresas distintas.");
+    }
+
+
+
+    if(dto.litrosCargados()
+            > acoplado.getCapacidadMaximaLitros()) {
+
+
+        throw new IllegalArgumentException(
+                "Los litros cargados superan la capacidad máxima.");
+    }
+
+
+
+
+    // =========================
+    // ACTUALIZAR ORDEN
+    // =========================
+
+
+    // NO tocar:
+    // numeroRemito
+    // cot
+
+
+    orden.setCamion(camion);
+
+    orden.setAcoplado(acoplado);
+
+    orden.setTransportista(transportista);
+
+    orden.setPlantaDespacho(plantaDespacho);
+
+    orden.setEstacionDestino(estacionDestino);
+
+    orden.setOperador(operador);
+
+    orden.setCombustible(combustible);
+
+    orden.setEstadoOrdenCarga(estado);
+
+
+    orden.setLitrosCargados(
+            dto.litrosCargados());
+
+
+    orden.setLitrosEntregados(
+            dto.litrosEntregados());
+
+
+
+
+    orden.setFechaSalidaPlanta(
+            dto.fechaSalidaPlanta());
+
+
+    orden.setFechaEntregaEstimada(
+            dto.fechaEntrega());
+
+
+    orden.setObservaciones(
+            dto.observaciones());
+
+
+    orden.setFieAdjunta(
+            dto.fieAdjunta());
+
+
+    orden.setRuta(ruta);
+
+
+
+    // limpieza
+    orden.setMotivoRechazo(null);
+
+    orden.setConfirmado(false);
+
+
+
+    OrdenCarga modificada =
+            ordenCargaRepository.save(orden);
+
+
+
+    return toResponseDTO(modificada);
+}
      public OrdenCargaResponseDTO cancelarOrden(
         String numeroRemito,
         CancelarOrdenRequestDTO dto) {
