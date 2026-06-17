@@ -1,8 +1,8 @@
 package com.blackmesaresearch.hytrac.service;
 
-import java.util.Optional;
-import java.util.List;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -27,7 +27,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.blackmesaresearch.hytrac.dto.request.CancelarOrdenRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.ConfirmarEntregaRequestDTO;
+import com.blackmesaresearch.hytrac.dto.request.GenerarCotRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.OrdenCargaRequestDTO;
+import com.blackmesaresearch.hytrac.dto.response.CotResponseDTO;
 import com.blackmesaresearch.hytrac.model.core.Acoplado;
 import com.blackmesaresearch.hytrac.model.core.EmpresaTercerizada;
 import com.blackmesaresearch.hytrac.model.core.LugarOperativo;
@@ -71,6 +73,7 @@ public class OrdenCargaServiceTest {
     @Mock private IncidenciaRepository incidenciaRepository;
     @Mock private TipoIncidenciaRepository tipoIncidenciaRepository;
     @Mock private NotificacionService notificacionService;
+    @Mock private ArbaService arbaService;
 
 
 
@@ -162,7 +165,6 @@ public class OrdenCargaServiceTest {
     @BeforeEach
     void setUp() {
         dtoValido = new OrdenCargaRequestDTO(
-            "REM-001", "COT-001",
             1,    
             1,    
             1,    
@@ -173,19 +175,37 @@ public class OrdenCargaServiceTest {
             1,    
             1,    
             5000.0, 0.0,
-            null, null, null,
-            0.0, 0.0,
+            0.0, null, null,
+            null, 0.0,
             "Obs", false, false
         );
+    }
+
+    // Helpers 
+
+    private void mockArba() {
+    when(arbaService.generarCot(any()))
+        .thenReturn(new CotResponseDTO("COT-MOCK-1234", "ok", null));
+    }
+
+    private void mockEntidadesCompletas(Vehiculo camion, Acoplado acoplado,
+        Transportista trans, LugarOperativo planta, LugarOperativo destino,
+        Combustible combustible, EstadoOrdenCarga estado) {
+    when(vehiculoRepository.findById(1)).thenReturn(Optional.of(camion));
+    when(acopladoRepository.findById(1)).thenReturn(Optional.of(acoplado));
+    when(estadoOrdenCargaRepository.findById(1)).thenReturn(Optional.of(estado));
+    when(transportistaRepository.findById(1)).thenReturn(Optional.of(trans));
+    when(lugarOperativoRepository.findById(1)).thenReturn(Optional.of(planta));
+    when(lugarOperativoRepository.findById(2)).thenReturn(Optional.of(destino));
+    when(combustibleRepository.findById(1)).thenReturn(Optional.of(combustible));
+    when(usuarioRepository.findById(1)).thenReturn(Optional.of(new Usuario()));
+    when(rutaRepository.findById(any())).thenReturn(Optional.of(new Ruta()));
+    mockArba();
     }
 
     // guardarNuevaOrdenCarga //
     @Test
     void guardarNuevaOrdenCarga_DebeGuardarYRetornarDto()  {
-
-        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
-        when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.empty());
-
         var emp = empresa(1);
         var disp = estadoVehiculo("Disponible");
         var camion = camion(1, emp, disp);
@@ -197,14 +217,8 @@ public class OrdenCargaServiceTest {
         var combustible = new Combustible(1, "Nafta", "1203", "Clase 3", 0.74, 15.0);
         var estadoOrden = new EstadoOrdenCarga(1, "Pendiente");
 
-        when(vehiculoRepository.findById(1)).thenReturn(Optional.of(camion));
-        when(acopladoRepository.findById(1)).thenReturn(Optional.of(acoplado));
-        when(estadoOrdenCargaRepository.findById(1)).thenReturn(Optional.of(estadoOrden));
-        when(transportistaRepository.findById(1)).thenReturn(Optional.of(transportista));
-        when(lugarOperativoRepository.findById(1)).thenReturn(Optional.of(planta));
-        when(lugarOperativoRepository.findById(2)).thenReturn(Optional.of(destino));
-        when(combustibleRepository.findById(1)).thenReturn(Optional.of(combustible));
-        when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuarioBase));
+        when(ordenCargaRepository.findByNumeroRemito(anyString())).thenReturn(Optional.empty());
+        mockEntidadesCompletas(camion, acoplado, transportista, planta, destino, combustible, estadoOrden);
 
         when(ordenCargaRepository.save(any(OrdenCarga.class))).thenAnswer(invocation -> {
             OrdenCarga ordenGuardada = invocation.getArgument(0);
@@ -212,75 +226,83 @@ public class OrdenCargaServiceTest {
             return ordenGuardada;
         });
 
+        when(usuarioRepository.findByRolAndLugarOperativo(eq("JEFE_ESTACION"), any()))
+        .thenReturn(Collections.emptyList());
+
         var resultado = ordenCargaService.guardarNuevaOrdenCarga(dtoValido);
 
         assertNotNull(resultado);
-        assertEquals("REM-001", resultado.numeroRemito());
+        assertNotNull(resultado.numeroRemito());
+        assertTrue(resultado.numeroRemito().startsWith("REM-"));
+        assertTrue(resultado.numeroRemito().contains("2026"));
+        assertEquals("COT-MOCK-1234", resultado.cot());
         assertEquals("Felfort", resultado.plantaDespacho());
         assertEquals("Showmatch", resultado.estacionDestino());
-
         verify(ordenCargaRepository, times(1)).save(any(OrdenCarga.class));
-
+        verify(arbaService, times(1)).generarCot(any());
     }
 
-    @Test
-    void guardarNuevaOrdenCarga_DebeLanzarExcepcionCuandoRemitoYaExiste() {
-        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.of(new OrdenCarga()));
-
-        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
-            () -> ordenCargaService.guardarNuevaOrdenCarga(dtoValido)
-        );
-
-        assertEquals("El número de remito ya existe en el sistema.", excepcion.getMessage());
+   @Test
+    void guardarNuevaOrdenCarga_DebeReintentarRemitoSiExiste() {
         
-        //Verifica que no se guardo la orden de carga en la base de datos
-        verify(ordenCargaRepository, never()).save(any());
-    }
+        when(ordenCargaRepository.findByNumeroRemito(anyString()))
+            .thenReturn(Optional.of(new OrdenCarga())) 
+            .thenReturn(Optional.empty());             
 
-
-    @Test 
-    void guardarNuevaOrdenCarga_DebeLanzarExcepcionCuandoCotYaExiste() {
-        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
-        when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.of(new OrdenCarga()));
-
-        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
-            () -> ordenCargaService.guardarNuevaOrdenCarga(dtoValido)
+        var emp = empresa(1);
+        var disp = estadoVehiculo("Disponible");
+        var combustible = new Combustible(1, "Nafta", "1203", "Clase 3", 0.74, 15.0);
+        mockEntidadesCompletas(
+            camion(1, emp, disp), acoplado(1, emp, disp, 5000.0),
+            transportista(1, usuario("R", "F", "LEG-001")),
+            lugar(1, "Planta"), lugar(2, "Destino"),
+            combustible, new EstadoOrdenCarga(1, "Pendiente")
         );
+        when(ordenCargaRepository.save(any())).thenAnswer(inv -> {
+            OrdenCarga o = inv.getArgument(0);
+            o.setId(1);
+            return o;
+        });
+        when(usuarioRepository.findByRolAndLugarOperativo(eq("JEFE_ESTACION"), any()))
+            .thenReturn(Collections.emptyList());
 
-        assertEquals("El COT ya existe en el sistema.", excepcion.getMessage());
-        
-        verify(ordenCargaRepository, never()).save(any());
+        var resultado = ordenCargaService.guardarNuevaOrdenCarga(dtoValido);
+
+        assertNotNull(resultado);
+        // findByNumeroRemito se llamó 2 veces (1 colisión + 1 ok)
+        verify(ordenCargaRepository, times(2)).findByNumeroRemito(anyString());
     }
 
     @Test
     void guardarNuevaOrdenCarga_DebeLanzarExcepcionCuandoLitrosSonCero() {
 
         var dto = new OrdenCargaRequestDTO(
-            "REM-123", "COT-123", 1,1,1,1,2,1,1,1,1,
-            0.0, 0.0, null, null, null, 0.0, 0.0, "Obs", false, false);
-
-        when(ordenCargaRepository.findByNumeroRemito("REM-123")).thenReturn(Optional.empty());
-        when(ordenCargaRepository.findByCot("COT-123")).thenReturn(Optional.empty());
+             1,
+             1,
+             1,1,2,1,1,1,1,
+            0.0, 0.0, 
+            0.0, null, null, 
+            null, 0.0, "Obs", false, false);
 
         IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
         () -> ordenCargaService.guardarNuevaOrdenCarga(dto)
 
         );
 
-        assertEquals("Los litros cargados son obligatorios.", excepcion.getMessage());
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+        () -> ordenCargaService.guardarNuevaOrdenCarga(dto));
 
+        assertEquals("Los litros cargados son obligatorios.", excepcion.getMessage());
         verify(ordenCargaRepository, never()).save(any());
+        verify(arbaService, never()).generarCot(any());
     }
 
     @Test
     void guardarNuevaOrdenCarga_DebeLanzarExepcionCuandoPlantaYDestinoSonIguales() {
 
         var dto = new OrdenCargaRequestDTO(
-            "REM-123", "COT-123", 1,1,1,1,1,1,1,1,1,
-            5000.0, 0.0, null, null, null, 0.0, 0.0, "Obs", false, false);
-
-            when(ordenCargaRepository.findByNumeroRemito("REM-123")).thenReturn(Optional.empty());
-            when(ordenCargaRepository.findByCot("COT-123")).thenReturn(Optional.empty());
+             1,1,1,1,1,1,1,1,1,
+            5000.0, 0.0, 0.0, null, null, null, 0.0, "Obs", false, false);
 
             IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
             () -> ordenCargaService.guardarNuevaOrdenCarga(dto));
@@ -288,14 +310,11 @@ public class OrdenCargaServiceTest {
             assertEquals("La planta de despacho y el destino no pueden ser iguales.", excepcion.getMessage());
 
             verify(ordenCargaRepository, never()).save(any());
+            verify(arbaService, never()).generarCot(any());
     }
 
     @Test
     void guardarNuevaOrdenCarga_DebeLanzarExcepcionCuandoCamionNoDisponible() {
-
-        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
-        when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.empty());
-
         var emp = empresa(1);
         var camion = camion(1, emp, estadoVehiculo("Mantenimiento"));
         var acoplado = acoplado(1, emp, estadoVehiculo("Disponible"), 5000.0);
@@ -308,15 +327,12 @@ public class OrdenCargaServiceTest {
         assertEquals("El camión no está disponible.", excepcion.getMessage());
 
         verify(ordenCargaRepository, never()).save(any());
+        verify(arbaService, never()).generarCot(any());
 
     }
 
     @Test
     void guardarNuevaOrdenCarga_DebeLanzarExcepcionCuandoAcopladoNoDisponible() {
-
-        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
-        when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.empty());
-
         var emp = empresa(1);
         var camion = camion(1, emp, estadoVehiculo("Disponible"));
         var acoplado = acoplado(1, emp, estadoVehiculo("Mantenimiento"), 5000.0);
@@ -334,8 +350,6 @@ public class OrdenCargaServiceTest {
     @Test
     void guardarNuevaOrdenCarga_DebeLanzarExcepcionCuandoLitrosExcedenCapacidadAcoplado() {
 
-        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
-        when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.empty());
 
         var emp = empresa(1);
         var disp = estadoVehiculo("Disponible");
@@ -356,8 +370,6 @@ public class OrdenCargaServiceTest {
     @Test
     void guardarNuevaOrdenCarga_DebeLanzarExcepcionCuandoCamionYAcopladoSonDeDistintasEmpresa() {
         
-        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
-        when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.empty());
 
         var disp = estadoVehiculo("Disponible");
         var camion = camion(1, empresa(1), disp);
@@ -859,17 +871,14 @@ public class OrdenCargaServiceTest {
         var ordenExistente = new OrdenCarga();
         ordenExistente.setId(1);
         ordenExistente.setNumeroRemito("REM-VIEJO");
+        ordenExistente.setCot("COT-VIEJO");
         ordenExistente.setEstadoOrdenCarga(estadoOrden("Pendiente"));
+        var emp = empresa(1);
+        var disp = estadoVehiculo("Disponible");
         ordenExistente.setCamion(camion(1, empresa(1), estadoVehiculo("Disponible")));
         ordenExistente.setAcoplado(acoplado(1, empresa(1), estadoVehiculo("Disponible"), 6000.0));
 
-        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(ordenExistente));
-        
-        when(ordenCargaRepository.findByNumeroRemito(dtoValido.numeroRemito())).thenReturn(Optional.empty());
-        when(ordenCargaRepository.findByCot(dtoValido.cot())).thenReturn(Optional.empty());
-
-        var emp = empresa(1);
-        var disp = estadoVehiculo("Disponible");
+        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(ordenExistente));  
         when(vehiculoRepository.findById(1)).thenReturn(Optional.of(camion(1, emp, disp)));
         when(acopladoRepository.findById(1)).thenReturn(Optional.of(acoplado(1, emp, disp, 6000.0)));
         when(transportistaRepository.findById(1)).thenReturn(Optional.of(transportista(1, usuario("T", "T", "L-1"))));
@@ -878,16 +887,17 @@ public class OrdenCargaServiceTest {
         when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuario("O", "O", "L-2")));
         when(combustibleRepository.findById(1)).thenReturn(Optional.of(new Combustible(1, "Nafta", "1", "1", 1.0, 1.0)));
         when(estadoOrdenCargaRepository.findById(1)).thenReturn(Optional.of(estadoOrden("Pendiente")));
-
         when(ordenCargaRepository.save(any(OrdenCarga.class))).thenAnswer(i -> i.getArgument(0));
 
         var resultado = ordenCargaService.editarOrdenCarga(1, dtoValido);
 
         assertNotNull(resultado);
-        assertEquals(dtoValido.numeroRemito(), resultado.numeroRemito());
+        assertEquals("REM-VIEJO", resultado.numeroRemito());
+        assertEquals("COT-VIEJO", resultado.cot());
         assertFalse(ordenExistente.getConfirmado()); // Verifica que se limpió la confirmación
         assertNull(ordenExistente.getMotivoRechazo()); // Verifica que se limpió el motivo
         verify(ordenCargaRepository, times(1)).save(ordenExistente);
+        verify(arbaService, never()).generarCot(any());
     }
 
     @Test
@@ -935,63 +945,21 @@ public class OrdenCargaServiceTest {
     }
 
     @Test
-    void editarOrdenCarga_DebeLanzarExcepcionCuandoRemitoYaExisteEnOtraOrden() {
-        var orden = new OrdenCarga();
-        orden.setId(1);
-        orden.setEstadoOrdenCarga(estadoOrden("Pendiente"));
-        var otraOrden = new OrdenCarga();
-        otraOrden.setId(99);
-        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
-        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.of(otraOrden));
-
-        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
-            () -> ordenCargaService.editarOrdenCarga(1, dtoValido)
-        );
-
-        assertEquals("El número de remito ya existe en otra orden del sistema.", excepcion.getMessage());
-        verify(ordenCargaRepository, never()).save(any());
-    }
-
-    @Test
-    void editarOrdenCarga_DebeLanzarExcepcionCuandoCotYaExisteEnOtraOrden() {
-        var estado = new EstadoOrdenCarga();
-        estado.setNombre("Pendiente");
-        var orden = new OrdenCarga();
-        orden.setId(1);
-        orden.setEstadoOrdenCarga(estado);
-
-        var otraOrden = new OrdenCarga();
-        otraOrden.setId(99);
-
-        when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
-        when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.of(otraOrden));
-
-        IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
-            () -> ordenCargaService.editarOrdenCarga(1, dtoValido)
-        );
-
-        assertEquals("El COT ya existe en otra orden del sistema.", excepcion.getMessage());
-        verify(ordenCargaRepository, never()).save(any());
-    }
-
-    @Test
     void editarOrdenCarga_DebeLanzarExcepcionCuandoLitrosSonCero() {
         var orden = new OrdenCarga();
         orden.setId(1);
         orden.setEstadoOrdenCarga(estadoOrden("Pendiente"));
-        var dtoSinLitros = new OrdenCargaRequestDTO(
-            "REM-001", "COT-001", 1,1,1,1,2,1,1,1,1,
-            0.0, 0.0, null, null, null, 0.0, 0.0, "Obs", false, false);
-
         when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
-        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
-        when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.empty());
+
+        var dtoSinLitros = new OrdenCargaRequestDTO(
+         1,1,1,1,2,1,1,1,1,
+            0.0, 0.0, 0.0, null, null, null, 0.0, "Obs", false, false);
 
         IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
             () -> ordenCargaService.editarOrdenCarga(1, dtoSinLitros)
         );
 
-        assertEquals("Los litros cargados son obligatorios y deben ser mayores a cero.", excepcion.getMessage());
+        assertEquals("Los litros cargados son obligatorios.", excepcion.getMessage());
     }
 
     @Test
@@ -999,13 +967,12 @@ public class OrdenCargaServiceTest {
         var orden = new OrdenCarga();
         orden.setId(1);
         orden.setEstadoOrdenCarga(estadoOrden("Pendiente"));
-        var dtoIgual = new OrdenCargaRequestDTO(
-            "REM-001", "COT-001", 1,1,1,1,1,1,1,1,1,
-            5000.0, 0.0, null, null, null, 0.0, 0.0, "Obs", false, false);
-
         when(ordenCargaRepository.findById(1)).thenReturn(Optional.of(orden));
-        when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
-        when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.empty());
+
+        var dtoIgual = new OrdenCargaRequestDTO(
+           1,1,1,1,1,1,1,1,1,
+            5000.0, 0.0, 0.0, null, null, null, 0.0, "Obs", false, false);
+
 
         IllegalArgumentException excepcion = assertThrows(IllegalArgumentException.class,
             () -> ordenCargaService.editarOrdenCarga(1, dtoIgual)
@@ -1183,8 +1150,6 @@ public class OrdenCargaServiceTest {
 
 @Test
 void guardarNuevaOrdenCarga_DebeNotificarJefeDeEstacionCuandoExiste() {
-    when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
-    when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.empty());
 
     var emp = empresa(1);
     var disp = estadoVehiculo("Disponible");
@@ -1206,6 +1171,9 @@ void guardarNuevaOrdenCarga_DebeNotificarJefeDeEstacionCuandoExiste() {
     when(combustibleRepository.findById(1)).thenReturn(Optional.of(combustible));
     when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuarioBase));
     when(rutaRepository.findById(any())).thenReturn(Optional.of(new Ruta()));
+
+    mockArba();
+
     when(ordenCargaRepository.save(any(OrdenCarga.class))).thenAnswer(inv -> {
         OrdenCarga o = inv.getArgument(0);
         o.setId(100);
@@ -1221,12 +1189,11 @@ void guardarNuevaOrdenCarga_DebeNotificarJefeDeEstacionCuandoExiste() {
 
     verify(notificacionService, times(1))
         .crearNotificacion(eq("LEG-JEFE"), anyString());
+    verify(arbaService, times(1)).generarCot(any());
 }
 
 @Test
 void guardarNuevaOrdenCarga_DebeNoNotificarCuandoNoHayJefeEstacion() {
-    when(ordenCargaRepository.findByNumeroRemito("REM-001")).thenReturn(Optional.empty());
-    when(ordenCargaRepository.findByCot("COT-001")).thenReturn(Optional.empty());
 
     var emp = empresa(1);
     var disp = estadoVehiculo("Disponible");
@@ -1244,6 +1211,9 @@ void guardarNuevaOrdenCarga_DebeNoNotificarCuandoNoHayJefeEstacion() {
     when(combustibleRepository.findById(1)).thenReturn(Optional.of(new Combustible(1, "Nafta", "1203", "Clase 3", 0.74, 15.0)));
     when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuarioBase));
     when(rutaRepository.findById(any())).thenReturn(Optional.of(new Ruta()));
+
+    mockArba();
+
     when(ordenCargaRepository.save(any(OrdenCarga.class))).thenAnswer(inv -> {
         OrdenCarga o = inv.getArgument(0);
         o.setId(100);
@@ -1257,6 +1227,7 @@ void guardarNuevaOrdenCarga_DebeNoNotificarCuandoNoHayJefeEstacion() {
     ordenCargaService.guardarNuevaOrdenCarga(dtoValido);
 
     verify(notificacionService, never()).crearNotificacion(anyString(), anyString());
+    verify(arbaService, times(1)).generarCot(any());
 }
 
 

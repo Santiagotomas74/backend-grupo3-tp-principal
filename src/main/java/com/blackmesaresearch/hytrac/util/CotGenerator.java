@@ -2,11 +2,13 @@ package com.blackmesaresearch.hytrac.util;
 
 import java.time.LocalDate;
 import java.util.UUID;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CotGenerator {
 
 
-    public static String generar() {
+    public String generar() {
 
         String fecha =
                 LocalDate.now()
