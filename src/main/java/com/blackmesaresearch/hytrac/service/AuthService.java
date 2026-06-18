@@ -64,6 +64,8 @@ public class AuthService {
                 // RESPONSE
                 // =========================
 
+                boolean esAdmin = usuario.getRol().getNombre().equalsIgnoreCase("ADMIN");
+
                 return new LoginResponseDTO(
                                 true,
                                 token,
@@ -71,6 +73,7 @@ public class AuthService {
                                 usuario.getNombre(),
                                 usuario.getApellido(),
                                 usuario.getEmail(),
-                                usuario.getRol().getNombre());
+                                usuario.getRol().getNombre(),
+                                esAdmin || Boolean.TRUE.equals(usuario.getAceptoTerminos()));
         }
 }

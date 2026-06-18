@@ -34,7 +34,7 @@ class AuthControllerTest {
 
     @Test
     void login_Retorna200() throws Exception {
-        var response = new LoginResponseDTO(false, "token", 1, "Juan", "Perez", "prueba@test.com", "OPERADOR");
+        var response = new LoginResponseDTO(false, "token", 1, "Juan", "Perez", "prueba@test.com", "OPERADOR", false);
         when(authService.login(any())).thenReturn(response);
 
         String body = "{\"email\": \"juan@test.com\", \"password\": \"123\"}";

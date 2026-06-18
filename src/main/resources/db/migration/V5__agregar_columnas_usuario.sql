@@ -1,0 +1,5 @@
+ALTER TABLE "Usuario" 
+ADD COLUMN acepto_terminos BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE "Usuario"  
+ADD COLUMN fecha_aceptacion_terminos TIMESTAMP WITHOUT TIME ZONE;

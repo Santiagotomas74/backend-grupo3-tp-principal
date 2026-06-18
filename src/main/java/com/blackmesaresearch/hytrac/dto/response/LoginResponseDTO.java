@@ -10,7 +10,8 @@ public record LoginResponseDTO(
                 String apellido,
                 String email,
 
-                String rol
+                String rol,
+                boolean aceptoTerminos
 
 ) {
 }

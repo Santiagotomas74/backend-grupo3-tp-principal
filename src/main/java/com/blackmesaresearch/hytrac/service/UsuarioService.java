@@ -1,5 +1,6 @@
 package com.blackmesaresearch.hytrac.service;
 
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -103,6 +104,15 @@ public class UsuarioService implements UserDetailsService {
 
                 usuarioRepository.save(nuevoUsuario);
 
+        }
+
+        public void aceptarTerminos(String legajo) {
+        Usuario usuario = usuarioRepository.findByLegajo(legajo)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
+
+        usuario.setAceptoTerminos(true);
+        usuario.setFechaAceptacionTerminos(LocalDateTime.now());
+        usuarioRepository.save(usuario);
         }
 
         // AUX Generador Legajo //
