@@ -22,39 +22,39 @@ public class StatsTransportista {
   private Transportista transportista;
 
   @Column(name = "total_ordenes")
-  private Integer totalOrdenes;
+  private Integer totalOrdenes = 0;
 
   @Column(name = "largas")
-  private Integer largas;
+  private Integer largas = 0;
 
   @Column(name = "largas_exitosas")
-  private Integer largasExitosas;
+  private Integer largasExitosas = 0;
 
   @Column(name = "medias")
-  private Integer medias;
+  private Integer medias = 0;
 
   @Column(name = "medias_exitosas")
-  private Integer mediasExitosas;
+  private Integer mediasExitosas = 0;
 
   @Column(name = "cortas")
-  private Integer cortas;
+  private Integer cortas = 0;
 
   @Column(name = "cortas_exitosas")
-  private Integer cortasExitosas;
+  private Integer cortasExitosas = 0;
 
   @Column(name = "pesadas")
-  private Integer pesadas;
+  private Integer pesadas = 0;
 
   @Column(name = "pesadas_exitosas")
-  private Integer pesadasExitosas;
+  private Integer pesadasExitosas = 0;
 
   @Column(name = "livianas")
-  private Integer livianas;
+  private Integer livianas = 0;
 
   @Column(name = "livianas_exitosas")
-  private Integer livianasExitosas;
+  private Integer livianasExitosas = 0;
 
   @Column(name = "incidencias_graves")
-  private Integer incidenciasGraves;
+  private Integer incidenciasGraves = 0;
 
 }
