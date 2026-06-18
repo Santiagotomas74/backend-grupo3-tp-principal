@@ -2,7 +2,6 @@ package com.blackmesaresearch.hytrac.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -50,51 +49,7 @@ public class SecurityConfig {
                 )
                 
                 .authorizeHttpRequests(auth -> auth
-                        
-                    // Publico
-                    .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/api/scanner/**").permitAll()
-                    .requestMatchers("/api/swagger-ui/**", "/api/v3/api-docs/**", "/api/api-docs/**","/swagger-ui/**","/v3/api-docs/**").permitAll()
-
-
-                     // Transportista
-                    .requestMatchers(HttpMethod.POST, "/api/transportistas/seleccionar-optimos").hasAuthority("OPERADOR")
-                    .requestMatchers(HttpMethod.POST,"/api/transportistas/alta").hasAuthority("ADMIN")   
-                    .requestMatchers(HttpMethod.POST, "/api/transportistas/incidencia").hasAnyAuthority("OPERADOR", "SUPERVISOR", "ADMIN", "TRANSPORTISTA")
-                    .requestMatchers(HttpMethod.GET, "/api/transportistas/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN", "TRANSPORTISTA", "JEFE_ESTACION")
-                    .requestMatchers(HttpMethod.GET, "/api/transportista/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN", "TRANSPORTISTA", "JEFE_ESTACION")
-
-                    // Ordenes
-                    .requestMatchers(HttpMethod.POST, "/api/ordenes/crear").hasAuthority("OPERADOR")
-                    .requestMatchers(HttpMethod.PUT, "/api/ordenes/*/editar").hasAuthority("OPERADOR")
-
-                    //Especificos por ahora
-                    .requestMatchers(HttpMethod.GET, "/api/supervisor/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN")
-                    .requestMatchers("/api/supervisor/**").hasAuthority("SUPERVISOR")  
-                    .requestMatchers("/api/transportista/**").hasAuthority("TRANSPORTISTA")
-                    .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                    .requestMatchers("/api/jefe-estacion/**").hasAuthority("JEFE_ESTACION")
-                    
-
-                    //Autenticados
-                    .requestMatchers(HttpMethod.GET, "/api/ordenes/**").authenticated()
-                    .requestMatchers("/api/notificaciones/**").authenticated()
-
-                    //por ahora para el uso del sistema facil
-                    .requestMatchers("/api/vehiculos/**").authenticated()
-                    .requestMatchers("/api/supervisor/incidencias").authenticated()
-                    .requestMatchers("/api/stats/**").authenticated()
-                    .requestMatchers("/api/rutas/**").authenticated()
-                    .requestMatchers("/api/reportes/**").authenticated()
-                    .requestMatchers("/api/provincias/get").authenticated()
-                    .requestMatchers("/api/ouch").authenticated()
-                    .requestMatchers("/api/lugares-operativos/**").authenticated()
-                    .requestMatchers("/api/entidades/**").authenticated()
-                    .requestMatchers("/api/combustibles").authenticated()
-                    .requestMatchers("/api/bcra/**").authenticated()
-                    .requestMatchers("/api/auditoria/**").authenticated()
-
-                    .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
 
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
