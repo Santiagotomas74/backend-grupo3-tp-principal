@@ -53,34 +53,28 @@ public class SecurityConfig {
                         
                     // Publico
                     .requestMatchers("/api/auth/**").permitAll()
-
-                    // Scaner. TODO: Cambiar esto
                     .requestMatchers("/api/scanner/**").permitAll()
-
-                    // Swagger
                     .requestMatchers("/api/swagger-ui/**", "/api/v3/api-docs/**", "/api/api-docs/**","/swagger-ui/**","/v3/api-docs/**").permitAll()
 
-                    //Especificos por ahora
-                    .requestMatchers(HttpMethod.GET, "/api/supervisor/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN")
+
+                     // Transportista
+                    .requestMatchers(HttpMethod.POST, "/api/transportistas/seleccionar-optimos").hasAuthority("OPERADOR")
+                    .requestMatchers(HttpMethod.POST,"/api/transportistas/alta").hasAuthority("ADMIN")   
+                    .requestMatchers(HttpMethod.POST, "/api/transportistas/incidencia").hasAnyAuthority("OPERADOR", "SUPERVISOR", "ADMIN", "TRANSPORTISTA")
                     .requestMatchers(HttpMethod.GET, "/api/transportistas/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN", "TRANSPORTISTA", "JEFE_ESTACION")
                     .requestMatchers(HttpMethod.GET, "/api/transportista/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN", "TRANSPORTISTA", "JEFE_ESTACION")
 
-                    // Solo admin
-                    .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                    .requestMatchers("/api/transportistas/alta").hasAuthority("ADMIN")     
-                    // Jefe de ESTACION
-                    .requestMatchers("/api/jefe-estacion/**").hasAuthority("JEFE_ESTACION")
-
-                     // Operador Acciones especificas
+                    // Ordenes
                     .requestMatchers(HttpMethod.POST, "/api/ordenes/crear").hasAuthority("OPERADOR")
                     .requestMatchers(HttpMethod.PUT, "/api/ordenes/*/editar").hasAuthority("OPERADOR")
-                    .requestMatchers(HttpMethod.POST, "/api/transportistas/seleccionar-optimos").hasAuthority("OPERADOR")
-                    .requestMatchers(HttpMethod.POST, "/api/transportistas/incidencia").hasAnyAuthority("OPERADOR", "SUPERVISOR", "ADMIN", "TRANSPORTISTA")
 
-                    // Supervisor
-                    .requestMatchers("/api/supervisor/**").hasAuthority("SUPERVISOR")    
-                    // Transportista 
+                    //Especificos por ahora
+                    .requestMatchers(HttpMethod.GET, "/api/supervisor/**").hasAnyAuthority("SUPERVISOR", "OPERADOR", "ADMIN")
+                    .requestMatchers("/api/supervisor/**").hasAuthority("SUPERVISOR")  
                     .requestMatchers("/api/transportista/**").hasAuthority("TRANSPORTISTA")
+                    .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                    .requestMatchers("/api/jefe-estacion/**").hasAuthority("JEFE_ESTACION")
+                    
 
                     //Autenticados
                     .requestMatchers(HttpMethod.GET, "/api/ordenes/**").authenticated()
