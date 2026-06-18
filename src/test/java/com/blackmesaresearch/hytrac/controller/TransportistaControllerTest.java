@@ -43,7 +43,7 @@ class TransportistaControllerTest {
 
     private TransportistaResponseDTO dtoResponse() {
         return new TransportistaResponseDTO(
-            1, "Juan", "Perez", "20-12345678-9", "LEG-001", java.time.LocalDate.now(),"MONOTRIBUTISTA"
+            1, "Juan", "Perez", "20-12345678-9", "LEG-001", java.time.LocalDate.now(),"MONOTRIBUTISTA", null
         );
     }
 

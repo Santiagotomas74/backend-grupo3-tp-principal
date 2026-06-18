@@ -252,15 +252,23 @@ public class SeleccionTransportistasService {
     System.out.println("=== Transportistas seleccionados ===");
     for (Transportista transportista : resultado) {
       String probabilityLabel = probabilidadesByTransportistaId.containsKey(transportista.getId())
-          ? String.format("%.4f", probabilidadesByTransportistaId.get(transportista.getId()))
-          : "newbie";
+          ? formatProbability(probabilidadesByTransportistaId.get(transportista.getId()))
+          : "-1%";
       System.out.println("id=" + transportista.getId()
           + ", probability=" + probabilityLabel);
     }
 
     return resultado.stream()
-        .map(TransportistaResponseDTO::from)
+        .map(t -> TransportistaResponseDTO.from(t,
+            probabilidadesByTransportistaId.containsKey(t.getId())
+                ? formatProbability(probabilidadesByTransportistaId.get(t.getId()))
+                : "-1%"))
         .toList();
+  }
+
+  private String formatProbability(double probability) {
+    double percent = Math.max(0.0, Math.min(100.0, probability * 100));
+    return String.format("%.2f%%", percent);
   }
 
 }

@@ -16,11 +16,17 @@ public record TransportistaResponseDTO(
 
         LocalDate inicioActividad,
 
-        String tipoVinculo
+        String tipoVinculo,
+
+        String probabilidadExito
 
 ) {
 
     public static TransportistaResponseDTO from(Transportista t) {
+        return from(t, null);
+    }
+
+    public static TransportistaResponseDTO from(Transportista t, String probabilidadExito) {
         var usuario = t.getUsuario();
         var tipoVinculo = t.getTipoVinculo();
 
@@ -36,7 +42,8 @@ public record TransportistaResponseDTO(
             t.getCuit(),
             legajo,
             t.getInicioActividad(),
-            tipoVinculoNombre);
+            tipoVinculoNombre,
+            probabilidadExito);
     }
 
 }
