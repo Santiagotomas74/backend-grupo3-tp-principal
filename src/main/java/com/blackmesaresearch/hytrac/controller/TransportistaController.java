@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.blackmesaresearch.hytrac.dto.request.ActualizarVencimientoDocumentoRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.AltaTransportistaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.ReportarIncidenciaRequestDTO;
 import com.blackmesaresearch.hytrac.dto.request.TransportistaOptimoRequestDTO;
@@ -19,6 +21,7 @@ import com.blackmesaresearch.hytrac.dto.response.TransportistaResponseDTO;
 import com.blackmesaresearch.hytrac.service.IncidenciaService;
 import com.blackmesaresearch.hytrac.service.SeleccionTransportistasService;
 import com.blackmesaresearch.hytrac.service.TransportistaService;
+import com.blackmesaresearch.hytrac.service.DocumentacionService;
 
 @RestController
 @RequestMapping("/api/transportistas")
@@ -28,13 +31,15 @@ public class TransportistaController {
     private final TransportistaService transportistaService;
     private final IncidenciaService incidenciaService;
     private final SeleccionTransportistasService seleccionTransportistasService;
+    private final DocumentacionService documentacionService;
 
     public TransportistaController(
 
             TransportistaService transportistaService,
 
             IncidenciaService incidenciaService,
-            SeleccionTransportistasService seleccionTransportistasService
+            SeleccionTransportistasService seleccionTransportistasService,
+            DocumentacionService documentacionService   
 
     ) {
 
@@ -43,6 +48,7 @@ public class TransportistaController {
         this.incidenciaService = incidenciaService;
 
         this.seleccionTransportistasService = seleccionTransportistasService;
+        this.documentacionService = documentacionService;
     }
 
     // =========================
@@ -138,5 +144,39 @@ public class TransportistaController {
         }
 
 
+}
+
+@PutMapping("/documentacion/{id}/vencimiento")
+public ResponseEntity<?> actualizarVencimiento(
+        @PathVariable Integer id,
+        @RequestBody ActualizarVencimientoDocumentoRequestDTO dto) {
+
+    try {
+
+        documentacionService.actualizarFechaVencimiento(
+                id,
+                dto.fechaVencimiento()
+        );
+
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "success", true,
+                        "message",
+                        "Fecha de vencimiento actualizada correctamente."
+                )
+        );
+
+
+    } catch (IllegalArgumentException e) {
+
+        return ResponseEntity.badRequest().body(
+                Map.of(
+                        "success", false,
+                        "message",
+                        e.getMessage()
+                )
+        );
+    }
 }
 }

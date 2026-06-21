@@ -9,5 +9,7 @@ import com.blackmesaresearch.hytrac.model.core.Documentacion;
 
 @Repository
 public interface DocumentacionRepository extends JpaRepository<Documentacion, Integer> {
+
     List<Documentacion> findByTransportistaId(Integer transportistaId);
+
 }
