@@ -224,8 +224,9 @@ public class SeleccionTransportistasService {
 
     }
 
-    // ordenar regulares de menor a mayor segun probabilidad
-    probabilidadesExitoRegulares.sort(Comparator.comparing(Pair::getRight));
+    // ordenar regulares segun probabilidad
+    probabilidadesExitoRegulares.sort(
+        Comparator.comparing(Pair::getRight, Comparator.reverseOrder()));
 
     // mezclar novatos
     Collections.shuffle(novatos);
